@@ -99,7 +99,6 @@ FIELD_KONTRAK: dict[str, set[str]] = {
 # bukan menyelinap tanpa ada yang sadar.
 MODUL_AI: dict[str, str] = {
     "cost-calculator": "cost_calculator",
-    "menu-engineering": "menu_engineering",
     "menu-ideas": "menu_ideas",
     "marketing-content": "marketing_content",
     "carousel-content": "carousel_content",
