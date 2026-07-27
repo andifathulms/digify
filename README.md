@@ -6,6 +6,7 @@ lalu membuatkan konten promosi siap posting.
 - Produk & bisnis → [`PRD.md`](PRD.md)
 - Kontrak endpoint (mengikat) → [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md)
 - Catatan keputusan teknis → [`docs/DECISIONS.md`](docs/DECISIONS.md)
+- Cara deploy & checklist keamanan → [`docs/PRODUKSI.md`](docs/PRODUKSI.md)
 - Instruksi untuk Claude Code → [`CLAUDE.md`](CLAUDE.md)
 
 ## Stack
@@ -56,13 +57,23 @@ Kalau migrasi kusut: `docker compose down -v` lalu `docker compose up --build`.
 
 ## Produksi
 
+Panduan lengkap, uji restore backup, dan checklist keamanan ada di
+[`docs/PRODUKSI.md`](docs/PRODUKSI.md). Ringkasnya:
+
 ```bash
-cp .env.example .env          # isi nilai produksi, DJANGO_DEBUG=0
+cp .env.example .env          # isi nilai produksi
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Nginx melayani frontend di `/` dan mem-proxy `/api` ke backend (satu origin, CORS tidak dipakai).
-Timeout diset 120 detik karena panggilan AI wajar memakan 10–30 detik.
+Nginx melayani semuanya di satu domain. Browser tidak pernah menghubungi Django
+langsung — Next.js yang meneruskan `/api` sambil memasang token dari cookie
+httpOnly, jadi CORS tidak dipakai sama sekali.
+
+Timeout diset 120 detik di Nginx dan Gunicorn. Default-nya (60 dan 30 detik)
+akan memutus panggilan AI yang sebenarnya berhasil.
+
+**Sebelum jual publik:** uji restore backup sekali, dan kerjakan checklist
+keamanan di `docs/PRODUKSI.md`.
 
 ## Struktur
 

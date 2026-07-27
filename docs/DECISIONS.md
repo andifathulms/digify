@@ -50,6 +50,32 @@ Tidak ada regex atas output model.
 
 ---
 
+## 2026-07-28 · Berkas font disertakan di repo, bukan diambil dari Google Fonts saat build
+
+**Keputusan.** Font disimpan di `frontend/src/fonts/` dan dimuat lewat `next/font/local`,
+bukan `next/font/google`.
+
+**Alasan.** `next/font/google` mengunduh berkas font pada saat `npm run build`, bukan
+saat aplikasi berjalan. Artinya **deploy bergantung pada layanan pihak ketiga**: kalau
+Google sedang tidak terjangkau, atau VPS-nya di balik jaringan yang membatasi, build
+GAGAL dan aplikasi tidak bisa naik sama sekali.
+
+Ini bukan kekhawatiran teoretis — build produksi di sini benar-benar gagal dengan
+`Failed to fetch 'IBM Plex Mono' from Google Fonts` sebelum diganti.
+
+**Isinya.** Subset latin saja (Bahasa Indonesia tidak butuh yang lain). Fraunces dan
+Plus Jakarta Sans berupa font variabel — satu berkas untuk seluruh rentang berat.
+Totalnya di bawah 130 KB.
+
+**Terverifikasi.** `docker build --target prod` berhasil tanpa akses jaringan sama
+sekali, dan PNG carousel tetap keluar dengan font yang benar.
+
+**Ditolak.** `next/font/google` (deploy bisa gagal karena sebab di luar kendali kita);
+memuat font lewat `<link>` ke Google saat runtime (menambah permintaan ke domain lain
+di HP dengan koneksi lambat, dan bikin teks berkedip).
+
+---
+
 ## 2026-07-28 · Kuota harian disimpan di Postgres, throttle burst di Redis
 
 **Keputusan.** `DailyQuota` (Postgres) adalah sumber kebenaran kuota harian.

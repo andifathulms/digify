@@ -1,28 +1,48 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 
 import "./globals.css";
 
-// display: swap — koneksi lambat tidak boleh membuat teks tak terlihat.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["600", "700"],
+/**
+ * Font disertakan di dalam repo (src/fonts/), bukan diambil dari Google Fonts
+ * saat build.
+ *
+ * Alasannya: `next/font/google` mengunduh berkas font pada saat `npm run build`.
+ * Artinya deploy jadi bergantung pada layanan pihak ketiga — kalau Google
+ * sedang tak terjangkau, atau VPS-nya ada di balik jaringan yang membatasi,
+ * build GAGAL dan aplikasi tidak bisa naik sama sekali. Untuk produk yang
+ * dideploy dari satu VPS, itu ketergantungan yang tidak sepadan.
+ *
+ * Berkasnya subset latin, dan variabel untuk Fraunces & Plus Jakarta Sans
+ * (satu berkas untuk seluruh rentang berat). Total di bawah 130 KB.
+ *
+ * display: "swap" — koneksi lambat tidak boleh membuat teks tak terlihat.
+ */
+
+const fraunces = localFont({
+  src: "../fonts/Fraunces.woff2",
+  weight: "600 700",
   variable: "--font-fraunces",
   display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const jakarta = localFont({
+  src: "../fonts/PlusJakartaSans.woff2",
+  weight: "400 700",
   variable: "--font-jakarta",
   display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const plexMono = localFont({
+  src: [
+    { path: "../fonts/IBMPlexMono-400.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/IBMPlexMono-600.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-plex-mono",
   display: "swap",
+  fallback: ["ui-monospace", "monospace"],
 });
 
 export const metadata: Metadata = {

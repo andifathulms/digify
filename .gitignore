@@ -30,3 +30,6 @@ npm-debug.log*
 
 # Docker volumes / backups
 backups/
+
+# Sertifikat TLS produksi — jangan pernah masuk git
+nginx/certs/
