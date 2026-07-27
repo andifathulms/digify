@@ -8,6 +8,7 @@ from django.urls import path
 
 from apps.optimizer.views.cost_calculator import CostCalculatorView
 from apps.optimizer.views.health import HealthView
+from apps.optimizer.views.menu_engineering import MenuEngineeringView
 from apps.optimizer.views.pricing import PricingView
 from apps.optimizer.views.ranking import RankingView
 
@@ -16,4 +17,5 @@ urlpatterns = [
     path("cost-calculator", CostCalculatorView.as_view(), name="cost-calculator"),
     path("pricing", PricingView.as_view(), name="pricing"),
     path("ranking", RankingView.as_view(), name="ranking"),
+    path("menu-engineering", MenuEngineeringView.as_view(), name="menu-engineering"),
 ]
