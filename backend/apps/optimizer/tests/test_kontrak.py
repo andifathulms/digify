@@ -100,7 +100,6 @@ FIELD_KONTRAK: dict[str, set[str]] = {
 MODUL_AI: dict[str, str] = {
     "cost-calculator": "cost_calculator",
     "menu-engineering": "menu_engineering",
-    "export": "export",
     "waste-tracker": "waste_tracker",
     "menu-ideas": "menu_ideas",
     "marketing-content": "marketing_content",
