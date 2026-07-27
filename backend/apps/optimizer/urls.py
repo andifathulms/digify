@@ -12,6 +12,7 @@ from apps.optimizer.views.health import HealthView
 from apps.optimizer.views.menu_engineering import MenuEngineeringView
 from apps.optimizer.views.pricing import PricingView
 from apps.optimizer.views.ranking import RankingView
+from apps.optimizer.views.waste_tracker import WasteTrackerView
 
 urlpatterns = [
     path("health", HealthView.as_view(), name="health"),
@@ -20,4 +21,5 @@ urlpatterns = [
     path("ranking", RankingView.as_view(), name="ranking"),
     path("menu-engineering", MenuEngineeringView.as_view(), name="menu-engineering"),
     path("export", ExportView.as_view(), name="export"),
+    path("waste-tracker", WasteTrackerView.as_view(), name="waste-tracker"),
 ]
