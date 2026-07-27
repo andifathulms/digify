@@ -8,7 +8,14 @@
 - Success → `200` with the response object described below.
 - Failure → non-2xx with `{ "error": "<pesan Bahasa Indonesia>" }` and nothing else.
 - Money values are whole rupiah (integers). Percentages are numbers, not strings with `%`.
-- Every endpoint enforces a Gemini structured-output JSON schema; the response shape is guaranteed by the schema, not by parsing.
+- **Path dan nama field tetap mengikat, dan itu tidak berubah.**
+- Cara angkanya dihasilkan berubah sejak 28 Juli 2026 (lihat `docs/DECISIONS.md`):
+  - **Tab 1–6 (Profit Engine)** dihitung sepenuhnya oleh aturan di dalam kode kita
+    sendiri. Tidak memanggil AI, tidak berbiaya, tidak memotong kuota harian, dan
+    tetap jalan walau `GEMINI_API_KEY` kosong. Bentuk responsnya dijamin test
+    kontrak, bukan oleh JSON Schema Gemini.
+  - **Tab 7–9 (Growth Engine)** tetap memanggil Gemini dengan structured-output
+    JSON Schema; bentuk responsnya dijamin schema, bukan hasil parsing teks.
 
 ---
 

@@ -137,7 +137,7 @@ export default function Laporan() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung pesan="Sedang menyusun laporan… bisa 10–30 detik." /> : null}
+      {sedangJalan ? <SedangMenghitung pesan="Sedang menyusun laporan…" /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

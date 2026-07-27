@@ -5,6 +5,79 @@ Ditulis supaya Owner (non-IT) dan developer berikutnya bisa mengerti kenapa sesu
 
 ---
 
+## 2026-07-28 · Tab 1–6 (Profit Engine) tidak lagi memakai AI sama sekali
+
+**Keputusan.** Seluruh Profit Engine dihitung oleh aturan di dalam kode kita sendiri.
+Hanya Tab 7–9 (Growth Engine) yang memanggil Gemini.
+
+| Tab | Sekarang | Kenapa |
+|---|---|---|
+| 1 Biaya Menu | Aturan | Parser bahan + tabel konversi satuan |
+| 2 Harga Jual | Aturan | Seluruh keluarannya punya rumus pasti |
+| 3 Ranking | Aturan | Ambang margin + kalimat aksi berisi angka hitungan |
+| 4 Optimasi Menu | Aturan | Matriks menu engineering (Kasavana–Smith), metode baku |
+| 5 Laporan Final | Aturan | Kolomnya memang sudah hitungan; catatan tinggal fakta |
+| 6 Waste Tracker | Aturan | Tabel kategori bahan |
+| 7 Ide Menu | **AI** | Butuh mengarang menu baru — tidak ada rumusnya |
+| 8 Konten Promosi | **AI** | Caption template membuat semua pelanggan seragam di publik |
+| 9/10 Carousel | **AI** | Sama seperti Tab 8. Render gambarnya sendiri tanpa AI |
+
+**Alasan.**
+1. **Angka uang harus bisa diulang.** Pemilik warung memakai angka ini untuk
+   menentukan harga. Hasil yang berbeda tiap kali dihitung ulang membuat dia berhenti
+   percaya — dan konsistensi persis itu yang tidak bisa dijamin model bahasa.
+2. **Bisa dijelaskan.** Kalau dia bertanya "kenapa menu ini disuruh dihentikan?",
+   jawabannya bisa ditunjuk angkanya, bukan "karena AI bilang".
+3. **Biaya.** Panggilan AI turun sekitar 60–70%. Ini langsung mengecilkan risiko utama
+   di `PRD.md` §12: bayar sekali seumur hidup, tapi tagihan AI jalan terus.
+4. **Tetap hidup tanpa kunci API.** Profit Engine berfungsi penuh walau
+   `GEMINI_API_KEY` kosong.
+
+**Yang berubah dari kontrak.** Tidak ada. Path dan nama field sama persis; yang
+berubah cuma dari mana angkanya berasal. Test kontrak tetap menguji kesembilan
+endpoint, ditambah test yang memastikan Tab 1–6 tetap 200 saat kunci API dikosongkan.
+
+**Yang hilang.** Keragaman kalimat. Aksi dan rekomendasi sekarang template berisi
+angka hitungan — tetap spesifik dan bisa dikerjakan, tapi dua warung dengan angka
+mirip akan membaca kalimat yang mirip. Untuk Tab 1–6 itu pertukaran yang sepadan;
+untuk Tab 8–9 tidak, karena hasilnya diposting ke publik.
+
+**Konsekuensi lain.** Endpoint aturan tidak memotong kuota harian. Kuota ada untuk
+menahan biaya AI; memotongnya untuk hitungan yang gratis sama saja menghukum user
+tanpa alasan. `views/base.py` memisahkannya lewat `EndpointAturan` vs `EndpointAI`,
+dan ada test yang membaca flag itu langsung dari view supaya daftarnya tidak bisa
+melenceng diam-diam.
+
+**Ditolak.** Melatih/menjalankan model sendiri (VPS ber-GPU ratusan dolar sebulan,
+biaya tetap yang justru lebih buruk untuk model lifetime, dan Bahasa Indonesianya
+lebih kaku); membuang AI sepenuhnya termasuk Tab 7–9 (Growth Engine adalah setengah
+janji produknya, `PRD.md` §1).
+
+---
+
+## 2026-07-28 · Daftar bahan Tab 1 dibaca apa adanya sebagai takaran satu porsi
+
+**Keputusan.** Parser menjumlahkan bahan persis seperti yang ditulis. Tidak ada
+penskalaan diam-diam terhadap `portionWeight`.
+
+**Alasan.** Menskalakan otomatis butuh menebak total berat resep — mustahil dilakukan
+benar kalau ada "2 butir telur" dan bahan cair. Lebih penting lagi: hasilnya jadi
+tidak bisa dihitung ulang pemilik warung dengan kalkulator di tangannya. Angka biaya
+yang tidak bisa dia buktikan sendiri tidak akan dia pakai untuk menentukan harga.
+
+**Konsekuensinya.** Pengguna harus menulis takaran per porsi. Contoh prefill sudah
+diperbaiki jadi per porsi (Beras 150g, bukan 500g), dan teks bantuan di formnya
+menyebutkan itu.
+
+**Ditolak.** Menskalakan dengan `portionWeight / total berat bahan` (silent, tidak
+bisa diverifikasi user, dan salah untuk bahan cair maupun bahan hitungan).
+
+**Terbuka untuk Owner.** Kalau ternyata pembeli lebih sering menulis takaran sepanci,
+tambahkan isian "resep ini untuk berapa porsi" — tapi itu mengubah kontrak input,
+jadi butuh keputusan Owner lebih dulu.
+
+---
+
 ## 2026-07-28 · Prompt Gemini ditulis ulang dari spesifikasi, bukan disalin dari Express
 
 **Keputusan.** Prompt untuk 9 endpoint ditulis berdasarkan `PRD.md` Bagian 5 dan
