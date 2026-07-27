@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
 import EditorMenu from "@/components/ui/EditorMenu";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
@@ -16,6 +17,7 @@ import type {
   Rekomendasi,
 } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Empat kelompok tindakan, masing-masing punya warna dan kalimat pembukanya sendiri. */
 const KELOMPOK = [
@@ -113,6 +115,7 @@ export default function OptimasiMenu() {
     OptimasiMenuResponse,
     OptimasiMenuRequest
   >("/menu-engineering");
+  const tersimpan = useMenuTersimpan();
 
   return (
     <>
@@ -131,6 +134,36 @@ export default function OptimasiMenu() {
             margin: 0,
             status: "" as const,
           })}
+        />
+
+        <BarisMenuTersimpan
+          jumlahTersimpan={tersimpan.menu?.length ?? 0}
+          onMuat={() =>
+            setMenu(
+              (tersimpan.menu ?? []).map((baris) => ({
+                name: baris.name,
+                cogs: baris.cogs,
+                price: baris.price,
+                weeklySales: baris.weekly_sales,
+                margin: 0,
+                status: baris.status,
+              })),
+            )
+          }
+          onSimpan={() =>
+            tersimpan.simpan(
+              menu.map((baris) => ({
+                name: baris.name,
+                cogs: baris.cogs,
+                price: baris.price,
+                weekly_sales: baris.weeklySales,
+                status: baris.status,
+              })),
+            )
+          }
+          sedangSimpan={tersimpan.sedangSimpan}
+          galat={tersimpan.galat}
+          pesanSimpan={tersimpan.pesanSimpan}
         />
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">

@@ -91,6 +91,13 @@ export function apiPost<TResponse, TBody = unknown>(
   return request<TResponse>(path, { method: "POST", body: JSON.stringify(body) });
 }
 
+export function apiPut<TResponse, TBody = unknown>(
+  path: string,
+  body: TBody,
+): Promise<TResponse> {
+  return request<TResponse>(path, { method: "PUT", body: JSON.stringify(body) });
+}
+
 /** Ambil pesan siap tampil dari error apa pun yang sampai ke komponen. */
 export function pesanError(error: unknown): string {
   if (error instanceof ApiError) return error.message;

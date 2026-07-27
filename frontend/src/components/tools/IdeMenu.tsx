@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu from "@/components/ui/Kartu";
@@ -10,6 +11,7 @@ import { CONTOH_KONDISI, CONTOH_MENU, CONTOH_TARGET_PELANGGAN } from "@/lib/cont
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { IdeMenuRequest, IdeMenuResponse, MenuExisting } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Tab 7 · Ide Menu Baru. */
 export default function IdeMenu() {
@@ -24,6 +26,7 @@ export default function IdeMenu() {
   const { hasil, sedangJalan, galat, jalankan } = useAnalisa<IdeMenuResponse, IdeMenuRequest>(
     "/menu-ideas",
   );
+  const tersimpan = useMenuTersimpan();
 
   function ubahBaris(indeks: number, perubahan: Partial<MenuExisting>) {
     setMenu(menu.map((baris, i) => (i === indeks ? { ...baris, ...perubahan } : baris)));
@@ -80,6 +83,35 @@ export default function IdeMenu() {
             + Tambah menu
           </Button>
         </div>
+
+        <BarisMenuTersimpan
+          jumlahTersimpan={tersimpan.menu?.length ?? 0}
+          onMuat={() =>
+            setMenu(
+              (tersimpan.menu ?? []).map((baris) => ({
+                name: baris.name,
+                price: baris.price,
+                margin: 0,
+              })),
+            )
+          }
+          onSimpan={() =>
+            tersimpan.simpan(
+              menu.map((baris) => ({
+                name: baris.name,
+                // Tab ini tidak menanyakan biaya bahan dan jumlah terjual,
+                // jadi keduanya diisi 0 dan bisa dilengkapi di tab lain.
+                cogs: 0,
+                price: baris.price,
+                weekly_sales: 0,
+                status: "" as const,
+              })),
+            )
+          }
+          sedangSimpan={tersimpan.sedangSimpan}
+          galat={tersimpan.galat}
+          pesanSimpan={tersimpan.pesanSimpan}
+        />
 
         <div className="mt-5 flex flex-col gap-4">
           <FieldTeksPanjang

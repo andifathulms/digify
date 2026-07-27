@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
 import EditorMenu from "@/components/ui/EditorMenu";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -11,6 +12,7 @@ import { CONTOH_MENU } from "@/lib/contoh";
 import { formatRupiah } from "@/lib/format";
 import type { MenuUntukRanking, RankingRequest, RankingResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Tab 3 · Ranking Profitabilitas. */
 export default function Ranking() {
@@ -21,6 +23,7 @@ export default function Ranking() {
   const { hasil, sedangJalan, galat, jalankan } = useAnalisa<RankingResponse, RankingRequest>(
     "/ranking",
   );
+  const tersimpan = useMenuTersimpan();
 
   return (
     <>
@@ -32,6 +35,34 @@ export default function Ranking() {
           menu={menu}
           onUbah={setMenu}
           barisBaru={() => ({ name: "", cogs: 0, price: 0, weeklySales: 0 })}
+        />
+
+        <BarisMenuTersimpan
+          jumlahTersimpan={tersimpan.menu?.length ?? 0}
+          onMuat={() =>
+            setMenu(
+              (tersimpan.menu ?? []).map((baris) => ({
+                name: baris.name,
+                cogs: baris.cogs,
+                price: baris.price,
+                weeklySales: baris.weekly_sales,
+              })),
+            )
+          }
+          onSimpan={() =>
+            tersimpan.simpan(
+              menu.map((baris) => ({
+                name: baris.name,
+                cogs: baris.cogs,
+                price: baris.price,
+                weekly_sales: baris.weeklySales,
+                status: "" as const,
+              })),
+            )
+          }
+          sedangSimpan={tersimpan.sedangSimpan}
+          galat={tersimpan.galat}
+          pesanSimpan={tersimpan.pesanSimpan}
         />
 
         <div className="mt-4">

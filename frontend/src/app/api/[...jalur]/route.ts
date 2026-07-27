@@ -20,7 +20,7 @@ import { teruskanKeBackend } from "@/lib/sesiServer";
 
 const BATAS_WAKTU_MS = 120_000; // panggilan AI wajar 10–30 detik
 
-async function teruskan(request: Request, jalur: string[], metode: "GET" | "POST") {
+async function teruskan(request: Request, jalur: string[], metode: "GET" | "POST" | "PUT") {
   const path = `/${jalur.join("/")}`;
 
   const kendali = new AbortController();
@@ -29,7 +29,7 @@ async function teruskan(request: Request, jalur: string[], metode: "GET" | "POST
   try {
     const respons = await teruskanKeBackend(path, {
       method: metode,
-      body: metode === "POST" ? await request.text() : undefined,
+      body: metode === "GET" ? undefined : await request.text(),
       signal: kendali.signal,
     });
 
@@ -57,4 +57,8 @@ export async function POST(
   { params }: { params: Promise<{ jalur: string[] }> },
 ) {
   return teruskan(request, (await params).jalur, "POST");
+}
+
+export async function PUT(request: Request, { params }: { params: Promise<{ jalur: string[] }> }) {
+  return teruskan(request, (await params).jalur, "PUT");
 }

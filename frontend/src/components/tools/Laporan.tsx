@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -11,6 +12,7 @@ import { CONTOH_MENU, NAMA_WARUNG } from "@/lib/contoh";
 import { formatPersen, formatRupiah, tanggalHariIni } from "@/lib/format";
 import type { LaporanRequest, LaporanResponse, MenuUntukLaporan } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Tab 5 · Laporan Final. */
 export default function Laporan() {
@@ -31,6 +33,7 @@ export default function Laporan() {
   const { hasil, sedangJalan, galat, jalankan } = useAnalisa<LaporanResponse, LaporanRequest>(
     "/export",
   );
+  const tersimpan = useMenuTersimpan();
 
   function ubahBaris(indeks: number, perubahan: Partial<MenuUntukLaporan>) {
     setMenu(menu.map((baris, i) => (i === indeks ? { ...baris, ...perubahan } : baris)));
@@ -88,6 +91,38 @@ export default function Laporan() {
             </div>
           ))}
         </div>
+
+        <BarisMenuTersimpan
+          jumlahTersimpan={tersimpan.menu?.length ?? 0}
+          onMuat={() =>
+            setMenu(
+              (tersimpan.menu ?? []).map((baris) => ({
+                name: baris.name,
+                cogs: baris.cogs,
+                oldPrice: baris.price,
+                newPrice: baris.price,
+                margin: 0,
+                weeklySales: baris.weekly_sales,
+              })),
+            )
+          }
+          onSimpan={() =>
+            tersimpan.simpan(
+              menu.map((baris) => ({
+                name: baris.name,
+                cogs: baris.cogs,
+                // Harga BARU yang disimpan: setelah menyusun laporan, itulah
+                // harga yang berlaku di warung mulai sekarang.
+                price: baris.newPrice,
+                weekly_sales: baris.weeklySales,
+                status: "" as const,
+              })),
+            )
+          }
+          sedangSimpan={tersimpan.sedangSimpan}
+          galat={tersimpan.galat}
+          pesanSimpan={tersimpan.pesanSimpan}
+        />
 
         <div className="mt-4">
           <Button
