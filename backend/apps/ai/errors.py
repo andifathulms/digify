@@ -78,13 +78,15 @@ def _ratakan_pesan_validasi(detail: Any) -> str | None:
                 return pesan
         return None
     if isinstance(detail, dict):
-        for field, isi in detail.items():
+        # Nama field sengaja TIDAK ikut ditampilkan: field request memakai nama
+        # Inggris (itemName, portionWeight) yang dikunci kontrak API, dan itu
+        # tidak boleh bocor ke layar. Sebagai gantinya, setiap serializer wajib
+        # menulis error_messages yang sudah menyebut isiannya sendiri dalam
+        # Bahasa Indonesia, mis. "Nama menu belum diisi."
+        for isi in detail.values():
             pesan = _ratakan_pesan_validasi(isi)
-            if not pesan:
-                continue
-            if field in {"non_field_errors", "detail"}:
+            if pesan:
                 return pesan
-            return f"Bagian «{field}» belum benar: {pesan}"
         return None
     return None
 
