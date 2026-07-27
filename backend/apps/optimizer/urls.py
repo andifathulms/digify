@@ -7,6 +7,7 @@ ditambah alias, jangan dibuat versi jamak/tunggal yang berbeda.
 from django.urls import path
 
 from apps.optimizer.views.cost_calculator import CostCalculatorView
+from apps.optimizer.views.export import ExportView
 from apps.optimizer.views.health import HealthView
 from apps.optimizer.views.menu_engineering import MenuEngineeringView
 from apps.optimizer.views.pricing import PricingView
@@ -18,4 +19,5 @@ urlpatterns = [
     path("pricing", PricingView.as_view(), name="pricing"),
     path("ranking", RankingView.as_view(), name="ranking"),
     path("menu-engineering", MenuEngineeringView.as_view(), name="menu-engineering"),
+    path("export", ExportView.as_view(), name="export"),
 ]
