@@ -10,6 +10,7 @@ from apps.optimizer.views.cost_calculator import CostCalculatorView
 from apps.optimizer.views.export import ExportView
 from apps.optimizer.views.health import HealthView
 from apps.optimizer.views.menu_engineering import MenuEngineeringView
+from apps.optimizer.views.menu_ideas import MenuIdeasView
 from apps.optimizer.views.pricing import PricingView
 from apps.optimizer.views.ranking import RankingView
 from apps.optimizer.views.waste_tracker import WasteTrackerView
@@ -22,4 +23,5 @@ urlpatterns = [
     path("menu-engineering", MenuEngineeringView.as_view(), name="menu-engineering"),
     path("export", ExportView.as_view(), name="export"),
     path("waste-tracker", WasteTrackerView.as_view(), name="waste-tracker"),
+    path("menu-ideas", MenuIdeasView.as_view(), name="menu-ideas"),
 ]
