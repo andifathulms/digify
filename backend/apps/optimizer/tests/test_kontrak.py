@@ -9,6 +9,7 @@ Gemini di-mock: test tidak boleh butuh kunci API, jaringan, atau uang.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from typing import Any
 from unittest.mock import patch
 
@@ -92,21 +93,38 @@ FIELD_KONTRAK: dict[str, set[str]] = {
     },
 }
 
-# Fungsi call_gemini yang harus di-patch per endpoint.
-TARGET_PATCH: dict[str, str] = {
-    endpoint: f"apps.optimizer.features.{modul}.call_gemini"
-    for endpoint, modul in {
-        "cost-calculator": "cost_calculator",
-        "pricing": "pricing",
-        "ranking": "ranking",
-        "menu-engineering": "menu_engineering",
-        "export": "export",
-        "waste-tracker": "waste_tracker",
-        "menu-ideas": "menu_ideas",
-        "marketing-content": "marketing_content",
-        "carousel-content": "carousel_content",
-    }.items()
+# Endpoint yang masih memanggil Gemini, beserta modul fiturnya. Daftar ini
+# ditulis tangan dengan sengaja: kalau ada endpoint yang berpindah antara
+# "pakai AI" dan "aturan sendiri", perpindahan itu harus terlihat di diff,
+# bukan menyelinap tanpa ada yang sadar.
+MODUL_AI: dict[str, str] = {
+    "cost-calculator": "cost_calculator",
+    "ranking": "ranking",
+    "menu-engineering": "menu_engineering",
+    "export": "export",
+    "waste-tracker": "waste_tracker",
+    "menu-ideas": "menu_ideas",
+    "marketing-content": "marketing_content",
+    "carousel-content": "carousel_content",
 }
+
+TARGET_PATCH: dict[str, str] = {
+    endpoint: f"apps.optimizer.features.{modul}.call_gemini" for endpoint, modul in MODUL_AI.items()
+}
+
+# Endpoint yang seluruhnya hitungan sendiri, dibaca langsung dari view-nya.
+ENDPOINT_ATURAN = sorted(set(FIELD_KONTRAK) - set(MODUL_AI))
+
+
+@contextmanager
+def jawaban_gemini(endpoint: str):
+    """Palsukan Gemini untuk endpoint AI; diam saja untuk endpoint aturan."""
+    if endpoint not in TARGET_PATCH:
+        yield None
+        return
+    with patch(TARGET_PATCH[endpoint], return_value=JAWABAN_PALSU[endpoint]) as mock:
+        yield mock
+
 
 # Payload permintaan yang sah untuk tiap endpoint, memakai contoh nyata yang
 # sama dengan prefill di frontend.
@@ -348,18 +366,23 @@ JAWABAN_PALSU: dict[str, dict[str, Any]] = {
 
 @pytest.mark.parametrize("endpoint", sorted(FIELD_KONTRAK))
 def test_respons_memakai_nama_field_dari_kontrak(client: APIClient, endpoint: str) -> None:
-    """Nama field respons harus persis seperti docs/API_CONTRACT.md."""
-    with patch(TARGET_PATCH[endpoint], return_value=JAWABAN_PALSU[endpoint]):
+    """Nama field respons harus persis seperti docs/API_CONTRACT.md.
+
+    Berlaku untuk KESEMBILAN endpoint, yang memakai AI maupun yang dihitung
+    sendiri. Bentuk respons adalah kontraknya; dari mana angkanya berasal
+    adalah urusan dalam.
+    """
+    with jawaban_gemini(endpoint):
         response = client.post(f"/api/{endpoint}", PERMINTAAN[endpoint], format="json")
 
     assert response.status_code == 200, response.json()
     assert set(response.json().keys()) == FIELD_KONTRAK[endpoint]
 
 
-@pytest.mark.parametrize("endpoint", sorted(FIELD_KONTRAK))
-def test_setiap_endpoint_memakai_schema_structured_output(client: APIClient, endpoint: str) -> None:
-    """Tiap panggilan wajib mengirim JSON Schema. Tanpa itu, bentuk respons
-    cuma harapan, bukan jaminan."""
+@pytest.mark.parametrize("endpoint", sorted(MODUL_AI))
+def test_endpoint_ai_memakai_schema_structured_output(client: APIClient, endpoint: str) -> None:
+    """Endpoint yang memanggil Gemini wajib mengirim JSON Schema. Tanpa itu,
+    bentuk respons cuma harapan, bukan jaminan."""
     with patch(TARGET_PATCH[endpoint], return_value=JAWABAN_PALSU[endpoint]) as mock:
         client.post(f"/api/{endpoint}", PERMINTAAN[endpoint], format="json")
 
@@ -367,6 +390,44 @@ def test_setiap_endpoint_memakai_schema_structured_output(client: APIClient, end
     assert schema["type"] == "OBJECT"
     assert schema["properties"]
     assert mock.call_args.kwargs["endpoint"] == endpoint
+
+
+def test_daftar_ai_cocok_dengan_view_sebenarnya() -> None:
+    """MODUL_AI di test ini harus cocok dengan flag `pakai_ai` di view.
+
+    Tanpa pemeriksaan ini, seseorang bisa mengubah sebuah endpoint jadi
+    memakai AI (atau berhenti memakainya) tanpa satu pun test yang berubah —
+    dan perbedaan itulah yang menentukan apakah panggilannya berbiaya dan
+    memotong kuota pembeli.
+    """
+    from apps.optimizer import urls  # noqa: PLC0415 — butuh Django siap
+
+    nyata_ai = set()
+    nyata_aturan = set()
+    for pola in urls.urlpatterns:
+        nama = pola.pattern._route  # mis. "pricing"
+        kelas = getattr(pola.callback, "cls", None)
+        if kelas is None or not hasattr(kelas, "pakai_ai"):
+            continue  # health check
+        (nyata_ai if kelas.pakai_ai else nyata_aturan).add(nama)
+
+    assert nyata_ai == set(MODUL_AI)
+    assert nyata_aturan == set(ENDPOINT_ATURAN)
+
+
+@pytest.mark.parametrize("endpoint", ENDPOINT_ATURAN)
+def test_endpoint_aturan_jalan_tanpa_kunci_ai(client: APIClient, endpoint: str, settings) -> None:  # noqa: ANN001
+    """Profit Engine harus tetap berfungsi walau GEMINI_API_KEY kosong.
+
+    Ini jaring pengaman kalau suatu saat ada yang diam-diam menambahkan
+    panggilan AI ke salah satu endpoint Tab 1–6: test ini gagal lebih dulu.
+    """
+    settings.GEMINI_API_KEY = ""
+
+    response = client.post(f"/api/{endpoint}", PERMINTAAN[endpoint], format="json")
+
+    assert response.status_code == 200, response.json()
+    assert set(response.json().keys()) == FIELD_KONTRAK[endpoint]
 
 
 def test_health_check(client: APIClient) -> None:
@@ -379,7 +440,7 @@ def test_health_check(client: APIClient) -> None:
 
 
 def test_bentuk_baris_ranking(client: APIClient) -> None:
-    with patch(TARGET_PATCH["ranking"], return_value=JAWABAN_PALSU["ranking"]):
+    with jawaban_gemini("ranking"):
         data = client.post("/api/ranking", PERMINTAAN["ranking"], format="json").json()
 
     for baris in data["rankings"]:
@@ -395,7 +456,7 @@ def test_bentuk_baris_ranking(client: APIClient) -> None:
 
 
 def test_bentuk_baris_biaya_menu(client: APIClient) -> None:
-    with patch(TARGET_PATCH["cost-calculator"], return_value=JAWABAN_PALSU["cost-calculator"]):
+    with jawaban_gemini("cost-calculator"):
         data = client.post(
             "/api/cost-calculator", PERMINTAAN["cost-calculator"], format="json"
         ).json()
@@ -405,7 +466,7 @@ def test_bentuk_baris_biaya_menu(client: APIClient) -> None:
 
 
 def test_bentuk_laporan_export(client: APIClient) -> None:
-    with patch(TARGET_PATCH["export"], return_value=JAWABAN_PALSU["export"]):
+    with jawaban_gemini("export"):
         data = client.post("/api/export", PERMINTAAN["export"], format="json").json()
 
     assert set(data["ringkasan"].keys()) == {
@@ -420,7 +481,7 @@ def test_bentuk_laporan_export(client: APIClient) -> None:
 
 
 def test_bentuk_slide_carousel(client: APIClient) -> None:
-    with patch(TARGET_PATCH["carousel-content"], return_value=JAWABAN_PALSU["carousel-content"]):
+    with jawaban_gemini("carousel-content"):
         data = client.post(
             "/api/carousel-content", PERMINTAAN["carousel-content"], format="json"
         ).json()

@@ -1,7 +1,19 @@
-"""Kerangka bersama untuk 9 endpoint AI.
+"""Kerangka bersama untuk 9 endpoint optimizer.
 
 View tetap tipis (CLAUDE.md §6): validasi lewat serializer, panggil fungsi
 fitur, kembalikan Response. Tidak ada logika bisnis di sini.
+
+Ada dua macam endpoint:
+
+- `pakai_ai = True`  → Growth Engine (Tab 7, 8, 9/10). Memanggil Gemini, jadi
+  memotong kuota harian dan dicatat di UsageLog.
+- `pakai_ai = False` → Profit Engine (Tab 1–6). Seluruhnya hitungan dan aturan
+  di dalam kode kita sendiri. Tidak menyentuh API mana pun, tidak berbiaya,
+  jadi tidak memotong kuota siapa pun.
+
+Pembedaan itu bukan detail teknis: kuota harian ada untuk menahan biaya AI.
+Memotongnya untuk endpoint yang tidak berbiaya sama saja menghukum user tanpa
+alasan, dan membuat jatah AI-nya habis oleh hitungan yang gratis.
 """
 
 from __future__ import annotations
@@ -18,21 +30,22 @@ from rest_framework.views import APIView
 from apps.usage.kuota import catat_pemakaian, pastikan_kuota_cukup, sisa_kuota
 
 
-class EndpointAI(APIView):
+class EndpointOptimizer(APIView):
     """Base view: satu serializer masuk, satu fungsi fitur, satu Response keluar."""
 
-    # Seluruh endpoint AI wajib login. Tiap panggilan memakai kuota Gemini
-    # berbayar; membiarkannya terbuka berarti siapa pun bisa menghabiskan
-    # tagihan Owner (PRD §8.3).
+    # Semua endpoint wajib login, termasuk yang tidak memakai AI: isinya data
+    # usaha milik pembeli, bukan alat publik.
     permission_classes = [IsAuthenticated]
 
-    # Throttle burst dari REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["ai"].
-    # Ini menahan klik ganda; batas harian yang sesungguhnya ada di apps/usage.
+    # Throttle burst dari REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].
     throttle_scope = "ai"
 
     serializer_class: type[serializers.Serializer]
     # Wajib dibungkus staticmethod di subclass, supaya tidak ikut ter-bind ke self.
     feature: Callable[[dict[str, Any]], dict[str, Any]]
+
+    # Diubah jadi False oleh endpoint yang murni aturan (Tab 1–6).
+    pakai_ai: bool = True
 
     # Nama endpoint untuk pencatatan pemakaian; diambil dari path kalau kosong.
     nama_endpoint: str = ""
@@ -43,6 +56,10 @@ class EndpointAI(APIView):
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        if not self.pakai_ai:
+            # Tidak ada panggilan berbayar di jalur ini: langsung hitung.
+            return Response(self.feature(serializer.validated_data))
 
         # Diperiksa SEBELUM Gemini dihubungi. Kalau setelahnya, biayanya sudah
         # terlanjur keluar dan penolakannya jadi tidak ada gunanya.
@@ -63,3 +80,19 @@ class EndpointAI(APIView):
         # Header ini yang dibaca frontend untuk menampilkan sisa jatah hari ini.
         respons["X-Sisa-Kuota"] = str(sisa_kuota(request.user))
         return respons
+
+
+class EndpointAI(EndpointOptimizer):
+    """Endpoint yang memanggil Gemini. Memotong kuota harian."""
+
+    pakai_ai = True
+
+
+class EndpointAturan(EndpointOptimizer):
+    """Endpoint yang seluruhnya hitungan dan aturan sendiri.
+
+    Tidak memanggil API mana pun, jadi tetap jalan walau GEMINI_API_KEY kosong
+    dan tidak pernah memotong kuota harian.
+    """
+
+    pakai_ai = False

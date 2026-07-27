@@ -11,7 +11,7 @@ di batas, saat nilai keluar dari modul ini.
 
 from __future__ import annotations
 
-from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+from decimal import ROUND_CEILING, ROUND_HALF_UP, Decimal, InvalidOperation
 
 
 def _desimal(nilai: float | int | str | Decimal) -> Decimal:
@@ -56,3 +56,30 @@ def margin_persen(harga: float, cogs: float) -> float:
 def profit_mingguan(harga: float, cogs: float, terjual_per_minggu: float) -> int:
     """Kontribusi profit satu menu dalam seminggu — dasar ranking Tab 3."""
     return bulatkan_rupiah((_desimal(harga) - _desimal(cogs)) * _desimal(terjual_per_minggu))
+
+
+def bulatkan_ke_atas(nilai: float | Decimal, kelipatan: int = 500) -> int:
+    """Bulatkan NAIK ke kelipatan terdekat.
+
+    Selalu ke atas, tidak pernah ke bawah: harga jual yang dibulatkan turun
+    bisa jatuh di bawah target margin, dan itu memakan untung diam-diam.
+    Kelipatan 500 mengikuti kebiasaan warung — tidak ada yang memasang harga
+    Rp 24.387.
+    """
+    if kelipatan <= 0:
+        return bulatkan_rupiah(nilai)
+    naik = (_desimal(nilai) / kelipatan).to_integral_value(rounding=ROUND_CEILING)
+    return int(naik) * kelipatan
+
+
+def harga_dari_margin(cogs: float, target_margin_persen: float) -> Decimal:
+    """Harga yang menghasilkan margin tertentu: cogs / (1 - margin).
+
+    Margin 100% mustahil (berarti harga tak hingga), jadi dibatasi 99%.
+    """
+    margin = _desimal(target_margin_persen) / Decimal("100")
+    if margin < 0:
+        margin = Decimal("0")
+    if margin > Decimal("0.99"):
+        margin = Decimal("0.99")
+    return _desimal(cogs) / (Decimal("1") - margin)

@@ -18,16 +18,24 @@ from apps.usage.models import DailyQuota, UsageLog
 
 pytestmark = pytest.mark.django_db
 
-PERMINTAAN = {"itemName": "Nasi Goreng Spesial", "cogs": 8500}
+# Dipakai endpoint AI sungguhan. Tab 1-6 sengaja TIDAK dipakai di sini: sejak
+# Profit Engine jadi berbasis aturan, endpoint-endpoint itu tidak berbiaya dan
+# memang tidak memotong kuota (diuji terpisah di test_aturan_*.py).
+ENDPOINT = "/api/marketing-content"
+TARGET_GEMINI = "apps.optimizer.features.marketing_content.call_gemini"
+
+PERMINTAAN = {
+    "namaMenu": "Es Kopi Susu Gula Aren",
+    "keunggulan": "Gula aren asli, kopi dari petani lokal",
+}
 
 JAWABAN = {
-    "item_name": "Nasi Goreng Spesial",
-    "dine_in_recommended": 24500,
-    "delivery_recommended": 33500,
-    "psychological_price": 23500,
-    "margin_at_recommended": 65.3,
-    "break_even_dine_in": 0,
-    "break_even_delivery": 0,
+    "caption_utama": "Manisnya pas, kopinya nendang.",
+    "caption_alternatif": ["Sore-sore paling enak begini."],
+    "hashtag_rekomendasi": ["#kopisusu"],
+    "ide_visual": "Foto gelas dari dekat.",
+    "call_to_action": "Pesan lewat WhatsApp.",
+    "waktu_posting_ideal": "Sore jam 16.00.",
 }
 
 
@@ -44,8 +52,8 @@ def client(user: User) -> APIClient:
 
 
 def panggil(client: APIClient):
-    with patch("apps.optimizer.features.pricing.call_gemini", return_value=dict(JAWABAN)):
-        return client.post("/api/pricing", PERMINTAAN, format="json")
+    with patch(TARGET_GEMINI, return_value=dict(JAWABAN)):
+        return client.post(ENDPOINT, PERMINTAAN, format="json")
 
 
 class TestPencatatan:
@@ -56,7 +64,7 @@ class TestPencatatan:
 
         catatan = UsageLog.objects.get()
         assert catatan.user == user
-        assert catatan.endpoint == "pricing"
+        assert catatan.endpoint == "marketing-content"
         assert catatan.status == UsageLog.Status.OK
 
         assert DailyQuota.objects.get(user=user).count == 1
@@ -66,8 +74,8 @@ class TestPencatatan:
     ) -> None:
         """Panggilan gagal tetap membebani kuota Gemini. Kalau tidak dipotong,
         klik berulang saat server AI bermasalah jadi tidak terbatas."""
-        with patch("apps.optimizer.features.pricing.call_gemini", side_effect=AIBusyError()):
-            respons = client.post("/api/pricing", PERMINTAAN, format="json")
+        with patch(TARGET_GEMINI, side_effect=AIBusyError()):
+            respons = client.post(ENDPOINT, PERMINTAAN, format="json")
 
         assert respons.status_code == 503
         assert UsageLog.objects.get().status == UsageLog.Status.ERROR
@@ -103,10 +111,8 @@ class TestBatasHarian:
         settings.DAILY_AI_QUOTA = 1
         panggil(client)
 
-        with patch(
-            "apps.optimizer.features.pricing.call_gemini", return_value=dict(JAWABAN)
-        ) as gemini:
-            assert client.post("/api/pricing", PERMINTAAN, format="json").status_code == 429
+        with patch(TARGET_GEMINI, return_value=dict(JAWABAN)) as gemini:
+            assert client.post(ENDPOINT, PERMINTAAN, format="json").status_code == 429
 
         gemini.assert_not_called()
 
