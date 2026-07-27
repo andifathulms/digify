@@ -42,7 +42,7 @@ export default function BiayaMenu() {
 
           <FieldTeksPanjang
             label="Daftar bahan"
-            bantuan="Satu bahan per baris. Contoh: - Beras 500g @ Rp 8.000/kg"
+            bantuan="Takaran untuk SATU porsi, satu bahan per baris. Sebutkan jumlah dan harga belinya, contoh: Beras 150g @ Rp 8.000/kg"
             nilai={bahan}
             onUbah={setBahan}
             baris={9}

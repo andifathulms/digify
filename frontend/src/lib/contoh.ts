@@ -10,15 +10,23 @@ export const NAMA_WARUNG = "Warung Pak Budi";
 export const MENU_UTAMA = "Nasi Goreng Spesial";
 export const MENU_MINUMAN = "Es Kopi Susu Gula Aren";
 
-export const CONTOH_BAHAN = `- Beras 500g @ Rp 8.000/kg
-- Telur 2 butir @ Rp 2.500/butir
-- Ayam suwir 80g @ Rp 38.000/kg
-- Bawang merah 20g @ Rp 40.000/kg
-- Bawang putih 10g @ Rp 35.000/kg
-- Kecap manis 30ml @ Rp 25.000/liter
-- Minyak goreng 25ml @ Rp 18.000/liter
-- Cabai rawit 15g @ Rp 60.000/kg
-- Daun bawang 10g @ Rp 30.000/kg`;
+/**
+ * Takaran untuk SATU porsi, bukan untuk sepanci.
+ *
+ * Alat Biaya Menu membaca angkanya apa adanya supaya hasilnya bisa dihitung
+ * ulang pemilik warung dengan kalkulator sendiri. Jadi contohnya harus benar
+ * secara porsi — 500g beras itu tiga sampai empat piring, dan kalau dipakai
+ * sebagai contoh, angka biaya yang muncul pertama kali jadi menyesatkan.
+ */
+export const CONTOH_BAHAN = `- Beras 150g @ Rp 8.000/kg
+- Telur 1 butir @ Rp 2.500/butir
+- Ayam suwir 70g @ Rp 38.000/kg
+- Bawang merah 10g @ Rp 40.000/kg
+- Bawang putih 5g @ Rp 35.000/kg
+- Kecap manis 15ml @ Rp 25.000/liter
+- Minyak goreng 15ml @ Rp 18.000/liter
+- Cabai rawit 8g @ Rp 60.000/kg
+- Daun bawang 5g @ Rp 30.000/kg`;
 
 export const CONTOH_MENU = [
   { name: MENU_UTAMA, cogs: 8500, price: 25000, weeklySales: 70 },

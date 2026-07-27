@@ -1,10 +1,10 @@
-"""POST /api/cost-calculator — Tab 1 · Biaya Menu."""
+"""POST /api/cost-calculator — Tab 1 · Biaya Menu. Tanpa AI."""
 
 from apps.optimizer.features.cost_calculator import hitung_biaya_menu
 from apps.optimizer.serializers.cost_calculator import CostCalculatorSerializer
-from apps.optimizer.views.base import EndpointAI
+from apps.optimizer.views.base import EndpointAturan
 
 
-class CostCalculatorView(EndpointAI):
+class CostCalculatorView(EndpointAturan):
     serializer_class = CostCalculatorSerializer
     feature = staticmethod(hitung_biaya_menu)
