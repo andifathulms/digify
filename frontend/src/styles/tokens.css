@@ -1,0 +1,54 @@
+/* Token brand Digify Laris.
+ *
+ * SATU-SATUNYA tempat warna brand ditulis. Komponen memakai var(--…),
+ * tidak pernah hex mentah.
+ *
+ * Perkecualian yang disengaja: komponen slide carousel
+ * (src/components/carousel/) memakai hex literal, karena html2canvas
+ * mem-parse warna dari DOM dan variabel CSS/oklch bikin PNG keluar hitam.
+ * Lihat CLAUDE.md §9.1.
+ */
+
+:root {
+  /* Biru — struktur & trust */
+  --blue-deep: #0f4c97;
+  --blue: #1868c7;
+  --blue-light: #2e9bf0;
+
+  /* Oranye — HANYA untuk CTA. Kalau semua oranye, tidak ada yang menonjol. */
+  --orange: #f2790c;
+  --orange-hover: #da6900;
+
+  /* Permukaan */
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+
+  /* Teks */
+  --ink: #132238;
+  --ink-dim: #5e6c82;
+
+  /* Status */
+  --green: #188a45;
+  --yellow: #c88a0a;
+  --red: #d6432b;
+
+  /* Turunan — dipakai untuk garis, latar lembut, dan pita status */
+  --line: #dfe6f0;
+  --line-dotted: #c7d2e2;
+  --blue-wash: #eef4fc;
+  --orange-wash: #fdf1e5;
+  --green-wash: #e8f4ed;
+  --yellow-wash: #fbf3e2;
+  --red-wash: #fceceb;
+  --cream: #f7f1e6;
+
+  /* Bentuk & bayangan */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgb(19 34 56 / 6%);
+  --shadow: 0 6px 20px rgb(19 34 56 / 8%);
+
+  /* Target sentuh minimum — PRD §4: ≥ 44px */
+  --tap: 44px;
+}

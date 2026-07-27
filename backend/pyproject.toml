@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+# Paket ini tidak pernah di-import sebagai library; pyproject dipakai hanya
+# sebagai daftar dependency. py-modules kosong = jangan cari paket apa pun.
+[tool.setuptools]
+py-modules = []
+
+[project]
+name = "digify-laris-backend"
+version = "1.0.0"
+description = "Digify Laris — Menu Optimizer API"
+requires-python = ">=3.12"
+dependencies = [
+    "Django==5.1.6",
+    "djangorestframework==3.15.2",
+    "djangorestframework-simplejwt==5.4.0",
+    "django-cors-headers==4.7.0",
+    "psycopg[binary]==3.2.4",
+    "redis==5.2.1",
+    "django-redis==5.4.0",
+    "google-genai==1.2.0",
+    "gunicorn==23.0.0",
+    "uvicorn[standard]==0.34.0",
+    "python-dotenv==1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-django==4.9.0",
+    "ruff==0.9.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py"]
+testpaths = ["apps"]

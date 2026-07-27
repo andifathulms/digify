@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Jembatan token brand → utility Tailwind (bg-surface, text-ink-dim, dst).
+ * Nilainya tetap hex dari tokens.css, bukan oklch. */
+@theme inline {
+  --color-blue-deep: var(--blue-deep);
+  --color-blue: var(--blue);
+  --color-blue-light: var(--blue-light);
+  --color-orange: var(--orange);
+  --color-orange-hover: var(--orange-hover);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-green: var(--green);
+  --color-yellow: var(--yellow);
+  --color-red: var(--red);
+  --color-line: var(--line);
+  --color-blue-wash: var(--blue-wash);
+  --color-orange-wash: var(--orange-wash);
+  --color-green-wash: var(--green-wash);
+  --color-yellow-wash: var(--yellow-wash);
+  --color-red-wash: var(--red-wash);
+  --color-cream: var(--cream);
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-brand: var(--radius);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  /* Mobile adalah target utama: jangan pernah ada scroll horizontal. */
+  overflow-x: hidden;
+}
+
+/* Fokus keyboard harus terlihat (PRD §10 — aksesibilitas). */
+:focus-visible {
+  outline: 3px solid var(--blue-light);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Angka rupiah selalu rata dan sejajar. */
+.tabular {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hormati preferensi pengguna yang sensitif terhadap animasi. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Sembunyikan scrollbar pada baris tab yang bisa digeser, tapi tetap bisa digeser. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
