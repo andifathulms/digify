@@ -71,3 +71,65 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self) -> str:
         return self.full_name.split(" ")[0] if self.full_name else self.email
+
+
+class License(models.Model):
+    """Lisensi lifetime yang lahir dari pembayaran di affiliate.id."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "menunggu"
+        ACTIVE = "active", "aktif"
+        REVOKED = "revoked", "dicabut"
+
+    key = models.CharField("kunci lisensi", max_length=64, unique=True)
+    user = models.ForeignKey(
+        "accounts.User",
+        verbose_name="pemilik",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="licenses",
+    )
+    plan = models.CharField("paket", max_length=30, default="lifetime")
+    # order_id unik: inilah yang membuat webhook idempoten. Satu pembayaran
+    # tidak boleh pernah menghasilkan dua lisensi, berapa kali pun dikirim ulang.
+    order_id = models.CharField("nomor pesanan", max_length=120, unique=True)
+    amount = models.DecimalField("nilai bayar", max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(
+        "status", max_length=20, choices=Status.choices, default=Status.PENDING
+    )
+    activated_at = models.DateTimeField("waktu aktivasi", null=True, blank=True)
+    created_at = models.DateTimeField("dibuat", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "lisensi"
+        verbose_name_plural = "lisensi"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.key} ({self.get_status_display()})"
+
+
+class WebhookEvent(models.Model):
+    """Catatan mentah tiap webhook yang masuk.
+
+    Disimpan sebelum diproses supaya kalau ada yang aneh, kejadiannya masih
+    bisa ditelusuri. external_id unik = event yang sama tidak pernah diproses
+    dua kali walau penyedia mengirimnya berulang.
+    """
+
+    provider = models.CharField("penyedia", max_length=50, default="affiliate.id")
+    external_id = models.CharField("id dari penyedia", max_length=120, unique=True)
+    payload = models.JSONField("isi kiriman", default=dict)
+    signature_valid = models.BooleanField("tanda tangan sah", default=False)
+    processed_at = models.DateTimeField("waktu diproses", null=True, blank=True)
+    error = models.TextField("catatan galat", blank=True)
+    created_at = models.DateTimeField("diterima", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "kiriman webhook"
+        verbose_name_plural = "kiriman webhook"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.provider}:{self.external_id}"

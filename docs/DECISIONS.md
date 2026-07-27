@@ -131,3 +131,38 @@ di Next.js yang menaruhnya sebagai cookie httpOnly.
 **Alasan.** `PRD.md` §8.2. localStorage bisa dibaca skrip pihak ketiga (XSS).
 
 **Ditolak.** Token di localStorage; Clerk (biaya bulanan, tidak butuh social login).
+
+---
+
+## 2026-07-28 · SELURUH `/api/*` diteruskan lewat Next.js, bukan hanya `/api/auth/*`
+
+**Keputusan.** Browser tidak pernah memanggil Django langsung. Semua permintaan
+menuju origin frontend sendiri (`/api/...`), lalu diteruskan oleh
+`frontend/src/app/api/[...jalur]/route.ts` sambil memasang header `Authorization`
+dari cookie.
+
+**Alasan.** `PRD.md` §8.2 merencanakan Route Handler tipis "hanya untuk `/api/auth/*`".
+Rencana itu tidak bisa jalan bersama cookie httpOnly: tokennya milik origin
+**frontend**, dan browser memang tidak boleh membacanya — jadi browser juga tidak
+bisa memasang header `Authorization` sendiri saat memanggil Django. Yang bisa
+membacanya hanya sisi server Next.js.
+
+**Untungnya justru bertambah:**
+- Browser tidak pernah tahu alamat Django. Tidak ada `NEXT_PUBLIC_*` berisi apa pun
+  yang sensitif.
+- CORS tidak dibutuhkan sama sekali, di dev maupun produksi — dev dan prod jadi
+  berperilaku sama, dan jebakan di `CLAUDE.md` §9.7 hilang dengan sendirinya.
+- Access token yang kedaluwarsa (umurnya 15 menit) disegarkan diam-diam di server.
+  Tanpa itu, user yang mengisi form panjang akan ditendang keluar tepat saat menekan
+  tombol hitung, dan isian formnya hilang.
+
+**Biayanya.** Satu lompatan jaringan tambahan di dalam jaringan Docker (hitungan
+milidetik, sementara panggilan AI-nya sendiri 10–30 detik), dan timeout perlu diset
+di dua tempat: 120 detik di penerus, 90 detik di klien browser.
+
+**Ditolak.** Token di localStorage supaya browser bisa memanggil Django langsung
+(melanggar PRD §8.2); Django membaca JWT dari cookie (di dev, frontend :3000 dan
+backend :8000 beda origin — cookienya tidak akan pernah terkirim).
+
+**Terverifikasi.** Chromium sungguhan: cookie `digify_akses` ber-`httpOnly=true` dan
+`document.cookie` kosong dari sisi JavaScript.

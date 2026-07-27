@@ -53,8 +53,9 @@ services:
     environment:
       # URL yang dipakai server component di dalam jaringan Docker.
       BACKEND_INTERNAL_URL: http://backend:8000
-      # URL yang dipakai browser. TIDAK PERNAH berisi kunci API.
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:${BACKEND_PORT:-8000}/api
+      # Browser memanggil origin frontend sendiri (/api), lalu Next.js yang
+      # meneruskannya ke Django sambil memasang token dari cookie httpOnly.
+      # Tidak ada NEXT_PUBLIC_* berisi rahasia apa pun.
       WATCHPACK_POLLING: "true"
     volumes:
       - ./frontend:/app

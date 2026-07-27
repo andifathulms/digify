@@ -28,12 +28,17 @@ export class ApiError extends Error {
 }
 
 function baseUrl(): string {
-  // Di server (Server Component / Route Handler) panggil lewat jaringan Docker.
+  // Di server (Server Component) panggil Django langsung lewat jaringan Docker.
   if (typeof window === "undefined") {
     const internal = process.env.BACKEND_INTERNAL_URL;
     if (internal) return `${internal.replace(/\/$/, "")}/api`;
   }
-  return (process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api").replace(/\/$/, "");
+  // Di browser SELALU origin sendiri. Token sesi adalah cookie httpOnly milik
+  // origin frontend, jadi hanya sisi server Next.js yang bisa memasang header
+  // Authorization ke Django (lihat src/app/api/[...jalur]/route.ts).
+  // Efek sampingnya: browser tidak pernah bicara langsung ke Django, jadi CORS
+  // tidak dibutuhkan sama sekali.
+  return "/api";
 }
 
 async function bacaPesanError(response: Response): Promise<string> {

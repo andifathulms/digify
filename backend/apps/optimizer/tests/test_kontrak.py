@@ -20,7 +20,19 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def client() -> APIClient:
-    return APIClient()
+    """Klien yang sudah masuk.
+
+    Sejak Fase 4 seluruh endpoint AI wajib login. Test kontrak menguji BENTUK
+    respons, bukan penjagaannya — penjagaan diuji terpisah di
+    apps/accounts/tests/test_auth.py.
+    """
+    from apps.accounts.models import User  # noqa: PLC0415 — butuh DB siap
+
+    klien = APIClient()
+    klien.force_authenticate(
+        user=User.objects.create_user(email="tester@warung.id", password="rahasia-test-123")
+    )
+    return klien
 
 
 # --- Bentuk respons yang dijanjikan kontrak --------------------------------

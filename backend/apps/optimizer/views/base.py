@@ -10,7 +10,7 @@ from collections.abc import Callable
 from typing import Any
 
 from rest_framework import serializers
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,9 +19,10 @@ from rest_framework.views import APIView
 class EndpointAI(APIView):
     """Base view: satu serializer masuk, satu fungsi fitur, satu Response keluar."""
 
-    # Fase 4 mengganti ini jadi IsAuthenticated untuk seluruh endpoint AI.
-    permission_classes = [AllowAny]
-    authentication_classes: list = []
+    # Seluruh endpoint AI wajib login. Tiap panggilan memakai kuota Gemini
+    # berbayar; membiarkannya terbuka berarti siapa pun bisa menghabiskan
+    # tagihan Owner (PRD §8.3).
+    permission_classes = [IsAuthenticated]
 
     # Throttle burst dari REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["ai"].
     throttle_scope = "ai"
