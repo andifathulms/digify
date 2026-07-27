@@ -17,19 +17,13 @@ SCHEMA_COST_CALCULATOR: dict[str, Any] = objek(
                     "nama": teks("Nama bahan, mis. 'Beras'."),
                     "jumlah": angka("Jumlah bahan yang benar-benar dipakai per porsi."),
                     "satuan": teks("Satuan pemakaian, mis. 'gram', 'ml', 'butir'."),
-                    "harga_satuan": angka(
-                        "Harga beli per satuan pemakaian dalam rupiah bulat."
-                    ),
-                    "biaya": angka(
-                        "jumlah x harga_satuan, dibulatkan ke rupiah penuh."
-                    ),
+                    "harga_satuan": angka("Harga beli per satuan pemakaian dalam rupiah bulat."),
+                    "biaya": angka("jumlah x harga_satuan, dibulatkan ke rupiah penuh."),
                 }
             ),
             "Rincian biaya tiap bahan untuk SATU porsi.",
         ),
-        "cogs_per_portion": angka(
-            "Total biaya bahan untuk satu porsi dalam rupiah bulat."
-        ),
+        "cogs_per_portion": angka("Total biaya bahan untuk satu porsi dalam rupiah bulat."),
         "current_margin_percentage": angka(
             "Margin di harga jual sekarang: (harga - cogs) / harga x 100."
         ),

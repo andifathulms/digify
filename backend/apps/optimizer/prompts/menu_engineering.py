@@ -20,7 +20,9 @@ Bahasa: seluruh teks berbahasa Indonesia sehari-hari."""
 
 
 def prompt_menu_engineering(baris_menu: str, min_items: int, peak_hours: str) -> str:
-    baris_jam = f"Jam paling sibuk: {peak_hours}" if peak_hours else "Jam paling sibuk: tidak disebutkan"
+    baris_jam = (
+        f"Jam paling sibuk: {peak_hours}" if peak_hours else "Jam paling sibuk: tidak disebutkan"
+    )
 
     return f"""Bagi menu berikut menjadi empat kelompok tindakan.
 

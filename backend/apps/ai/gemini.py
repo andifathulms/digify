@@ -40,9 +40,7 @@ class MetrikPanggilan:
 # Metrik panggilan terakhir di dalam request ini. Dipakai supaya `call_gemini`
 # tetap punya tanda tangan sederhana (-> dict) seperti yang ditetapkan CLAUDE.md,
 # tanpa menghilangkan data yang dibutuhkan pencatatan pemakaian.
-metrik_terakhir: ContextVar[MetrikPanggilan | None] = ContextVar(
-    "metrik_terakhir", default=None
-)
+metrik_terakhir: ContextVar[MetrikPanggilan | None] = ContextVar("metrik_terakhir", default=None)
 
 
 def _kode_status(exc: Exception) -> int | None:
@@ -56,7 +54,9 @@ def _kode_status(exc: Exception) -> int | None:
     return nilai if isinstance(nilai, int) else None
 
 
-def _klasifikasi(exc: Exception) -> type[AIBusyError | AIQuotaError | AITimeoutError | AIUnknownError]:
+def _klasifikasi(
+    exc: Exception,
+) -> type[AIBusyError | AIQuotaError | AITimeoutError | AIUnknownError]:
     """Petakan kegagalan SDK ke salah satu error yang sudah punya pesan Indonesia."""
     kode = _kode_status(exc)
     if kode == 503:
@@ -192,6 +192,4 @@ def _catat_metrik(endpoint: str, mulai: float, retry_count: int, status: str) ->
             status=status,
         )
     )
-    logger.info(
-        "AI %s status=%s durasi=%sms retry=%s", endpoint, status, latency_ms, retry_count
-    )
+    logger.info("AI %s status=%s durasi=%sms retry=%s", endpoint, status, latency_ms, retry_count)

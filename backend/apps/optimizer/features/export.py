@@ -79,9 +79,7 @@ def laporan_final(data: dict[str, Any]) -> dict[str, Any]:
         "menu_items": baris_laporan,
         "ringkasan": {
             "total_item": len(menu_items),
-            "item_direprice": sum(
-                1 for item in menu_items if item["newPrice"] != item["oldPrice"]
-            ),
+            "item_direprice": sum(1 for item in menu_items if item["newPrice"] != item["oldPrice"]),
             "estimasi_kenaikan_profit_bulanan": _kenaikan_profit_bulanan(menu_items),
             "catatan_penutup": str(ringkasan_ai.get("catatan_penutup", "")).strip(),
         },

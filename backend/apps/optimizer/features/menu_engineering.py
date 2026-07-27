@@ -81,8 +81,6 @@ def optimasi_menu(data: dict[str, Any]) -> dict[str, Any]:
         kelompok["remove"].sort(key=lambda baris: baris["estimasi_dampak"], reverse=True)
         kelompok["remove"] = kelompok["remove"][:maksimal_dihapus]
 
-    total = sum(
-        baris["estimasi_dampak"] for nama in KELOMPOK for baris in kelompok[nama]
-    )
+    total = sum(baris["estimasi_dampak"] for nama in KELOMPOK for baris in kelompok[nama])
 
     return {**kelompok, "total_estimated_impact": total}

@@ -15,17 +15,13 @@ SCHEMA_WASTE_TRACKER: dict[str, Any] = objek(
                     "nama": teks("Nama bahan."),
                     "persentase_terbuang": angka("Bagian yang terbuang, persen."),
                     "nilai_rupiah": angka("Nilai yang terbuang, rupiah."),
-                    "dugaan_penyebab": teks(
-                        "Dugaan penyebab pemborosan bahan ini, satu kalimat."
-                    ),
+                    "dugaan_penyebab": teks("Dugaan penyebab pemborosan bahan ini, satu kalimat."),
                 }
             ),
             "Rincian pemborosan per bahan.",
         ),
         "total_nilai_waste_rupiah": angka("Total nilai bahan terbuang, rupiah."),
-        "bahan_paling_boros_persen": teks(
-            "Nama bahan dengan persentase terbuang terbesar."
-        ),
+        "bahan_paling_boros_persen": teks("Nama bahan dengan persentase terbuang terbesar."),
         "bahan_paling_boros_rupiah": teks(
             "Nama bahan dengan nilai rupiah terbuang terbesar. "
             "Sering berbeda dari yang paling boros secara persentase."

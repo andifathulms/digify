@@ -9,8 +9,7 @@ KESULITAN = ["Mudah", "Sedang", "Sulit"]
 SCHEMA_MENU_IDEAS: dict[str, Any] = objek(
     {
         "ringkasan_analisa": teks(
-            "Satu-dua kalimat: celah apa yang ada di menu sekarang dan kenapa ide "
-            "ini menutupnya."
+            "Satu-dua kalimat: celah apa yang ada di menu sekarang dan kenapa ide ini menutupnya."
         ),
         "ide_menu": daftar(
             objek(

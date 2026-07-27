@@ -37,9 +37,7 @@ class MenuIdeasSerializer(serializers.Serializer):
             "max_length": "Terlalu banyak menu sekaligus, maksimal 100.",
         },
     )
-    kondisi = serializers.CharField(
-        required=False, allow_blank=True, default="", max_length=1000
-    )
+    kondisi = serializers.CharField(required=False, allow_blank=True, default="", max_length=1000)
     targetPelanggan = serializers.CharField(  # noqa: N815
         required=False, allow_blank=True, default="", max_length=300
     )
