@@ -265,3 +265,91 @@ backend :8000 beda origin — cookienya tidak akan pernah terkirim).
 
 **Terverifikasi.** Chromium sungguhan: cookie `digify_akses` ber-`httpOnly=true` dan
 `document.cookie` kosong dari sisi JavaScript.
+
+---
+
+## 2026-07-28 · Sistem desain diperluas, bukan diganti: tangga warna, bukan lima hex
+
+**Keputusan.** Palet brand di `PRD.md` §4 tetap dipakai apa adanya sebagai warna
+inti — biru `#0F4C97`/`#1868C7`/`#2E9BF0`, oranye `#F2790C` untuk CTA saja. Yang
+ditambahkan adalah **tangga** di sekitarnya (`--blue-50` … `--blue-900`,
+`--orange-50` … `--orange-600`), permukaan (`--surface-2`, `--paper`), bayangan
+dua lapis, satu kurva gerak, dan kelas tipografi.
+
+**Alasan.** Dengan hanya lima warna dasar, tiap komponen menebak sendiri nilai
+antaranya: latar lembut, garis, dan warna teks di atas latar berwarna
+ditentukan per berkas. Hasilnya biru muda yang berbeda-beda di tiap halaman.
+Tangga warna membuat nilai antara itu punya satu sumber.
+
+**Yang ikut berubah dan perlu diketahui Owner:**
+- Kuning status digelapkan `#C88A0A` → `#A9760A`. Nilai lama tidak lolos
+  kontras 4,5:1 untuk teks kecil di atas putih — di layar HP di bawah sinar
+  matahari itu praktis tidak terbaca.
+- Latar aplikasi digeser tipis `#F7F9FC` → `#F5F8FC`, dan kertas struk memakai
+  warna hangat sendiri (`--paper #FDFBF7`). Kertas struk tidak pernah putih
+  kebiruan.
+
+**Ditolak.** Mengganti palet sepenuhnya (identitas brand induk Digify.ID ikut
+hilang); memakai `oklch()` bawaan Tailwind v4 untuk tangga warnanya
+(`html2canvas` tidak bisa membacanya — `CLAUDE.md` §9.1); menambah pustaka
+komponen atau ikon (dilarang di `CLAUDE.md` §"What not to do", dan lambang
+satu-satunya digambar sebagai SVG inline).
+
+---
+
+## 2026-07-28 · Tepi gerigi struk digambar SVG, bukan `mask-image` CSS
+
+**Keputusan.** Tepi sobek di bawah struk (`components/ui/Struk.tsx` dan struk
+contoh di halaman depan) berupa `<svg><polygon>`.
+
+**Alasan.** Resep CSS yang lazim untuk gerigi memakai `mask-image` dengan
+gradien berulang. Dukungannya masih belang-belang di WebView Android lama — dan
+kalau gagal, yang muncul bukan tepi lurus melainkan struk yang **hilang
+separuh**, karena mask yang tidak terbaca menyembunyikan elemennya. Untuk
+pengguna yang mayoritas memegang HP Android murah, kegagalan seperti itu tidak
+sepadan dengan hiasannya.
+
+**Ditolak.** `mask-image` berulang; gerigi sebagai gambar PNG (satu permintaan
+jaringan lagi di koneksi lambat, dan warnanya tidak ikut token).
+
+---
+
+## 2026-07-28 · Header dan baris tab menempel di atas (`position: sticky`)
+
+**Keputusan.** Header aplikasi beserta baris sepuluh tab menempel di puncak
+layar. Sebagai konsekuensinya `body` memakai `overflow-x: clip`, bukan
+`overflow-x: hidden`.
+
+**Alasan.** Halaman alat panjang: form penuh isian lalu hasil sepanjang satu
+layar. Kalau navigasi ikut tergulir hilang, satu-satunya cara pindah alat
+adalah menggulir balik ke paling atas — belasan usapan jempol setiap kali.
+
+`hidden` tidak bisa dipakai bersama sticky: ia menjadikan `body` kotak gulir
+sendiri, dan elemen sticky di dalamnya lalu menempel pada kotak yang tidak
+pernah bergulir — artinya tidak menempel sama sekali. `clip` mencegah scroll
+horizontal tanpa efek samping itu.
+
+**Ditolak.** Bilah navigasi bawah ala aplikasi ponsel (sepuluh alat tidak muat,
+dan keyboard HP menutupinya saat form diisi); menu tarik-turun (menyembunyikan
+nama alat justru membuat alat 6–10 tidak pernah ditemukan).
+
+---
+
+## 2026-07-28 · Halaman depan tidak memakai testimoni atau angka pengguna
+
+**Keputusan.** Halaman depan membuktikan diri lewat satu struk contoh berisi
+hitungan lengkap yang bisa diperiksa sendiri oleh pembaca, bukan lewat testimoni,
+logo klien, atau jumlah pengguna.
+
+**Alasan.** Pembelinya pemilik warung yang sedang menimbang uang. Testimoni
+karangan adalah cara tercepat kehilangan justru pembeli yang paling teliti. Dan
+saat ini memang belum ada testimoni sungguhan untuk dipasang.
+
+**Catatan untuk Owner.** Begitu ada pengguna nyata yang bersedia dikutip,
+testimoni asli — nama warung, kota, angka yang dia sebut sendiri — bisa
+ditambahkan di antara bagian "Cara pakai" dan "Pertanyaan". Harganya juga belum
+dicantumkan di halaman ini; `PRD.md` §1 menyebut rentang Rp199.000–299.000, dan
+angka pastinya perlu ditetapkan Owner sebelum ditulis di halaman depan.
+
+**Ditolak.** Testimoni contoh dengan nama karangan ("Bu Sari, Bandung");
+lencana "dipakai 1.000+ warung".
