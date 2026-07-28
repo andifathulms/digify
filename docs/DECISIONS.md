@@ -353,3 +353,70 @@ angka pastinya perlu ditetapkan Owner sebelum ditulis di halaman depan.
 
 **Ditolak.** Testimoni contoh dengan nama karangan ("Bu Sari, Bandung");
 lencana "dipakai 1.000+ warung".
+
+---
+
+## 2026-07-28 · Baris tab geser diganti sidebar + lembar alat (menyimpang dari PRD §4)
+
+**Keputusan.** Navigasi sepuluh alat tidak lagi berupa baris pil yang digeser
+horizontal. Layar lebar memakai sidebar tetap; HP memakai lembar penuh yang
+dipanggil lewat tombol "Semua alat". Halaman `/alat` tidak lagi melempar ke
+Tab 1, melainkan jadi beranda alat berisi sepuluh kartu.
+
+**Ini menyimpang dari `PRD.md` §4**, yang menyebut "tab bisa di-scroll
+horizontal" sebagai salah satu wujud mobile-first. Yang dituju PRD — sepuluh
+alat harus terjangkau di layar 360px tanpa memakan setengah layar — tetap
+dipenuhi, hanya caranya berbeda.
+
+**Alasan.** Baris pil punya tiga cacat yang tidak bisa diperbaiki tanpa
+menggantinya:
+- Alat 5 sampai 10 tidak pernah terlihat sebelum digeser. Yang tidak terlihat
+  tidak dipakai — dan empat di antaranya adalah seluruh Growth Engine.
+- Menggeser horizontal di dalam halaman yang juga digeser vertikal sering salah
+  tangkap, apalagi dengan jempol di HP besar.
+- Ia memakan satu baris tetap di puncak layar padahal isinya dipakai sesekali.
+
+Sidebar dan lembar memakai komponen daftar yang sama persis, supaya orang yang
+berpindah dari HP ke laptop tidak perlu belajar ulang letak alatnya.
+
+**Jebakan teknis yang ketahuan saat diuji di Chromium sungguhan.** Lembar itu
+wajib dipasang lewat `createPortal` ke `<body>`. Tombolnya hidup di dalam bilah
+atas yang memakai `backdrop-filter`, dan elemen ber-filter menjadi *containing
+block* untuk keturunan `position: fixed` — tanpa portal, `inset-0` mengacu ke
+kotak bilah atas setinggi 60px, dan lembarnya muncul terjepit di puncak layar.
+
+**Ditolak.** Bilah navigasi bawah ala aplikasi ponsel (sepuluh alat tidak muat,
+dan keyboard HP menutupinya saat form diisi); menu tarik-turun (menyembunyikan
+nama alat justru membuat alat 6–10 tidak pernah ditemukan); mempertahankan
+baris pil dengan panah kiri-kanan (menambah dua target sentuh untuk menambal
+masalah yang sebenarnya bukan soal panah).
+
+---
+
+## 2026-07-28 · Dipasang sebagai PWA, dengan service worker yang sengaja pelit
+
+**Keputusan.** Aplikasi bisa dipasang ke layar utama HP (manifest, ikon,
+`display: standalone`, `start_url: /alat`). Service worker-nya hanya menyimpan
+berkas statis ber-hash.
+
+**Alasan memasang.** Pembeli membuka aplikasi ini dari tautan WhatsApp, dan
+tautan itu tenggelam dalam sehari. Ikon di layar utama adalah satu-satunya cara
+ia menemukan lagi barang yang sudah dibayarnya minggu lalu.
+
+**Alasan pelit.** Service worker yang rakus adalah cara termudah membuat
+pengguna terjebak melihat versi lama — pada produk berisi angka uang, itu jauh
+lebih buruk daripada sekadar lambat. Karena itu:
+- `/api/*` tidak pernah disentuh. Di situ ada hasil hitungan, sesi, dan token.
+- Halaman (navigasi) tidak pernah disimpan. Isinya bergantung cookie login, jadi
+  halaman tersimpan bisa terlihat oleh orang berikutnya yang memakai HP yang
+  sama — dan pasti basi. Saat jaringan mati, yang muncul halaman `/offline`.
+- Yang disimpan hanya `/_next/static/*`, font, dan ikon. Nama berkasnya berubah
+  tiap kali isinya berubah, jadi tidak mungkin basi.
+- Di dev, service worker justru dicopot. SW yang menahan berkas statis di
+  localhost membuat perubahan kode terlihat tidak berpengaruh, dan itu membuang
+  waktu berjam-jam mencari penyebab yang salah.
+
+**Ditolak.** `next-pwa`/Workbox (satu dependensi lagi, dan perilaku bawaannya
+justru menyimpan halaman — persis yang tidak boleh di sini); mode offline penuh
+(seluruh nilai produk ini ada di hitungan sisi server, jadi offline penuh cuma
+menjanjikan sesuatu yang tidak bisa ditepati).
