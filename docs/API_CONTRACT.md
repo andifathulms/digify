@@ -48,10 +48,20 @@ Parses a free-text ingredient list. The user is never forced into a structured p
 | Field | Type |
 |---|---|
 | `item_name` | string |
-| `ingredients_breakdown` | array of `{ nama, jumlah, satuan, harga_satuan, biaya }` |
+| `ingredients_breakdown` | array of `{ nama, jumlah, satuan, harga_satuan, biaya, harga_beli, satuan_beli }` |
 | `cogs_per_portion` | number |
 | `current_margin_percentage` | number |
 | `food_waste_percentage` | number |
+
+Two price fields per ingredient, on purpose:
+
+- `harga_satuan` + `satuan` — normalised to the base unit (`8` per `gram`). Used for
+  arithmetic; every row is comparable.
+- `harga_beli` + `satuan_beli` — exactly what the owner typed (`8000` per `kg`). Used
+  for display, so a receipt row can be checked against the shopping note in their hand.
+
+`satuan_beli` is the raw unit token, lower-cased (`kg`, `liter`, `butir`) — it is not
+normalised, because the point is that it matches what they wrote.
 
 ---
 

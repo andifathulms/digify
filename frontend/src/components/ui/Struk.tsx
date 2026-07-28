@@ -116,18 +116,28 @@ export function StrukBaris({
   );
 }
 
-/** Baris bahan: nama di kiri, jumlah kecil di bawahnya, biaya rata kanan. */
+/**
+ * Baris bahan: nama di kiri, takaran kecil di bawahnya, biaya rata kanan.
+ *
+ * Harga yang ditampilkan adalah HARGA BELANJA seperti yang ditulis pemiliknya
+ * — "Rp 8.000/kg", bukan "Rp 8" per gram. Keduanya benar, tapi hanya yang
+ * pertama yang pernah dia lihat di pasar. Baris struk harus bisa dicocokkan
+ * langsung dengan nota belanja di tangannya; angka yang tidak dia kenali
+ * membuat seluruh hitungan terasa tidak bisa dipercaya.
+ */
 export function StrukBarisBahan({
   nama,
   jumlah,
   satuan,
-  hargaSatuan,
+  hargaBeli,
+  satuanBeli,
   biaya,
 }: {
   nama: string;
   jumlah: number;
   satuan: string;
-  hargaSatuan: number;
+  hargaBeli: number;
+  satuanBeli: string;
   biaya: string;
 }) {
   return (
@@ -135,7 +145,7 @@ export function StrukBarisBahan({
       <div className="min-w-0">
         <p className="text-sm leading-snug">{nama}</p>
         <p className="tabular text-xs" style={{ color: "var(--ink-dim)" }}>
-          {formatAngka(jumlah)} {satuan} × Rp {formatAngka(hargaSatuan)}
+          {formatAngka(jumlah)} {satuan} · Rp {formatAngka(hargaBeli)}/{satuanBeli}
         </p>
       </div>
       <p className="tabular shrink-0 text-sm">{biaya}</p>

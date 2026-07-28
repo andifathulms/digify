@@ -56,6 +56,17 @@ class BahanTerurai:
     harga_satuan: Decimal
     biaya: Decimal
 
+    # Harga belanja PERSIS seperti yang ditulis pemilik warung: 8000 dan "kg"
+    # untuk baris "@ Rp 8.000/kg". Disimpan terpisah dari `harga_satuan`, yang
+    # sudah diubah ke satuan dasar (Rp 8 per gram).
+    #
+    # Alasannya: struk hasil harus bisa dicocokkan dengan nota belanja di
+    # tangan pemiliknya. "Rp 8 per gram" itu benar, tapi tidak pernah dia lihat
+    # di pasar — yang dia lihat "Rp 8.000 per kilo". Angka yang tidak bisa dia
+    # kenali membuat seluruh hitungan terasa tidak bisa dipercaya.
+    harga_beli: Decimal
+    satuan_beli: str
+
 
 @dataclass(frozen=True)
 class HasilUrai:
@@ -120,6 +131,7 @@ def urai_baris(baris: str) -> tuple[BahanTerurai | None, str]:
             return None, "harganya per apa? tulis misalnya @ Rp 8.000/kg"
         harga_per_dasar = harga
         jumlah_dasar = jumlah
+        satuan_beli = satuan_pakai
     else:
         if jenis_satuan(satuan_harga) != jenis_pakai:
             # Kasus paling sering: bahan ditakar pakai sendok tapi dibeli
@@ -136,6 +148,7 @@ def urai_baris(baris: str) -> tuple[BahanTerurai | None, str]:
 
         harga_per_dasar = harga / satu_satuan_harga
         jumlah_dasar = ke_satuan_dasar(jumlah, satuan_pakai) or jumlah
+        satuan_beli = satuan_harga
 
     biaya = harga_per_dasar * jumlah_dasar
 
@@ -148,6 +161,12 @@ def urai_baris(baris: str) -> tuple[BahanTerurai | None, str]:
             satuan=nama_tampilan(satuan_pakai),
             harga_satuan=harga_per_dasar,
             biaya=biaya,
+            harga_beli=harga,
+            # Ditulis apa adanya (hanya dikecilkan hurufnya), BUKAN dinormalkan
+            # ke satuan dasar. "kg" yang ditulis pemiliknya harus tetap muncul
+            # sebagai "kg" di struk, supaya barisnya bisa dicocokkan langsung
+            # dengan nota belanjanya.
+            satuan_beli=satuan_beli.strip().lower(),
         ),
         "",
     )

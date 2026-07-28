@@ -149,7 +149,38 @@ class TestHitungBiayaMenu:
     def test_bentuk_baris_sesuai_kontrak(self) -> None:
         hasil = hitung(self.CONTOH)
         for bahan in hasil["ingredients_breakdown"]:
-            assert set(bahan) == {"nama", "jumlah", "satuan", "harga_satuan", "biaya"}
+            assert set(bahan) == {
+                "nama",
+                "jumlah",
+                "satuan",
+                "harga_satuan",
+                "biaya",
+                "harga_beli",
+                "satuan_beli",
+            }
+
+    def test_harga_beli_ditampilkan_seperti_yang_ditulis(self) -> None:
+        """Struk harus bisa dicocokkan dengan nota belanja di tangan pemiliknya.
+
+        "Rp 8 per gram" itu benar, tapi tidak pernah dia lihat di pasar — yang
+        dia lihat "Rp 8.000 per kilo". Angka yang tidak bisa dia kenali membuat
+        seluruh hitungan terasa tidak bisa dipercaya.
+        """
+        beras = hitung("Beras 500g @ Rp 8.000/kg")["ingredients_breakdown"][0]
+        assert beras["harga_beli"] == 8000.0
+        assert beras["satuan_beli"] == "kg"
+        # Yang dipakai berhitung tetap harga per satuan dasar.
+        assert beras["harga_satuan"] == 8.0
+
+        minyak = hitung("Minyak 30ml @ Rp 18.000/liter")["ingredients_breakdown"][0]
+        assert minyak["harga_beli"] == 18000.0
+        assert minyak["satuan_beli"] == "liter"
+
+    def test_satuan_beli_ikut_satuan_pakai_kalau_harganya_tanpa_garis_miring(self) -> None:
+        """"2 butir @ Rp 2.500" — harganya memang per butir."""
+        telur = hitung("Telur 2 butir @ Rp 2.500")["ingredients_breakdown"][0]
+        assert telur["harga_beli"] == 2500.0
+        assert telur["satuan_beli"] == "butir"
 
     def test_margin_dihitung_dari_harga_jual_sekarang(self) -> None:
         hasil = hitung(self.CONTOH, harga=25000)

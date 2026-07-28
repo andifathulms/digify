@@ -96,7 +96,8 @@ export default function BiayaMenu() {
                 nama={bahanBaris.nama}
                 jumlah={bahanBaris.jumlah}
                 satuan={bahanBaris.satuan}
-                hargaSatuan={bahanBaris.harga_satuan}
+                hargaBeli={bahanBaris.harga_beli}
+                satuanBeli={bahanBaris.satuan_beli}
                 biaya={formatRupiah(bahanBaris.biaya)}
               />
             ))}

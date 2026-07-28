@@ -457,7 +457,15 @@ def test_bentuk_baris_biaya_menu(client: APIClient) -> None:
         ).json()
 
     for bahan in data["ingredients_breakdown"]:
-        assert set(bahan.keys()) == {"nama", "jumlah", "satuan", "harga_satuan", "biaya"}
+        assert set(bahan.keys()) == {
+            "nama",
+            "jumlah",
+            "satuan",
+            "harga_satuan",
+            "biaya",
+            "harga_beli",
+            "satuan_beli",
+        }
 
 
 def test_bentuk_laporan_export(client: APIClient) -> None:

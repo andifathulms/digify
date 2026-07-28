@@ -22,8 +22,12 @@ export type RincianBahan = {
   nama: string;
   jumlah: number;
   satuan: string;
+  /** Harga per satuan dasar — 8 per "gram". Dipakai berhitung, bukan ditampilkan. */
   harga_satuan: number;
   biaya: number;
+  /** Harga belanja persis seperti yang ditulis pemiliknya — 8000 per "kg". */
+  harga_beli: number;
+  satuan_beli: string;
 };
 
 export type BiayaMenuResponse = {

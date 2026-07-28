@@ -89,6 +89,11 @@ def hitung_biaya_menu(data: dict[str, Any]) -> dict[str, Any]:
                 # baris struk terlihat gratis.
                 "harga_satuan": float(round(b.harga_satuan, 2)),
                 "biaya": bulatkan_rupiah(b.biaya),
+                # Harga belanja seperti yang ditulis pemiliknya — 8000 dan
+                # "kg", bukan 8 dan "gram". Inilah yang ditampilkan di struk;
+                # `harga_satuan` tetap dikirim karena dipakai untuk menghitung.
+                "harga_beli": float(round(b.harga_beli, 2)),
+                "satuan_beli": b.satuan_beli,
             }
             for b in hasil.bahan
         ],
