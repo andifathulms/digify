@@ -304,7 +304,10 @@ export default function BerandaPage() {
               <span className="label-kecil">Untuk warung, kedai &amp; kafe</span>
             </span>
 
-            <h1 className="judul mt-5 text-[2.25rem] sm:text-6xl">
+            {/* 60px baru dipakai di layar lebar. Pada 640px — batas sm —
+             * ukuran itu memaksa judul jadi lima baris dan mendorong tombol
+             * turun sampai keluar layar. */}
+            <h1 className="judul mt-5 text-[2.25rem] sm:text-5xl lg:text-6xl">
               Menu mana yang benar-benar{" "}
               <span style={{ color: "var(--blue-600)" }}>menghasilkan uang?</span>
             </h1>

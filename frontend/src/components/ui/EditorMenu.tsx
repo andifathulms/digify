@@ -78,7 +78,13 @@ export default function EditorMenu<T extends BarisMenu>({
               nilai={baris.name}
               onUbah={(nilai) => ubahBaris(indeks, { name: nilai } as Partial<T>)}
             />
-            <div className="grid gap-3 sm:grid-cols-3">
+            {/* Dua kolom sejak layar terkecil. Isian rupiah cukup pendek untuk
+             * muat berdampingan di 360px, dan menumpuknya ke bawah membuat
+             * daftar lima menu jadi hampir dua layar penuh gulir — sementara
+             * biaya dan harga justru paling berguna kalau terlihat bersebelahan.
+             * "Terjual seminggu" tetap selebar penuh karena chip satuannya
+             * memakan ruang. */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <FieldAngka
                 label="Biaya bahan"
                 nilai={baris.cogs}
@@ -91,12 +97,14 @@ export default function EditorMenu<T extends BarisMenu>({
                 onUbah={(nilai) => ubahBaris(indeks, { price: nilai } as Partial<T>)}
                 rupiah
               />
-              <FieldAngka
-                label="Terjual seminggu"
-                nilai={baris.weeklySales}
-                onUbah={(nilai) => ubahBaris(indeks, { weeklySales: nilai } as Partial<T>)}
-                satuan="porsi"
-              />
+              <div className="col-span-2 sm:col-span-1">
+                <FieldAngka
+                  label="Terjual seminggu"
+                  nilai={baris.weeklySales}
+                  onUbah={(nilai) => ubahBaris(indeks, { weeklySales: nilai } as Partial<T>)}
+                  satuan="porsi"
+                />
+              </div>
             </div>
           </div>
         </div>
