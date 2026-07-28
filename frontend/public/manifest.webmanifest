@@ -1,0 +1,54 @@
+{
+  "name": "Digify Laris — Menu Optimizer",
+  "short_name": "Digify Laris",
+  "description": "Hitung profit asli tiap menu warung Anda, lalu buat konten promosinya.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "/alat",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F8FC",
+  "theme_color": "#0F4C97",
+  "categories": ["business", "finance", "productivity", "food"],
+  "icons": [
+    {
+      "src": "/ikon/ikon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ikon/ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ikon/ikon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hitung biaya menu",
+      "short_name": "Biaya Menu",
+      "url": "/alat/biaya-menu",
+      "icons": [{ "src": "/ikon/ikon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ranking menu",
+      "short_name": "Ranking",
+      "url": "/alat/ranking",
+      "icons": [{ "src": "/ikon/ikon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Konten promosi",
+      "short_name": "Promosi",
+      "url": "/alat/konten-promosi",
+      "icons": [{ "src": "/ikon/ikon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

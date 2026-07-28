@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
+import PendaftarSW from "@/components/pwa/PendaftarSW";
+
 import "./globals.css";
 
 /**
@@ -49,18 +51,40 @@ export const metadata: Metadata = {
   title: "Digify Laris — Menu Optimizer",
   description:
     "Hitung profit asli tiap menu warung Anda, lalu buat konten promosinya. Semua dalam Bahasa Indonesia.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "Digify Laris",
+  icons: {
+    icon: [{ url: "/ikon/favicon-32.png", sizes: "32x32", type: "image/png" }],
+    apple: [{ url: "/ikon/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  // iOS tidak membaca manifest untuk urusan ini; nama aplikasi terpasang dan
+  // gaya bilah statusnya hanya bisa diatur lewat meta apple-*.
+  appleWebApp: {
+    capable: true,
+    title: "Digify Laris",
+    statusBarStyle: "default",
+  },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#0F4C97",
+  // Dipakai penuh sampai tepi layar saat berjalan sebagai aplikasi terpasang.
+  // Jarak amannya diurus sendiri lewat env(safe-area-inset-*) di rangka
+  // aplikasi — kalau tidak, bilah atas tertutup poni dan isi bawah tertimpa
+  // garis geser iPhone.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={`${fraunces.variable} ${jakarta.variable} ${plexMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PendaftarSW />
+      </body>
     </html>
   );
 }

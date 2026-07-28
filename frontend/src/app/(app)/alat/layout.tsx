@@ -92,7 +92,13 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
           </div>
         </header>
 
-        <div className="mx-auto w-full max-w-[var(--lebar-alat)] px-5 pt-6 pb-14 sm:px-8 lg:pt-10">
+        {/* Jarak bawah ditambah tinggi garis geser iPhone. Saat dipasang
+         * sebagai aplikasi (viewport-fit: cover), tanpa ini tombol terakhir
+         * halaman tertimpa garis itu dan sulit ditekan. */}
+        <div
+          className="mx-auto w-full max-w-[var(--lebar-alat)] px-5 pt-6 pb-14 sm:px-8 lg:pt-10"
+          style={{ paddingBottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
+        >
           <main className="flex flex-col gap-5">{children}</main>
           <NavigasiLanjut />
         </div>

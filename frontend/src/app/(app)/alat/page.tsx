@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import AjakanPasang from "@/components/pwa/AjakanPasang";
 import IkonAlat from "@/components/ui/IkonAlat";
 import { ambilProfil } from "@/lib/sesiServer";
 import { TABS } from "@/lib/tabs";
@@ -61,6 +62,10 @@ export default async function BerandaAlatPage() {
           — semua alat lain berdiri di atas angka itu.
         </p>
       </header>
+
+      {/* Hanya muncul kalau browser memang menawarkan pemasangan, dan tidak
+       * pernah muncul lagi setelah ditolak sekali. */}
+      <AjakanPasang />
 
       {/* Ajakan langsung ke alat pertama. Untuk orang yang baru pertama masuk,
        * satu tombol besar mengalahkan sepuluh pilihan yang setara. */}
