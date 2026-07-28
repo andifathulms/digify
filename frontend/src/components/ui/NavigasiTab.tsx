@@ -13,6 +13,14 @@ import { TABS } from "@/lib/tabs";
  * beberapa baris yang memakan setengah layar, tab digeser — dan tab yang
  * sedang aktif digulirkan sendiri ke tengah supaya user tidak pernah
  * kehilangan posisi setelah pindah halaman.
+ *
+ * Dua penambahan dibanding versi pertama:
+ * 1. Penanda kelompok ("PROFIT" sebelum tab 1, "GROWTH" sebelum tab 7).
+ *    Sepuluh pil serupa tanpa pemisah terbaca sebagai satu daftar acak;
+ *    padahal tab 1–6 menghitung uang dan tab 7–10 membuat konten. Batas itu
+ *    perlu terlihat, karena menentukan alat mana yang sedang dicari user.
+ * 2. Tepi memudar (kelas `.tepi-memudar`) sebagai isyarat masih ada tab lain
+ *    di luar layar. Tanpa itu tab 6 ke atas praktis tidak ditemukan di HP.
  */
 export default function NavigasiTab() {
   const pathname = usePathname();
@@ -25,30 +33,50 @@ export default function NavigasiTab() {
   return (
     <nav
       aria-label="Daftar alat"
-      className="no-scrollbar -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0"
+      className="no-scrollbar tepi-memudar -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0"
       style={{ scrollbarWidth: "none" }}
     >
-      <ul className="flex w-max gap-2 pb-1">
-        {TABS.map((tab) => {
+      <ul className="flex w-max items-center gap-2 py-1">
+        {TABS.map((tab, indeks) => {
           const href = `/alat/${tab.slug}`;
           const aktif = pathname === href;
+          const kelompokBaru = TABS[indeks - 1]?.kelompok !== tab.kelompok;
+
           return (
-            <li key={tab.slug}>
+            <li key={tab.slug} className="flex items-center gap-2">
+              {kelompokBaru ? (
+                <span
+                  aria-hidden
+                  className="label-kecil px-1 whitespace-nowrap"
+                  style={{ color: "var(--ink-soft)" }}
+                >
+                  {tab.kelompok}
+                </span>
+              ) : null}
+
               <Link
                 href={href}
                 ref={aktif ? aktifRef : undefined}
                 aria-current={aktif ? "page" : undefined}
-                className="inline-flex items-center gap-2 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-colors"
+                className="inline-flex items-center gap-2 pr-4 pl-2 text-sm font-semibold whitespace-nowrap"
                 style={{
                   minHeight: "var(--tap)",
-                  background: aktif ? "var(--blue-deep)" : "var(--surface)",
-                  color: aktif ? "#FFFFFF" : "var(--ink-dim)",
-                  border: `1px solid ${aktif ? "var(--blue-deep)" : "var(--line)"}`,
+                  borderRadius: "var(--radius-pill)",
+                  background: aktif ? "var(--grad-panel)" : "var(--surface)",
+                  color: aktif ? "var(--on-dark)" : "var(--ink-dim)",
+                  border: `1px solid ${aktif ? "var(--blue-800)" : "var(--line)"}`,
+                  boxShadow: aktif ? "var(--shadow)" : "var(--shadow-xs)",
+                  transition:
+                    "background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease)",
                 }}
               >
                 <span
-                  className="tabular text-xs"
-                  style={{ color: aktif ? "rgb(255 255 255 / 70%)" : "var(--blue)" }}
+                  aria-hidden
+                  className="tabular flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold"
+                  style={{
+                    background: aktif ? "rgb(255 255 255 / 18%)" : "var(--blue-50)",
+                    color: aktif ? "var(--on-dark)" : "var(--blue-600)",
+                  }}
                 >
                   {tab.nomor}
                 </span>

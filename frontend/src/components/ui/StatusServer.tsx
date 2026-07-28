@@ -15,9 +15,16 @@ export default async function StatusServer() {
     aktif = false;
   }
 
+  const teks = aktif ? "Server aktif" : "Server sedang gangguan";
+
   return (
+    // Di layar 360px, header berisi logo + status + tombol keluar. Teks
+    // statusnya yang paling boleh dikorbankan: titik hijau sudah cukup
+    // menyampaikan "beres", dan teks lengkapnya tetap dibacakan pembaca layar
+    // lewat aria-label.
     <span
-      className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium"
+      aria-label={teks}
+      className="inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-xs font-semibold sm:px-3 sm:text-sm"
       style={{
         background: aktif ? "var(--green-wash)" : "var(--red-wash)",
         color: aktif ? "var(--green)" : "var(--red)",
@@ -25,10 +32,12 @@ export default async function StatusServer() {
     >
       <span
         aria-hidden
-        className="h-2 w-2 rounded-full"
+        className={`h-2 w-2 shrink-0 rounded-full ${aktif ? "" : "animate-pulse"}`}
         style={{ background: aktif ? "var(--green)" : "var(--red)" }}
       />
-      {aktif ? "Server aktif" : "Server sedang gangguan"}
+      <span aria-hidden className={aktif ? "hidden sm:inline" : "inline"}>
+        {aktif ? teks : "Gangguan"}
+      </span>
     </span>
   );
 }

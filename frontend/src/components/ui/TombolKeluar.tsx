@@ -25,11 +25,12 @@ export default function TombolKeluar() {
       type="button"
       onClick={keluar}
       disabled={sedangKeluar}
-      className="rounded-full px-3 py-1.5 text-sm font-medium"
+      className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold sm:text-sm"
       style={{
-        border: "1px solid var(--line)",
+        border: "1px solid var(--line-strong)",
         background: "var(--surface)",
         color: "var(--ink-dim)",
+        transition: "color var(--dur) var(--ease), border-color var(--dur) var(--ease)",
       }}
     >
       {sedangKeluar ? "Keluar…" : "Keluar"}
