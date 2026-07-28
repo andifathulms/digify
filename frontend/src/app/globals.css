@@ -210,32 +210,3 @@ body {
     scroll-behavior: auto !important;
   }
 }
-
-/* Sembunyikan scrollbar pada baris tab yang bisa digeser, tapi tetap bisa digeser. */
-.no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Tepi baris tab dibuat memudar, sebagai isyarat bahwa masih ada tab lain
- * di luar layar. Tanpa ini tab ke-6 sampai ke-10 praktis tidak ditemukan
- * di layar 360px. */
-.tepi-memudar {
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 16px,
-    #000 calc(100% - 16px),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 16px,
-    #000 calc(100% - 16px),
-    transparent 100%
-  );
-}
