@@ -1,54 +1,119 @@
 /* Token brand Digify Laris.
  *
- * SATU-SATUNYA tempat warna brand ditulis. Komponen memakai var(--…),
- * tidak pernah hex mentah.
+ * SATU-SATUNYA tempat warna, radius, bayangan, dan tempo animasi ditulis.
+ * Komponen memakai var(--…), tidak pernah hex mentah.
  *
  * Perkecualian yang disengaja: komponen slide carousel
  * (src/components/carousel/) memakai hex literal, karena html2canvas
  * mem-parse warna dari DOM dan variabel CSS/oklch bikin PNG keluar hitam.
  * Lihat CLAUDE.md §9.1.
+ *
+ * Aturan penulisan: hex dan rgb() saja. TIDAK PERNAH oklch() atau color-mix()
+ * — dua-duanya tidak terbaca html2canvas, dan token di berkas ini bisa saja
+ * ikut terbawa ke node yang di-capture.
  */
 
 :root {
-  /* Biru — struktur & trust */
-  --blue-deep: #0f4c97;
-  --blue: #1868c7;
-  --blue-light: #2e9bf0;
+  /* ── Biru — struktur & trust ────────────────────────────────────────────
+   * Tangga penuh, supaya latar lembut, garis, dan teks di atasnya selalu
+   * berasal dari satu keluarga warna, bukan tebakan per komponen. */
+  --blue-50: #eef4fc;
+  --blue-100: #dbe8f8;
+  --blue-200: #b7d1f1;
+  --blue-300: #7fb4e9;
+  --blue-400: #2e9bf0;
+  --blue-500: #1868c7;
+  --blue-600: #1259ae;
+  --blue-700: #0f4c97;
+  --blue-800: #0b3a76;
+  --blue-900: #082a56;
 
-  /* Oranye — HANYA untuk CTA. Kalau semua oranye, tidak ada yang menonjol. */
-  --orange: #f2790c;
-  --orange-hover: #da6900;
+  /* ── Oranye — HANYA untuk CTA ───────────────────────────────────────────
+   * Kalau semua oranye, tidak ada yang menonjol (CLAUDE.md §8). */
+  --orange-50: #fdf1e5;
+  --orange-100: #fbe0c5;
+  --orange-200: #f7c187;
+  --orange-300: #f4a04c;
+  --orange-400: #f2790c;
+  --orange-500: #da6900;
+  --orange-600: #b35500;
 
-  /* Permukaan */
-  --bg: #f7f9fc;
+  /* Nama lama tetap dipertahankan supaya komponen yang sudah ada tidak perlu
+   * disentuh hanya karena tangganya bertambah. */
+  --blue-deep: var(--blue-700);
+  --blue: var(--blue-500);
+  --blue-light: var(--blue-400);
+  --orange: var(--orange-400);
+  --orange-hover: var(--orange-500);
+
+  /* ── Permukaan ──────────────────────────────────────────────────────────
+   * --paper sedikit hangat: hasil analisa tampil sebagai struk warung, dan
+   * kertas struk memang tidak pernah putih kebiruan. */
+  --bg: #f5f8fc;
   --surface: #ffffff;
+  --surface-2: #f0f4fa;
+  --paper: #fdfbf7;
+  --panel: #0b3a76;
 
-  /* Teks */
-  --ink: #132238;
-  --ink-dim: #5e6c82;
+  /* ── Teks ───────────────────────────────────────────────────────────── */
+  --ink: #101e31;
+  --ink-dim: #57657c;
+  --ink-soft: #8492a7;
+  --on-dark: #ffffff;
+  --on-dark-dim: rgb(255 255 255 / 74%);
 
-  /* Status */
+  /* ── Status ─────────────────────────────────────────────────────────────
+   * Kuning digelapkan dari #c88a0a supaya teks kecil di atas latar putih
+   * lolos kontras 4.5:1 — sebelumnya tidak. */
   --green: #188a45;
-  --yellow: #c88a0a;
+  --yellow: #a9760a;
   --red: #d6432b;
 
-  /* Turunan — dipakai untuk garis, latar lembut, dan pita status */
-  --line: #dfe6f0;
+  /* ── Turunan — garis, latar lembut, pita status ─────────────────────── */
+  --line: #e0e7f1;
+  --line-strong: #c9d5e6;
   --line-dotted: #c7d2e2;
-  --blue-wash: #eef4fc;
-  --orange-wash: #fdf1e5;
-  --green-wash: #e8f4ed;
-  --yellow-wash: #fbf3e2;
-  --red-wash: #fceceb;
+  --blue-wash: var(--blue-50);
+  --orange-wash: var(--orange-50);
+  --green-wash: #e7f4ec;
+  --yellow-wash: #fbf2e0;
+  --red-wash: #fcecea;
   --cream: #f7f1e6;
 
-  /* Bentuk & bayangan */
-  --radius-sm: 8px;
+  /* ── Bentuk ─────────────────────────────────────────────────────────── */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
   --radius: 14px;
   --radius-lg: 20px;
-  --shadow-sm: 0 1px 2px rgb(19 34 56 / 6%);
-  --shadow: 0 6px 20px rgb(19 34 56 / 8%);
+  --radius-xl: 28px;
+  --radius-pill: 999px;
 
+  /* ── Bayangan ───────────────────────────────────────────────────────────
+   * Dua lapis: satu tipis untuk mendefinisikan tepi, satu lebar dan lembut
+   * untuk jarak dari latar. Satu lapis saja selalu terlihat murah. */
+  --shadow-xs: 0 1px 2px rgb(16 30 49 / 5%);
+  --shadow-sm: 0 1px 2px rgb(16 30 49 / 5%), 0 2px 6px rgb(16 30 49 / 4%);
+  --shadow: 0 1px 2px rgb(16 30 49 / 5%), 0 8px 24px rgb(16 30 49 / 7%);
+  --shadow-lg: 0 2px 4px rgb(16 30 49 / 6%), 0 18px 44px rgb(16 30 49 / 12%);
+  /* Tombol utama diangkat dengan warnanya sendiri, bukan dengan abu-abu. */
+  --shadow-cta: 0 1px 2px rgb(179 85 0 / 24%), 0 8px 20px rgb(242 121 12 / 26%);
+
+  /* ── Gradien ────────────────────────────────────────────────────────── */
+  --grad-panel: linear-gradient(150deg, #0f4c97 0%, #082a56 100%);
+  --grad-cta: linear-gradient(180deg, #f68a24 0%, #f2790c 55%, #e06f06 100%);
+  --grad-halus: linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
+
+  /* ── Gerak ──────────────────────────────────────────────────────────────
+   * Satu kurva untuk seluruh aplikasi. Tempo yang beda-beda per komponen
+   * membuat produk terasa seperti tiga aplikasi yang ditempel jadi satu. */
+  --ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --dur-cepat: 120ms;
+  --dur: 200ms;
+  --dur-lambat: 380ms;
+
+  /* ── Tata letak ─────────────────────────────────────────────────────── */
   /* Target sentuh minimum — PRD §4: ≥ 44px */
   --tap: 44px;
+  --lebar-alat: 46rem;
+  --lebar-pemasaran: 72rem;
 }

@@ -7,16 +7,26 @@
   --color-blue-deep: var(--blue-deep);
   --color-blue: var(--blue);
   --color-blue-light: var(--blue-light);
+  --color-blue-50: var(--blue-50);
+  --color-blue-100: var(--blue-100);
+  --color-blue-200: var(--blue-200);
+  --color-blue-800: var(--blue-800);
+  --color-blue-900: var(--blue-900);
   --color-orange: var(--orange);
   --color-orange-hover: var(--orange-hover);
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
   --color-ink: var(--ink);
   --color-ink-dim: var(--ink-dim);
+  --color-ink-soft: var(--ink-soft);
   --color-green: var(--green);
   --color-yellow: var(--yellow);
   --color-red: var(--red);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-blue-wash: var(--blue-wash);
   --color-orange-wash: var(--orange-wash);
   --color-green-wash: var(--green-wash);
@@ -29,31 +39,127 @@
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
   --radius-brand: var(--radius);
+
+  --ease-brand: var(--ease);
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-jakarta), system-ui, sans-serif;
-  /* Mobile adalah target utama: jangan pernah ada scroll horizontal. */
-  overflow-x: hidden;
+  /* Mobile adalah target utama: jangan pernah ada scroll horizontal.
+   * `clip`, bukan `hidden` — `hidden` menjadikan body kotak gulir sendiri
+   * dan itu mematikan `position: sticky` di dalamnya (header aplikasi). */
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fokus keyboard harus terlihat (PRD §10 — aksesibilitas). */
-:focus-visible {
-  outline: 3px solid var(--blue-light);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* ── Tipografi ──────────────────────────────────────────────────────────
+ * Fraunces dipakai untuk judul dan angka besar. Pada ukuran besar, jarak
+ * hurufnya perlu dirapatkan; kalau tidak, judul terlihat renggang dan
+ * kehilangan bobot. Serif tanpa penyesuaian ini terbaca seperti dokumen
+ * Word, bukan seperti produk. */
+.judul {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+/* Judul kecil (judul kartu) — kerapatan huruf dikurangi porsinya, karena
+ * pada ukuran kecil rapat berlebihan justru mengurangi keterbacaan. */
+.judul-kecil {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+/* Label kecil huruf besar — dipakai untuk penanda bagian ("ALAT 3 DARI 10").
+ * Huruf besar butuh jarak ekstra, kalau tidak terbaca sebagai gumpalan. */
+.label-kecil {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* Paragraf panjang dipenggal supaya tidak menyisakan satu kata di baris
+ * terakhir. */
+.teks-rapi {
+  text-wrap: pretty;
 }
 
 /* Angka rupiah selalu rata dan sejajar. */
 .tabular {
   font-family: var(--font-plex-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* ── Fokus keyboard ─────────────────────────────────────────────────────
+ * Harus terlihat di atas latar terang maupun di atas tombol biru/oranye
+ * (PRD §10). Cincin putih di dalam memberi jarak dari warna tombolnya. */
+:focus-visible {
+  outline: 2px solid var(--blue-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Gerak ──────────────────────────────────────────────────────────────
+ * Hasil analisa muncul dengan naik-halus. Tanpa itu, blok hasil setinggi
+ * satu layar terasa "melompat" masuk dan user kehilangan posisi baca. */
+@keyframes naik-halus {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animasi-masuk {
+  animation: naik-halus var(--dur-lambat) var(--ease) both;
+}
+
+@keyframes denyut-halus {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Kilau bergerak untuk kerangka pemuatan (skeleton). */
+@keyframes kilau {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.kerangka {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--line) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 200% 100%;
+  animation: kilau 1.4s linear infinite;
+  border-radius: var(--radius-sm);
 }
 
 /* Hormati preferensi pengguna yang sensitif terhadap animasi. */
@@ -75,4 +181,24 @@ body {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Tepi baris tab dibuat memudar, sebagai isyarat bahwa masih ada tab lain
+ * di luar layar. Tanpa ini tab ke-6 sampai ke-10 praktis tidak ditemukan
+ * di layar 360px. */
+.tepi-memudar {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 16px,
+    #000 calc(100% - 16px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 16px,
+    #000 calc(100% - 16px),
+    transparent 100%
+  );
 }
