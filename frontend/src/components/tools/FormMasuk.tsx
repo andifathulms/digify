@@ -14,6 +14,14 @@ import { PesanGagal } from "@/components/ui/Keadaan";
  * acak lewat email/WhatsApp, masuk, lalu langsung diminta menggantinya.
  */
 
+/**
+ * Satu isian.
+ *
+ * Isian kata sandi punya tombol "Lihat". Kata sandi awal di produk ini dibuat
+ * acak dan dikirim lewat WhatsApp — mengetiknya ulang dari layar sebelah,
+ * dengan bulatan hitam sebagai satu-satunya umpan balik, adalah cara pasti
+ * membuat orang gagal masuk tiga kali lalu menghubungi CS.
+ */
 function Isian({
   label,
   tipe,
@@ -27,22 +35,31 @@ function Isian({
   onUbah: (nilai: string) => void;
   autoComplete: string;
 }) {
+  const [terlihat, setTerlihat] = useState(false);
+  const kataSandi = tipe === "password";
+
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium">{label}</span>
-      <input
-        type={tipe}
-        value={nilai}
-        autoComplete={autoComplete}
-        onChange={(event) => onUbah(event.target.value)}
-        className="w-full px-3 py-2.5 text-base"
-        style={{
-          minHeight: "var(--tap)",
-          background: "var(--surface)",
-          border: "1px solid var(--line)",
-          borderRadius: "var(--radius-sm)",
-        }}
-      />
+      <span className="text-sm font-semibold">{label}</span>
+      <div className="relative flex items-center">
+        <input
+          type={kataSandi && terlihat ? "text" : tipe}
+          value={nilai}
+          autoComplete={autoComplete}
+          onChange={(event) => onUbah(event.target.value)}
+          className={`isian py-2.5 pl-3 text-base ${kataSandi ? "pr-20" : "pr-3"}`}
+        />
+        {kataSandi ? (
+          <button
+            type="button"
+            onClick={() => setTerlihat((sebelumnya) => !sebelumnya)}
+            className="absolute right-1.5 cursor-pointer rounded-[var(--radius-xs)] px-2.5 py-1.5 text-xs font-semibold"
+            style={{ color: "var(--blue-600)", background: "var(--blue-wash)" }}
+          >
+            {terlihat ? "Sembunyikan" : "Lihat"}
+          </button>
+        ) : null}
+      </div>
     </label>
   );
 }
@@ -116,7 +133,10 @@ export function FormMasuk() {
         </Button>
       </form>
 
-      <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+      <p
+        className="teks-rapi mt-5 border-t pt-4 text-sm leading-relaxed"
+        style={{ color: "var(--ink-dim)", borderColor: "var(--line)" }}
+      >
         Belum menerima kata sandi setelah membayar? Hubungi kami lewat WhatsApp, nanti
         kami kirimkan ulang.
       </p>
