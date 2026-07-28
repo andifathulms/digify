@@ -89,12 +89,22 @@ export default function PapanCarousel({
             }}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
+                <span
+                  aria-hidden
+                  className="tabular flex h-7 w-7 items-center justify-center rounded-[var(--radius-xs)] text-xs font-semibold"
+                  style={{ background: "var(--grad-panel)", color: "var(--on-dark)" }}
+                >
+                  {slide.nomor_slide}
+                </span>
                 Slide {slide.nomor_slide} dari {slides.length}
                 {slidePenutup ? " · penutup" : ""}
               </h3>
               {slide.tipe_slide ? (
-                <span className="text-xs font-semibold" style={{ color: "var(--orange)" }}>
+                <span
+                  className="label-kecil rounded-[var(--radius-pill)] px-2.5 py-1"
+                  style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
+                >
                   {slide.tipe_slide}
                 </span>
               ) : null}
@@ -165,8 +175,8 @@ export default function PapanCarousel({
 
             {slide.petunjuk_foto ? (
               <p
-                className="mt-4 rounded-[var(--radius-sm)] px-3 py-2 text-sm leading-relaxed"
-                style={{ background: "var(--cream)" }}
+                className="teks-rapi mt-4 rounded-[var(--radius-sm)] px-3.5 py-2.5 text-sm leading-relaxed"
+                style={{ background: "var(--cream)", borderLeft: "3px solid var(--orange-200)" }}
               >
                 <span className="font-semibold">Saran fotonya: </span>
                 {slide.petunjuk_foto}
@@ -175,12 +185,13 @@ export default function PapanCarousel({
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <label
-                className="inline-flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] px-5 text-base font-semibold"
+                className="inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] px-5 text-[0.9375rem] font-semibold"
                 style={{
-                  minHeight: "var(--tap)",
-                  background: "var(--surface)",
-                  border: "1px solid var(--line)",
-                  color: "var(--ink)",
+                  minHeight: "52px",
+                  background: adaFoto ? "var(--green-wash)" : "var(--surface)",
+                  border: `1px solid ${adaFoto ? "var(--green)" : "var(--line-strong)"}`,
+                  color: adaFoto ? "var(--green)" : "var(--ink)",
+                  boxShadow: "var(--shadow-xs)",
                 }}
               >
                 {adaFoto ? "Ganti foto" : "Pilih foto warung"}

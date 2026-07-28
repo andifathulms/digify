@@ -41,25 +41,38 @@ export default function EditorMenu<T extends BarisMenu>({
         <div
           key={indeks}
           className="rounded-[var(--radius)] p-4"
-          style={{ background: "var(--bg)", border: "1px solid var(--line)" }}
+          style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}
         >
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold" style={{ color: "var(--ink-dim)" }}>
-              Menu {indeks + 1}
+            <span className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className="tabular flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold"
+                style={{ background: "var(--blue-wash)", color: "var(--blue-600)" }}
+              >
+                {indeks + 1}
+              </span>
+              <span className="label-kecil" style={{ color: "var(--ink-dim)" }}>
+                Menu
+              </span>
             </span>
             {menu.length > 1 ? (
+              // Tinggi 36px, bukan 44px: ini aksi merusak yang tidak boleh
+              // segampang menekan tombol utama, tapi tetap harus bisa kena
+              // jempol. Warnanya merah tanpa latar supaya tidak bersaing
+              // dengan tombol "Tambah menu" di bawah.
               <button
                 type="button"
                 onClick={() => hapusBaris(indeks)}
-                className="px-2 py-1 text-xs font-semibold"
-                style={{ color: "var(--red)" }}
+                className="cursor-pointer rounded-[var(--radius-xs)] px-2.5 text-xs font-semibold"
+                style={{ color: "var(--red)", minHeight: 36 }}
               >
-                Hapus baris
+                Hapus
               </button>
             ) : null}
           </div>
 
-          <div className="mt-2 flex flex-col gap-3">
+          <div className="mt-3 flex flex-col gap-3">
             <FieldTeks
               label="Nama menu"
               nilai={baris.name}

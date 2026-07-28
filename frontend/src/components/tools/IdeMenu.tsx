@@ -183,12 +183,7 @@ export default function IdeMenu() {
             hasil.ide_menu.map((ide, indeks) => (
               <Kartu key={`${ide.nama}-${indeks}`}>
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <h3
-                    className="text-lg leading-snug font-semibold"
-                    style={{ fontFamily: "var(--font-fraunces)" }}
-                  >
-                    {ide.nama}
-                  </h3>
+                  <h3 className="judul-kecil text-lg">{ide.nama}</h3>
                   <div className="flex gap-2">
                     {ide.kategori ? (
                       <span

@@ -28,9 +28,12 @@ export default function BarisMenuTersimpan({
   return (
     <div
       className="mt-4 rounded-[var(--radius)] p-4"
-      style={{ background: "var(--blue-wash)" }}
+      style={{ background: "var(--blue-wash)", border: "1px solid var(--blue-100)" }}
     >
-      <p className="text-sm leading-relaxed" style={{ color: "var(--blue-deep)" }}>
+      <p
+        className="teks-rapi text-sm leading-relaxed"
+        style={{ color: "var(--blue-800)" }}
+      >
         {jumlahTersimpan > 0
           ? `Anda punya ${jumlahTersimpan} menu tersimpan. Pakai lagi di sini tanpa mengetik ulang.`
           : "Simpan daftar ini sekali, lalu daftarnya otomatis terisi di alat lain yang butuh menu."}
