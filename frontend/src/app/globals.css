@@ -112,6 +112,43 @@ body {
   border-radius: 4px;
 }
 
+/* ── Isian form ─────────────────────────────────────────────────────────
+ * Ditulis sebagai kelas, bukan style inline, karena :hover dan :focus tidak
+ * bisa dinyatakan lewat atribut style. Sebelumnya isian tidak punya keadaan
+ * fokus sendiri sama sekali — hanya outline bawaan browser di luar kotaknya,
+ * yang di layar kecil nyaris tidak terlihat saat keyboard HP naik. */
+.isian {
+  width: 100%;
+  min-height: var(--tap);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.isian::placeholder {
+  color: var(--ink-soft);
+}
+
+.isian:hover:not(:disabled) {
+  border-color: var(--blue-200);
+}
+
+.isian:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgb(24 104 199 / 14%);
+}
+
+/* Cincin fokus sudah digambar sendiri di atas; outline bawaan hanya membuat
+ * kotak ganda. */
+.isian:focus,
+.isian:focus-visible {
+  outline: none;
+}
+
 /* ── Gerak ──────────────────────────────────────────────────────────────
  * Hasil analisa muncul dengan naik-halus. Tanpa itu, blok hasil setinggi
  * satu layar terasa "melompat" masuk dan user kehilangan posisi baca. */

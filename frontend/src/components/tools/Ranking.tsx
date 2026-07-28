@@ -68,7 +68,8 @@ export default function Ranking() {
         <div className="mt-4">
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() => jalankan({ menuItems: menu })}
           >
             {sedangJalan ? "Sedang menghitung…" : "Urutkan menu saya"}

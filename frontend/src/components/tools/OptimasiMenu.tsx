@@ -180,7 +180,8 @@ export default function OptimasiMenu() {
         <div className="mt-4">
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() => jalankan({ menuItems: menu, minItems, peakHours: jamSibuk })}
           >
             {sedangJalan ? "Sedang menghitung…" : "Susun rencana perbaikan"}

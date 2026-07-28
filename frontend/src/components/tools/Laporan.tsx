@@ -127,7 +127,8 @@ export default function Laporan() {
         <div className="mt-4">
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() =>
               jalankan({ restaurantName: namaRestoran, date: tanggal, menuItems: menu })
             }

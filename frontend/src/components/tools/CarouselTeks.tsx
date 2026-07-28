@@ -53,7 +53,8 @@ export default function CarouselTeks() {
         <div className="mt-4">
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() => jalankan({ ...isi, jumlahSlide })}
           >
             {sedangJalan ? "Sedang menyusun…" : "Susun carousel"}

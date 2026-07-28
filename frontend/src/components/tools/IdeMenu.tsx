@@ -144,7 +144,8 @@ export default function IdeMenu() {
 
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() =>
               jalankan({
                 existingMenu: menu,

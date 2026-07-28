@@ -42,7 +42,7 @@ export default function BarisMenuTersimpan({
             Pakai daftar tersimpan
           </Button>
         ) : null}
-        <Button peran="kedua" nonaktif={sedangSimpan} onClick={onSimpan}>
+        <Button peran="kedua" memuat={sedangSimpan} onClick={onSimpan}>
           {sedangSimpan ? "Menyimpan…" : "Simpan daftar ini"}
         </Button>
       </div>

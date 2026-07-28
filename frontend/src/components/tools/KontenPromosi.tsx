@@ -34,7 +34,8 @@ export default function KontenPromosi() {
       >
         <FormKonten isi={isi} onUbah={setIsi} />
         <div className="mt-4">
-          <Button lebarPenuh nonaktif={sedangJalan} onClick={() => jalankan(isi)}>
+          <Button lebarPenuh
+            ukuran="besar" memuat={sedangJalan} onClick={() => jalankan(isi)}>
             {sedangJalan ? "Sedang menulis…" : "Buatkan konten promosi"}
           </Button>
         </div>

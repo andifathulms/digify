@@ -122,7 +122,8 @@ export default function WasteTracker() {
         <div className="mt-4">
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() => jalankan({ periode, bahanList: bahan })}
           >
             {sedangJalan ? "Sedang menghitung…" : "Hitung pemborosan"}

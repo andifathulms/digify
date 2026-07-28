@@ -194,7 +194,7 @@ export default function PapanCarousel({
 
               <Button
                 lebarPenuh
-                nonaktif={sedangUnduh === slide.nomor_slide}
+                memuat={sedangUnduh === slide.nomor_slide}
                 onClick={() => unduh(slide.nomor_slide)}
               >
                 {sedangUnduh === slide.nomor_slide

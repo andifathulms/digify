@@ -111,7 +111,7 @@ export function FormMasuk() {
 
         {galat ? <PesanGagal pesan={galat} /> : null}
 
-        <Button type="submit" lebarPenuh nonaktif={sedangKirim}>
+        <Button type="submit" lebarPenuh memuat={sedangKirim}>
           {sedangKirim ? "Sedang masuk…" : "Masuk"}
         </Button>
       </form>
@@ -202,7 +202,7 @@ export function FormGantiKataSandi() {
 
         {galat ? <PesanGagal pesan={galat} /> : null}
 
-        <Button type="submit" lebarPenuh nonaktif={sedangKirim}>
+        <Button type="submit" lebarPenuh memuat={sedangKirim}>
           {sedangKirim ? "Sedang menyimpan…" : "Simpan kata sandi baru"}
         </Button>
       </form>

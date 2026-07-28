@@ -76,7 +76,8 @@ export default function HargaJual() {
 
           <Button
             lebarPenuh
-            nonaktif={sedangJalan}
+            ukuran="besar"
+            memuat={sedangJalan}
             onClick={() =>
               jalankan({
                 itemName: namaMenu,
