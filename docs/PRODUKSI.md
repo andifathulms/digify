@@ -5,12 +5,95 @@ dari nol di VPS bersih. Ikuti berurutan.
 
 ---
 
+## 0. Memilih tempat hosting
+
+### GitHub Pages — tidak bisa, dan bukan soal ukuran
+
+GitHub Pages hanya melayani berkas statis. Aplikasi ini butuh server yang hidup:
+
+- **Route Handler Next.js** (`src/app/api/…`) yang memasang cookie httpOnly dan
+  meneruskan permintaan ke Django. Ini bukan hiasan — dialah yang membuat token
+  tidak pernah bisa dibaca JavaScript.
+- **Server Component** yang memanggil backend sebelum halaman dikirim
+  (mis. penjaga login di `/alat`).
+- **Django + PostgreSQL + Redis** untuk akun, lisensi, kuota, dan daftar menu.
+
+Mengubahnya jadi statis (`output: "export"`) akan mematikan ketiganya sekaligus,
+dan model keamanannya ikut runtuh: tanpa server, token harus disimpan di tempat
+yang bisa dibaca skrip. Jadi ini bukan langkah pertama yang lebih murah — ini
+produk yang berbeda.
+
+Yang sama gratisnya dan benar-benar bisa: **Vercel Hobby untuk uji coba pribadi**
+(bukan komersial — ToS Vercel melarang), dengan backend di VPS kecil.
+
+### Yang paling menentukan kecepatan: jarak server ke pembeli
+
+Sejak Tab 1–6 dihitung sendiri, waktu prosesnya di bawah 250 milidetik. Artinya
+yang dirasakan pengguna hampir seluruhnya **latensi jaringan**, bukan kecepatan
+CPU server.
+
+| Lokasi server | Perkiraan latensi dari Indonesia |
+|---|---|
+| Jakarta | 5–20 ms |
+| Singapura | 15–40 ms |
+| Eropa / AS | 200–350 ms |
+
+Server Rp 500 ribu/bulan di Amerika akan terasa lebih lambat daripada server
+Rp 100 ribu/bulan di Jakarta. **Pilih region dulu, baru pilih penyedia.**
+(Tab 7–9 tetap 10–30 detik karena menunggu Gemini — lokasi server tidak
+berpengaruh di situ.)
+
+### Pilihan penyedia
+
+| Penyedia | Region terdekat | Perkiraan | Catatan |
+|---|---|---|---|
+| **Biznet Gio / IDCloudHost / Rumahweb** | Jakarta | Rp 100–250 rb/bln | Bayar rupiah, dukungan Bahasa Indonesia. Paling nyaman untuk Owner non-IT |
+| **Vultr** | Jakarta, Singapura | $6–12/bln | Ada region Jakarta, tagihan per jam |
+| **DigitalOcean** | Singapura | $6–12/bln | Dokumentasi paling banyak |
+| **Contabo** | Singapura | $7–9/bln | RAM paling besar per rupiah, performa kadang tidak stabil |
+| **Alibaba Cloud** | Jakarta | bervariasi | Region Indonesia, penagihan lebih rumit |
+
+**Ukuran yang dibutuhkan.** Satu VPS menjalankan lima kontainer: PostgreSQL,
+Redis, Django (3 worker Gunicorn), Next.js, dan Nginx.
+
+- **Minimum: 2 vCPU / 4 GB RAM / 50 GB SSD.** Ini yang saya sarankan untuk mulai.
+- 2 GB RAM cukup untuk mencoba, tapi mepet saat `docker compose build`.
+- Jangan ambil 1 GB.
+
+### Kapan naik kelas
+
+| Pembeli aktif | Langkah |
+|---|---|
+| 0 – 500 | Satu VPS 2 vCPU / 4 GB. Tidak perlu apa-apa lagi |
+| 500 – 3.000 | Naikkan ke 4 vCPU / 8 GB, tambah `GUNICORN_WORKERS` jadi 5–7 |
+| 3.000 – 10.000 | Pindahkan PostgreSQL ke layanan terkelola atau VPS sendiri |
+| 10.000+ | Dua server aplikasi di belakang load balancer; database terpisah |
+
+Yang biasanya penuh lebih dulu bukan CPU, tapi **kuota Gemini dan tagihannya**.
+Pantau `/admin/usage/dailyquota/` mingguan sebelum memikirkan server lebih besar.
+
+### Kalau tetap ingin memakai Vercel
+
+Bisa, untuk frontend saja — Django tidak cocok berjalan di sana. Browser memang
+sudah tidak pernah menghubungi Django langsung, jadi caranya cuma mengarahkan
+`BACKEND_INTERNAL_URL` ke alamat publik Django, dan set region fungsi Vercel ke
+`sin1` (Singapura) supaya tidak menyeberang benua.
+
+Biayanya jadi dua tempat: Vercel Pro $20/bln (Hobby tidak boleh untuk komersial)
++ VPS untuk Django. Dengan harga lifetime Rp 199–299 rb sekali bayar, itu berarti
+sekitar tiga pembeli baru setiap bulan hanya untuk menutup hosting — selamanya,
+tanpa pemasukan berulang di belakangnya. Satu VPS untuk semuanya jauh lebih aman
+untuk model bisnis ini.
+
+---
+
 ## 1. Yang perlu disiapkan
 
-- VPS Linux dengan Docker dan Docker Compose.
+- VPS Linux (lihat Bagian 0) dengan Docker dan Docker Compose.
 - Satu domain yang sudah diarahkan (A record) ke IP VPS.
 - Kunci API Gemini.
 - Rahasia webhook dari affiliate.id.
+- **Cara mengirim kredensial ke pembeli** (email/WhatsApp) — lihat Bagian 6.
 
 ## 2. Naikkan aplikasinya
 
@@ -120,3 +203,79 @@ docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
 **Pantau biaya Gemini mingguan.** Model lifetime berarti pemasukan berhenti
 tapi biaya jalan terus. Kalau rata-rata pemakaian mendekati batas harian,
 tinjau lagi angka `DAILY_AI_QUOTA` (PRD §12).
+
+---
+
+## 6. Yang masih menghalangi penjualan publik
+
+Bagian 1–5 membuat aplikasinya HIDUP. Empat hal di bawah membuatnya LAYAK DIJUAL.
+Urutannya sudah disusun dari yang paling menghalangi.
+
+### 6.1 🔴 Pembeli tidak akan pernah menerima kata sandinya
+
+Webhook membuat akun lalu mengembalikan kata sandi awal **di dalam respons HTTP
+ke affiliate.id**. Tidak ada satu baris pun kode yang mengirim email atau
+WhatsApp — tidak ada konfigurasi SMTP di project ini.
+
+Artinya hari ini: orang bayar → akun jadi → dia tidak pernah tahu kata sandinya →
+tidak bisa masuk.
+
+`PRD.md` §8.1 memang mencantumkan "Kirim kredensial ke pembeli" dan §12
+menandainya sebagai keputusan yang belum diambil. Jadi ini sengaja ditunda,
+bukan terlewat — tapi tetap harus selesai sebelum pembeli pertama.
+
+**Butuh keputusan Owner: email, WhatsApp, atau keduanya?**
+
+| Cara | Biaya | Catatan |
+|---|---|---|
+| Email (SMTP / Resend / Brevo) | gratis–murah | Paling cepat dipasang |
+| WhatsApp (Fonnte, Wablas) | Rp 100–200 rb/bln | Jauh lebih mungkin dibaca pemilik warung |
+
+Saran: pasang email lebih dulu supaya bisa jualan, tambahkan WhatsApp setelah
+ada pembeli — tapi ini keputusan biaya, jadi milik Owner.
+
+**Penambal sementara:** jalankan `manage.py buat_akun` lalu kirim kredensialnya
+manual. Sanggup untuk sepuluh pembeli pertama, tidak untuk seratus.
+
+### 6.2 Belum pernah ada satu pun panggilan Gemini sungguhan
+
+Seluruh test memalsukan Gemini. Tab 7–10 belum pernah berjalan sungguhan.
+Bersamaan dengan itu, dua risiko di `PRD.md` §12 masih terbuka dan keduanya
+butuh kunci API yang sama:
+
+- `GEMINI_MODEL` masih nilai bawaan `gemini-2.5-flash`, belum dicocokkan dengan
+  `.env` backend Express.
+- Tiga prompt masih ditulis dari spesifikasi, bukan disalin verbatim —
+  `menu_ideas.py`, `marketing_content.py`, `carousel_content.py`. Enam sisanya
+  ikut terhapus waktu tabnya jadi berbasis aturan.
+
+### 6.3 Belum pernah dideploy sama sekali
+
+Bagian 1–5 sudah ditulis lengkap tapi belum pernah dijalankan di server sungguhan.
+Uji restore backup (Bagian 3) juga belum pernah dilakukan, padahal `PRD.md` §10
+mensyaratkannya minimal sekali sebelum jual publik.
+
+### 6.4 Frontend belum punya test otomatis
+
+Backend punya 281 test. Frontend nol. Carousel PNG, alur login, dan keenam tab
+aturan sudah saya buktikan di Chromium sungguhan — tapi manual, dan tidak ada
+yang menjaganya kalau nanti ada perubahan.
+
+---
+
+## 7. Urutan menuju publik
+
+1. **Putuskan cara kirim kredensial** (§6.1) — ini keputusan Owner, bukan teknis.
+2. Pasang pengiriman kredensial, lalu uji dengan webhook palsu dari ujung ke ujung.
+3. Isi `GEMINI_API_KEY`, verifikasi `GEMINI_MODEL`, jalankan Tab 7–10 sungguhan,
+   bandingkan keluarannya dengan versi Express (§6.2).
+4. Sewa VPS (§0), jalankan Bagian 1–2, pasang TLS.
+5. Jalankan uji restore backup (§3) — catat hasilnya.
+6. Kerjakan checklist keamanan (§4) satu per satu.
+7. Uji beli sungguhan: bayar di affiliate.id dengan nominal terkecil, pastikan
+   kredensial benar-benar sampai, lalu masuk dan pakai satu tab AI.
+8. Baru umumkan.
+
+Langkah 7 yang paling sering dilewati, dan justru itu satu-satunya yang menguji
+seluruh rantai — pembayaran, webhook, pembuatan akun, pengiriman kredensial,
+login, sampai pemakaian.
