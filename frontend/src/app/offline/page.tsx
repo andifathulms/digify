@@ -18,10 +18,10 @@ export default function OfflinePage() {
         <Logo ukuran={52} />
       </div>
 
-      <h1 className="judul mt-6 text-[1.75rem]">Sedang tidak ada internet</h1>
+      <h1 className="judul mt-6 text-3xl">Sedang tidak ada internet</h1>
 
       <p
-        className="teks-rapi mt-3 text-[0.9375rem] leading-relaxed"
+        className="teks-rapi mt-3 text-sm leading-relaxed"
         style={{ color: "var(--ink-dim)" }}
       >
         Hitungan menu butuh sambungan ke server kami. Coba nyalakan data atau
@@ -32,7 +32,7 @@ export default function OfflinePage() {
         href="/alat"
         className="mt-8 inline-flex items-center justify-center px-7 text-base font-semibold"
         style={{
-          minHeight: "52px",
+          minHeight: "var(--tap-besar)",
           background: "var(--grad-cta)",
           color: "var(--on-dark)",
           borderRadius: "var(--radius-sm)",

@@ -96,7 +96,7 @@ export function AngkaSorot({
         {label}
       </p>
       <p
-        className="judul tabular mt-1.5 text-[1.75rem] leading-none"
+        className="judul tabular mt-1.5 text-3xl leading-none"
         style={{ color: warna ?? "var(--ink)" }}
       >
         {nilai}

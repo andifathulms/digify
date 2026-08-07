@@ -50,9 +50,9 @@ export default async function BerandaAlatPage() {
         <p className="label-kecil" style={{ color: "var(--ink-soft)" }}>
           {nama ? `Halo, ${nama}` : "Selamat datang"}
         </p>
-        <h1 className="judul mt-2 text-[1.75rem] sm:text-4xl">Mau mengerjakan apa hari ini?</h1>
+        <h1 className="judul mt-2 text-3xl sm:text-4xl">Mau mengerjakan apa hari ini?</h1>
         <p
-          className="teks-rapi mt-2.5 max-w-prose text-[0.9375rem] leading-relaxed"
+          className="teks-rapi mt-2.5 max-w-prose text-sm leading-relaxed"
           style={{ color: "var(--ink-dim)" }}
         >
           Belum tahu mulai dari mana? Mulai dari{" "}
@@ -145,7 +145,7 @@ export default async function BerandaAlatPage() {
 
                   <span className="min-w-0">
                     <span className="flex items-baseline gap-2">
-                      <span className="text-[0.9375rem] font-semibold">{tab.judul}</span>
+                      <span className="text-sm font-semibold">{tab.judul}</span>
                       <span
                         aria-hidden
                         className="tabular text-xs"

@@ -40,10 +40,10 @@ export default function JudulTab({ slug }: { slug: string }) {
         </span>
       </div>
 
-      <h1 className="judul mt-3 text-[1.75rem] sm:text-4xl">{tab.judul}</h1>
+      <h1 className="judul mt-3 text-3xl sm:text-4xl">{tab.judul}</h1>
 
       <p
-        className="teks-rapi mt-2.5 max-w-prose text-[0.9375rem] leading-relaxed"
+        className="teks-rapi mt-2.5 max-w-prose text-sm leading-relaxed"
         style={{ color: "var(--ink-dim)" }}
       >
         {tab.ringkas}

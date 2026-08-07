@@ -48,8 +48,8 @@ const GAYA: Record<Peran, React.CSSProperties> = {
 };
 
 const UKURAN: Record<Ukuran, { padding: string; kelasTeks: string; tinggi: string }> = {
-  sedang: { padding: "0 1.25rem", kelasTeks: "text-[0.9375rem]", tinggi: "var(--tap)" },
-  besar: { padding: "0 1.75rem", kelasTeks: "text-base", tinggi: "52px" },
+  sedang: { padding: "0 var(--space-5)", kelasTeks: "text-sm", tinggi: "var(--tap)" },
+  besar: { padding: "0 var(--space-8)", kelasTeks: "text-base", tinggi: "var(--tap-besar)" },
 };
 
 function Spinner() {

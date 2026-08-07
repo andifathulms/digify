@@ -117,7 +117,7 @@ function TombolUtama({ children }: { children: React.ReactNode }) {
       href="/alat/biaya-menu"
       className="inline-flex items-center justify-center px-7 text-base font-semibold active:translate-y-px"
       style={{
-        minHeight: "52px",
+        minHeight: "var(--tap-besar)",
         background: "var(--grad-cta)",
         color: "var(--on-dark)",
         borderRadius: "var(--radius-sm)",
@@ -266,7 +266,7 @@ export default function BerandaPage() {
               >
                 Digify Laris
               </span>
-              <span className="text-[0.6875rem]" style={{ color: "var(--ink-soft)" }}>
+              <span className="text-2xs" style={{ color: "var(--ink-soft)" }}>
                 Digital. Make Simple
               </span>
             </span>
@@ -307,7 +307,7 @@ export default function BerandaPage() {
             {/* 60px baru dipakai di layar lebar. Pada 640px — batas sm —
              * ukuran itu memaksa judul jadi lima baris dan mendorong tombol
              * turun sampai keluar layar. */}
-            <h1 className="judul mt-5 text-[2.25rem] sm:text-5xl lg:text-6xl">
+            <h1 className="judul mt-5 text-4xl sm:text-5xl lg:text-6xl">
               Menu mana yang benar-benar{" "}
               <span style={{ color: "var(--blue-600)" }}>menghasilkan uang?</span>
             </h1>
@@ -327,7 +327,7 @@ export default function BerandaPage() {
                 href="#alat"
                 className="inline-flex items-center justify-center px-7 text-base font-semibold"
                 style={{
-                  minHeight: "52px",
+                  minHeight: "var(--tap-besar)",
                   background: "var(--surface)",
                   border: "1px solid var(--line-strong)",
                   borderRadius: "var(--radius-sm)",
@@ -350,7 +350,7 @@ export default function BerandaPage() {
                 <li key={janji} className="flex items-center gap-2">
                   <span
                     aria-hidden
-                    className="flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold"
+                    className="flex h-5 w-5 items-center justify-center rounded-full text-2xs font-bold"
                     style={{ background: "var(--green-wash)", color: "var(--green)" }}
                   >
                     ✓
@@ -373,7 +373,7 @@ export default function BerandaPage() {
           <p className="label-kecil" style={{ color: "var(--orange-600)" }}>
             Yang biasanya terjadi
           </p>
-          <h2 className="judul mt-3 max-w-2xl text-[1.75rem] sm:text-4xl">
+          <h2 className="judul mt-3 max-w-2xl text-3xl sm:text-4xl">
             Omzet naik, tapi uangnya tetap tidak terasa
           </h2>
 
@@ -414,7 +414,7 @@ export default function BerandaPage() {
           <p className="label-kecil" style={{ color: "var(--blue-600)" }}>
             Isi paketnya
           </p>
-          <h2 className="judul mt-3 max-w-2xl text-[1.75rem] sm:text-4xl">
+          <h2 className="judul mt-3 max-w-2xl text-3xl sm:text-4xl">
             Sepuluh alat, dua pekerjaan
           </h2>
           <p
@@ -486,7 +486,7 @@ export default function BerandaPage() {
           <p className="label-kecil" style={{ color: "var(--blue-600)" }}>
             Cara pakai
           </p>
-          <h2 className="judul mt-3 text-[1.75rem] sm:text-4xl">Tiga langkah, sekali duduk</h2>
+          <h2 className="judul mt-3 text-3xl sm:text-4xl">Tiga langkah, sekali duduk</h2>
 
           <ol className="mt-9 grid gap-4 sm:grid-cols-3">
             {LANGKAH.map((langkah) => (
@@ -530,7 +530,7 @@ export default function BerandaPage() {
             <p className="label-kecil" style={{ color: "var(--blue-600)" }}>
               Sebelum memutuskan
             </p>
-            <h2 className="judul mt-3 text-[1.75rem] sm:text-4xl">
+            <h2 className="judul mt-3 text-3xl sm:text-4xl">
               Pertanyaan yang paling sering masuk
             </h2>
           </div>
@@ -549,7 +549,7 @@ export default function BerandaPage() {
                   borderRadius: "var(--radius-lg)",
                 }}
               >
-                <summary className="flex cursor-pointer items-center justify-between gap-4 text-[0.9375rem] font-semibold">
+                <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-semibold">
                   {item.tanya}
                   <span
                     aria-hidden
@@ -578,7 +578,7 @@ export default function BerandaPage() {
           style={{ background: "var(--grad-panel)", borderRadius: "var(--radius-xl)" }}
         >
           <h2
-            className="judul mx-auto max-w-2xl text-[1.75rem] sm:text-4xl"
+            className="judul mx-auto max-w-2xl text-3xl sm:text-4xl"
             style={{ color: "var(--on-dark)" }}
           >
             Hitung satu menu dulu. Sepuluh menit, tanpa mendaftar apa pun.

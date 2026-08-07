@@ -43,7 +43,7 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
             >
               Digify Laris
             </span>
-            <span className="text-[0.6875rem]" style={{ color: "var(--ink-soft)" }}>
+            <span className="text-2xs" style={{ color: "var(--ink-soft)" }}>
               Menu Optimizer
             </span>
           </span>
