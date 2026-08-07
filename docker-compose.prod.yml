@@ -52,6 +52,9 @@ services:
     build:
       context: ./frontend
       target: prod
+      args:
+        # Dibaca saat build, bukan saat kontainer jalan — lihat frontend/Dockerfile.
+        NEXT_PUBLIC_URL_BELI: ${NEXT_PUBLIC_URL_BELI:-}
     restart: unless-stopped
     env_file: [.env]
     environment:

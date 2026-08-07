@@ -12,6 +12,11 @@ CMD ["npm", "run", "dev"]
 FROM node:22-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* dijahit ke dalam bundel saat `npm run build`, bukan dibaca
+# saat kontainer jalan. Tanpa ARG di sini, mengisinya di .env tidak
+# berpengaruh apa-apa di produksi — alamatnya diam-diam hilang.
+ARG NEXT_PUBLIC_URL_BELI=""
+ENV NEXT_PUBLIC_URL_BELI=$NEXT_PUBLIC_URL_BELI
 COPY package.json package-lock.json* ./
 RUN npm install
 COPY . .

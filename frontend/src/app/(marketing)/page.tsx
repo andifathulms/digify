@@ -4,6 +4,7 @@ import Logo from "@/components/ui/Logo";
 import StatusServer from "@/components/ui/StatusServer";
 import { formatRupiah } from "@/lib/format";
 import { TABS } from "@/lib/tabs";
+import { BELI_KE_LUAR, URL_BELI } from "@/lib/tautan";
 
 /**
  * Halaman depan.
@@ -74,7 +75,30 @@ const LANGKAH = [
   },
 ];
 
+const MULAI = [
+  {
+    nomor: "1",
+    judul: "Bayar sekali di halaman pembayaran",
+    isi: "Sekali bayar untuk selamanya — bukan langganan bulanan. Halaman pembayarannya milik affiliate.id, bukan form kartu di situs ini.",
+  },
+  {
+    nomor: "2",
+    judul: "Kata sandi dikirim ke WhatsApp Anda",
+    isi: "Begitu pembayaran masuk, akun warung Anda dibuat otomatis dan kata sandi awalnya dikirimkan. Tidak perlu mengisi formulir pendaftaran.",
+  },
+  {
+    nomor: "3",
+    judul: "Masuk, ganti kata sandi, langsung pakai",
+    isi: "Kata sandi awal dari kami wajib diganti saat pertama kali masuk. Setelah itu kesepuluh alatnya terbuka semua.",
+  },
+];
+
 const TANYA = [
+  {
+    tanya: "Bagaimana cara mendapatkan akunnya?",
+    jawab:
+      "Lewat pembayaran sekali di halaman pembayaran kami. Setelah itu akun warung Anda dibuat otomatis dan kata sandi awalnya dikirim ke WhatsApp — tidak ada formulir pendaftaran yang harus diisi sendiri. Belum ada versi gratis; yang bisa dilihat tanpa membeli adalah contoh hitungan di halaman ini, dan bentuknya sama persis dengan hasil sungguhan.",
+  },
   {
     tanya: "Saya tidak paham istilah keuangan. Bisa pakai?",
     jawab:
@@ -83,7 +107,7 @@ const TANYA = [
   {
     tanya: "Harus install aplikasi?",
     jawab:
-      "Tidak. Dibuka lewat browser HP, sama seperti membuka halaman ini. Tidak ada yang perlu diunduh.",
+      "Tidak. Setelah punya akun, alatnya dibuka lewat browser HP — sama seperti membuka halaman ini. Tidak ada yang perlu diunduh dari toko aplikasi.",
   },
   {
     tanya: "Data warung saya aman?",
@@ -93,7 +117,7 @@ const TANYA = [
   {
     tanya: "Berapa lama sampai lihat hasil pertama?",
     jawab:
-      "Kurang dari satu menit. Semua form sudah terisi contoh nyata sejak dibuka — tekan tombol hitung dulu, lihat hasilnya, baru ganti dengan data warung Anda.",
+      "Kurang dari satu menit setelah masuk. Semua form sudah terisi contoh nyata sejak dibuka — tekan tombol hitung dulu, lihat hasilnya, baru ganti dengan data warung Anda.",
   },
 ];
 
@@ -111,19 +135,38 @@ function Bagian({
   );
 }
 
+/**
+ * Tombol ajakan utama.
+ *
+ * Dulu mengarah ke /alat/biaya-menu. Rute itu dijaga: pengunjung tanpa sesi
+ * langsung dilempar ke /masuk, dan akun hanya terbit lewat webhook
+ * affiliate.id setelah pembayaran — tidak ada pendaftaran sendiri. Jadi
+ * tombol bertuliskan "gratis dicoba" selalu berakhir di form yang tidak
+ * mungkin dilewati orang baru.
+ *
+ * Sekarang ia mengarah ke tempat yang benar-benar bisa dituju: halaman
+ * pembayaran kalau alamatnya sudah diisi, kalau belum ke bagian "Cara mulai"
+ * di bawah.
+ */
 function TombolUtama({ children }: { children: React.ReactNode }) {
-  return (
-    <Link
-      href="/alat/biaya-menu"
-      className="inline-flex items-center justify-center px-7 text-base font-semibold active:translate-y-px"
-      style={{
-        minHeight: "var(--tap-besar)",
-        background: "var(--grad-cta)",
-        color: "var(--on-dark)",
-        borderRadius: "var(--radius-sm)",
-        boxShadow: "var(--shadow-cta)",
-      }}
-    >
+  const gaya = {
+    minHeight: "var(--tap-besar)",
+    background: "var(--grad-cta)",
+    color: "var(--on-dark)",
+    borderRadius: "var(--radius-sm)",
+    boxShadow: "var(--shadow-cta)",
+  };
+  const kelas =
+    "inline-flex items-center justify-center px-7 text-base font-semibold active:translate-y-px";
+
+  // Tautan ke luar tidak ditangani router Next; jangkar di halaman yang sama
+  // tetap lewat <Link> supaya perpindahannya halus.
+  return BELI_KE_LUAR ? (
+    <a href={URL_BELI} className={kelas} style={gaya}>
+      {children}
+    </a>
+  ) : (
+    <Link href={URL_BELI} className={kelas} style={gaya}>
       {children}
     </Link>
   );
@@ -350,7 +393,7 @@ export default function BerandaPage() {
 
           <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
             <div className="flex flex-col gap-3 sm:flex-row">
-              <TombolUtama>Coba sekarang, gratis dicoba</TombolUtama>
+              <TombolUtama>Ambil akses warung Anda</TombolUtama>
               <Link
                 href="#alat"
                 className="inline-flex items-center justify-center px-7 text-base font-semibold"
@@ -371,9 +414,9 @@ export default function BerandaPage() {
               style={{ color: "var(--ink-dim)" }}
             >
               {[
+                "Bayar sekali, dipakai selamanya",
                 "Tanpa install aplikasi",
                 "Form sudah terisi contoh",
-                "Hasil kurang dari 1 menit",
               ].map((janji) => (
                 <li key={janji} className="flex items-center gap-2">
                   <span
@@ -547,8 +590,75 @@ export default function BerandaPage() {
         </Bagian>
       </div>
 
+      {/* ── Cara mulai ───────────────────────────────────────────────────
+       * Sasaran jangkar tombol ajakan selama NEXT_PUBLIC_URL_BELI belum
+       * diisi. Isinya jalur yang sebenarnya (PRD §8.1): bayar → kredensial
+       * dikirim → masuk. Sebelumnya jalur ini tidak diterangkan di mana pun,
+       * jadi pengunjung menekan tombol dan mendarat di form masuk tanpa tahu
+       * kata sandinya harus datang dari mana. */}
+      <Bagian className="pb-14 sm:pb-20">
+        <div
+          id="cara-mulai"
+          className="scroll-mt-24 px-6 py-10 sm:px-10 sm:py-12"
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: "var(--radius-xl)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <p className="label-kecil" style={{ color: "var(--orange-600)" }}>
+            Cara mulai
+          </p>
+          <h2 className="judul mt-3 max-w-2xl text-3xl sm:text-4xl">
+            Dari bayar sampai bisa dipakai, tiga langkah
+          </h2>
+          <p
+            className="teks-rapi mt-3 max-w-2xl text-base leading-relaxed"
+            style={{ color: "var(--ink-dim)" }}
+          >
+            Akunnya dibuatkan, bukan didaftarkan sendiri. Tidak ada formulir panjang dan tidak
+            ada masa percobaan yang diam-diam berubah jadi tagihan.
+          </p>
+
+          <ol className="mt-8 grid gap-4 sm:grid-cols-3">
+            {MULAI.map((langkah) => (
+              <li key={langkah.nomor} className="flex gap-3.5">
+                <span
+                  aria-hidden
+                  className="tabular flex h-8 w-8 shrink-0 items-center justify-center text-sm font-semibold"
+                  style={{
+                    background: "var(--orange-wash)",
+                    color: "var(--orange-600)",
+                    borderRadius: "var(--radius-sm)",
+                  }}
+                >
+                  {langkah.nomor}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="judul-kecil text-base">{langkah.judul}</h3>
+                  <p
+                    className="teks-rapi mt-1.5 text-sm leading-relaxed"
+                    style={{ color: "var(--ink-dim)" }}
+                  >
+                    {langkah.isi}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <p className="mt-8 text-sm" style={{ color: "var(--ink-dim)" }}>
+            Kata sandinya sudah diterima?{" "}
+            <Link href="/masuk" className="font-semibold" style={{ color: "var(--blue-600)" }}>
+              Masuk ke akun Anda
+            </Link>
+          </p>
+        </div>
+      </Bagian>
+
       {/* ── Pertanyaan ─────────────────────────────────────────────────── */}
-      <Bagian className="py-14 sm:py-20">
+      <Bagian className="pb-14 sm:pb-20">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
           <div>
             <p className="label-kecil" style={{ color: "var(--blue-600)" }}>
@@ -605,18 +715,24 @@ export default function BerandaPage() {
             className="judul mx-auto max-w-2xl text-3xl sm:text-4xl"
             style={{ color: "var(--on-dark)" }}
           >
-            Hitung satu menu dulu. Sepuluh menit, tanpa mendaftar apa pun.
+            Bayar sekali. Sepuluh alatnya jadi milik warung Anda.
           </h2>
           <p
             className="teks-rapi mx-auto mt-4 max-w-xl text-base leading-relaxed"
             style={{ color: "var(--on-dark-dim)" }}
           >
-            Formnya sudah terisi contoh nyata. Tekan hitung, lihat hasilnya, baru putuskan
-            apakah warung Anda butuh ini.
+            Tidak ada langganan bulanan dan tidak ada biaya tambahan per hitungan. Semua form
+            sudah terisi contoh nyata, jadi menu pertama Anda selesai dihitung di menit pertama.
           </p>
           <div className="mt-8 flex justify-center">
-            <TombolUtama>Mulai dari menu andalan Anda</TombolUtama>
+            <TombolUtama>Ambil akses warung Anda</TombolUtama>
           </div>
+          <p className="mt-4 text-sm" style={{ color: "var(--on-dark-dim)" }}>
+            Sudah pernah membeli?{" "}
+            <Link href="/masuk" className="font-semibold underline underline-offset-2">
+              Masuk ke akun Anda
+            </Link>
+          </p>
         </div>
       </Bagian>
 
