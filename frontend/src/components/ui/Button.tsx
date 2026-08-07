@@ -26,7 +26,7 @@ const GAYA: Record<Peran, React.CSSProperties> = {
   utama: {
     background: "var(--grad-cta)",
     color: "var(--on-dark)",
-    border: "1px solid var(--orange-500)",
+    border: "1px solid var(--orange-700)",
     boxShadow: "var(--shadow-cta)",
   },
   kedua: {

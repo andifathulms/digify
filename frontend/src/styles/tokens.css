@@ -11,6 +11,26 @@
  * Aturan penulisan: hex dan rgb() saja. TIDAK PERNAH oklch() atau color-mix()
  * — dua-duanya tidak terbaca html2canvas, dan token di berkas ini bisa saja
  * ikut terbawa ke node yang di-capture.
+ *
+ * ── Kontras ────────────────────────────────────────────────────────────────
+ * Tiap pasangan warna-teks di bawah ini SUDAH diukur dan wajib tetap ≥ 4.5:1
+ * (WCAG AA teks normal). Kalau salah satu warna diubah, ukur ulang
+ * pasangannya — jangan menebak dari tampilan di layar laptop yang terang.
+ *
+ *   teks putih  di atas --grad-cta (perhentian tercerah)   4,70:1
+ *   teks putih  di atas --orange-aksi                      4,98:1
+ *   --ink       di atas --bg                              15,75:1
+ *   --ink-dim   di atas --bg                               5,54:1
+ *   --ink-soft  di atas --bg                               4,76:1
+ *   --green     di atas --green-wash                       5,52:1
+ *   --yellow    di atas --yellow-wash                      5,02:1
+ *   --red       di atas --red-wash                         5,14:1
+ *   --orange-600 di atas --orange-wash                     4,93:1
+ *   --blue-600  di atas --bg / --blue-wash            6,43 / 6,19:1
+ *   --blue-800  di atas --paper                           10,80:1
+ *
+ * --blue-400 (2,97:1 di atas putih) dan --orange-400 (2,79:1) TIDAK PERNAH
+ * boleh membawa teks. Keduanya untuk garis, ikon besar, dan latar lembut.
  */
 
 :root {
@@ -36,7 +56,17 @@
   --orange-300: #f4a04c;
   --orange-400: #f2790c;
   --orange-500: #da6900;
-  --orange-600: #b35500;
+  --orange-600: #a95000;
+  --orange-700: #8f4300;
+
+  /* Oranye yang BOLEH dipasang di belakang teks putih.
+   * --orange-400 tidak boleh: putih di atasnya hanya 2,79:1, padahal itulah
+   * warna tombol utama — tulisan pada tombol terpenting di produk ini
+   * separuh dari kontras yang dibutuhkan. --orange-aksi masih oranye yang
+   * sama, hanya cukup gelap untuk dibaca (putih 4,98:1).
+   * --orange-400 tetap dipakai untuk garis penanda dan latar lembut, yang
+   * memang tidak menanggung teks. */
+  --orange-aksi: #b35500;
 
   /* Nama lama tetap dipertahankan supaya komponen yang sudah ada tidak perlu
    * disentuh hanya karena tangganya bertambah. */
@@ -58,16 +88,22 @@
   /* ── Teks ───────────────────────────────────────────────────────────── */
   --ink: #101e31;
   --ink-dim: #57657c;
-  --ink-soft: #8492a7;
+  /* Digelapkan dari #8492a7 (2,96:1 — gagal telak). Dipakai untuk label
+   * pembuka bagian dan teks pendamping; abu-abu seterang itu di atas latar
+   * biru-muda praktis tidak terbaca di layar HP yang kena matahari. */
+  --ink-soft: #636f85;
   --on-dark: #ffffff;
   --on-dark-dim: rgb(255 255 255 / 74%);
 
   /* ── Status ─────────────────────────────────────────────────────────────
-   * Kuning digelapkan dari #c88a0a supaya teks kecil di atas latar putih
-   * lolos kontras 4.5:1 — sebelumnya tidak. */
-  --green: #188a45;
-  --yellow: #a9760a;
-  --red: #d6432b;
+   * Ketiganya dipakai sebagai TEKS di atas wash-nya masing-masing (pita
+   * GREEN/YELLOW/RED, angka "untung per porsi"). Sebelumnya semuanya di
+   * bawah 4:1 di sana — padahal warna inilah yang membawa kesimpulan produk
+   * ini: menu ini untung, menu ini rugi. Hue-nya tidak berubah, hanya
+   * cukup digelapkan supaya lolos di atas wash, putih, maupun --bg. */
+  --green: #146f38;
+  --yellow: #8a6008;
+  --red: #b8351f;
 
   /* ── Turunan — garis, latar lembut, pita status ─────────────────────── */
   --line: #e0e7f1;
@@ -144,11 +180,14 @@
   --shadow: 0 1px 2px rgb(16 30 49 / 5%), 0 8px 24px rgb(16 30 49 / 7%);
   --shadow-lg: 0 2px 4px rgb(16 30 49 / 6%), 0 18px 44px rgb(16 30 49 / 12%);
   /* Tombol utama diangkat dengan warnanya sendiri, bukan dengan abu-abu. */
-  --shadow-cta: 0 1px 2px rgb(179 85 0 / 24%), 0 8px 20px rgb(242 121 12 / 26%);
+  --shadow-cta: 0 1px 2px rgb(143 67 0 / 26%), 0 8px 20px rgb(179 85 0 / 28%);
 
   /* ── Gradien ────────────────────────────────────────────────────────── */
   --grad-panel: linear-gradient(150deg, #0f4c97 0%, #082a56 100%);
-  --grad-cta: linear-gradient(180deg, #f68a24 0%, #f2790c 55%, #e06f06 100%);
+  /* Tiap perhentian harus lolos 4.5:1 dengan teks putih, bukan hanya
+   * rata-ratanya — mata membaca huruf di atas perhentian paling terang.
+   * Perhentian lama (#f68a24) hanya 2,45:1. */
+  --grad-cta: linear-gradient(180deg, #b85900 0%, #b05300 55%, #a04b00 100%);
   --grad-halus: linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
 
   /* ── Gerak ──────────────────────────────────────────────────────────────

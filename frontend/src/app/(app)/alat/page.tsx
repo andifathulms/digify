@@ -96,7 +96,7 @@ export default async function BerandaAlatPage() {
         <span
           aria-hidden
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg"
-          style={{ background: "var(--orange)", color: "var(--on-dark)" }}
+          style={{ background: "var(--orange-aksi)", color: "var(--on-dark)" }}
         >
           →
         </span>

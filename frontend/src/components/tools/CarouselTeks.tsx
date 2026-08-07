@@ -79,7 +79,7 @@ export default function CarouselTeks() {
                 <span
                   aria-hidden
                   className="tabular flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
-                  style={{ background: "var(--orange-wash)", color: "var(--orange-hover)" }}
+                  style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
                 >
                   {slide.nomor_slide}
                 </span>
@@ -87,7 +87,7 @@ export default function CarouselTeks() {
                   {slide.tipe_slide ? (
                     <p
                       className="text-xs font-semibold tracking-wide uppercase"
-                      style={{ color: "var(--orange)" }}
+                      style={{ color: "var(--orange-600)" }}
                     >
                       {slide.tipe_slide}
                     </p>

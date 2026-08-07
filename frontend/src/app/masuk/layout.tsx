@@ -54,7 +54,7 @@ export default function MasukLayout({ children }: { children: React.ReactNode })
                 <span
                   aria-hidden
                   className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold"
-                  style={{ background: "var(--orange)", color: "var(--on-dark)" }}
+                  style={{ background: "var(--orange-aksi)", color: "var(--on-dark)" }}
                 >
                   ✓
                 </span>

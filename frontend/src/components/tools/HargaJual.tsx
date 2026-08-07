@@ -110,7 +110,7 @@ export default function HargaJual() {
               label="Harga jual di ojol"
               nilai={formatRupiah(hasil.delivery_recommended)}
               keterangan={`Sudah dihitung dengan komisi ${formatPersen(komisi)}`}
-              warna="var(--orange)"
+              warna="var(--orange-600)"
             />
           </div>
 

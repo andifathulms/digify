@@ -15,7 +15,7 @@ export default function JudulTab({ slug }: { slug: string }) {
 
   const seKelompok = TABS.filter((lain) => lain.kelompok === tab.kelompok);
   const urutan = seKelompok.findIndex((lain) => lain.slug === tab.slug) + 1;
-  const warnaKelompok = tab.kelompok === "Profit" ? "var(--blue-500)" : "var(--orange)";
+  const warnaKelompok = tab.kelompok === "Profit" ? "var(--blue-500)" : "var(--orange-600)";
   const namaKelompok = tab.kelompok === "Profit" ? "Mesin Profit" : "Mesin Growth";
 
   return (

@@ -196,7 +196,7 @@ export default function IdeMenu() {
                     {ide.kesulitan ? (
                       <span
                         className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{ background: "var(--orange-wash)", color: "var(--orange-hover)" }}
+                        style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
                       >
                         {ide.kesulitan}
                       </span>
