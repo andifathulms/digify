@@ -38,6 +38,33 @@
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
+  /* Tangga tipografi milik brand MENGGANTI tangga bawaan Tailwind.
+   * Disengaja: dengan begini `text-sm` di 85 tempat dan `text-xs` di 44
+   * tempat ikut naik ke ukuran token tanpa satu pun berkas komponen disentuh,
+   * dan tidak ada lagi cara menulis ukuran huruf yang di luar tangga. */
+  --text-2xs: var(--fs-2xs);
+  --text-2xs--line-height: var(--lh-judul);
+  --text-xs: var(--fs-xs);
+  --text-xs--line-height: var(--lh-normal);
+  --text-sm: var(--fs-sm);
+  --text-sm--line-height: var(--lh-normal);
+  --text-base: var(--fs-base);
+  --text-base--line-height: var(--lh-normal);
+  --text-lg: var(--fs-lg);
+  --text-lg--line-height: var(--lh-judul);
+  --text-xl: var(--fs-xl);
+  --text-xl--line-height: var(--lh-judul);
+  --text-2xl: var(--fs-2xl);
+  --text-2xl--line-height: var(--lh-judul);
+  --text-3xl: var(--fs-3xl);
+  --text-3xl--line-height: var(--lh-judul);
+  --text-4xl: var(--fs-4xl);
+  --text-4xl--line-height: var(--lh-rapat);
+  --text-5xl: var(--fs-5xl);
+  --text-5xl--line-height: var(--lh-rapat);
+  --text-6xl: var(--fs-6xl);
+  --text-6xl--line-height: var(--lh-rapat);
+
   --radius-brand: var(--radius);
 
   --ease-brand: var(--ease);
@@ -52,6 +79,11 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-jakarta), system-ui, sans-serif;
+  /* Ukuran dasar ditulis eksplisit, tidak menumpang default browser: sebagian
+   * browser HP mewarisi ukuran dari pengaturan sistem dan hasilnya berbeda
+   * antar perangkat. */
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
   /* Mobile adalah target utama: jangan pernah ada scroll horizontal.
    * `clip`, bukan `hidden` — `hidden` menjadikan body kotak gulir sendiri
    * dan itu mematikan `position: sticky` di dalamnya (header aplikasi). */
@@ -69,7 +101,7 @@ body {
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.12;
+  line-height: var(--lh-rapat);
   text-wrap: balance;
 }
 
@@ -79,15 +111,20 @@ body {
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1.25;
+  line-height: var(--lh-judul);
 }
 
-/* Label kecil huruf besar — dipakai untuk penanda bagian ("ALAT 3 DARI 10").
- * Huruf besar butuh jarak ekstra, kalau tidak terbaca sebagai gumpalan. */
+/* Label kecil huruf besar — dipakai untuk penanda bagian ("LANGKAH 3 DARI 6").
+ * Huruf besar butuh jarak ekstra, kalau tidak terbaca sebagai gumpalan.
+ *
+ * Dinaikkan dari 11px ke 13px. Label ini adalah pembuka tiap bagian halaman;
+ * pada 11px huruf besar berjarak lebar, ia terbaca sebagai hiasan, bukan
+ * sebagai judul kecil yang memberi tahu bagian ini tentang apa. */
 .label-kecil {
-  font-size: 0.6875rem;
+  font-size: var(--fs-2xs);
   font-weight: 700;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
+  line-height: var(--lh-judul);
   text-transform: uppercase;
 }
 

@@ -80,6 +80,54 @@
   --red-wash: #fcecea;
   --cream: #f7f1e6;
 
+  /* ── Tangga tipografi ───────────────────────────────────────────────────
+   * SATU tangga untuk seluruh produk. Sebelumnya ukuran huruf diputuskan
+   * per komponen — ada 85 `text-sm`, 44 `text-xs`, plus enam ukuran satu-satu
+   * (`text-[1.75rem]`, `text-[0.9375rem]`, `text-[10px]`, …). Akibatnya
+   * hierarki dirundingkan ulang di tiap berkas dan tidak pernah sama.
+   *
+   * Lantainya dinaikkan: yang dulu 12px sekarang 14px, yang dulu 14px
+   * sekarang 15px, teks isi 16px. Penggunanya pemilik warung setengah baya,
+   * di luar ruangan, sambil memegang HP — 12px di sana bukan teks kecil,
+   * melainkan teks yang tidak dibaca.
+   *
+   * --fs-2xs HANYA untuk angka tabular dan pita status yang ruangnya memang
+   * sempit. Bukan untuk kalimat. */
+  --fs-2xs: 0.8125rem; /* 13px */
+  --fs-xs: 0.875rem; /*   14px */
+  --fs-sm: 0.9375rem; /*  15px */
+  --fs-base: 1rem; /*      16px — teks isi, tidak pernah lebih kecil */
+  --fs-lg: 1.125rem; /*    18px */
+  --fs-xl: 1.25rem; /*     20px */
+  --fs-2xl: 1.5rem; /*     24px */
+  --fs-3xl: 1.75rem; /*    28px */
+  --fs-4xl: 2.125rem; /*   34px */
+  --fs-5xl: 2.75rem; /*    44px */
+  --fs-6xl: 3.5rem; /*     56px */
+
+  /* Tinggi baris dipasangkan dengan ukurannya, bukan ditebak per tempat.
+   * Judul besar butuh baris rapat; paragraf butuh baris longgar. */
+  --lh-rapat: 1.12;
+  --lh-judul: 1.25;
+  --lh-normal: 1.5;
+  --lh-longgar: 1.65;
+
+  /* ── Tangga jarak ───────────────────────────────────────────────────────
+   * Irama 4px, sama dengan tangga bawaan Tailwind — jadi `p-4` dan
+   * var(--space-4) selalu menghasilkan jarak yang sama. Token ini dipakai di
+   * `style={{…}}` inline, yang di produk ini jumlahnya banyak karena warna
+   * brand memang harus lewat var(). */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
   /* ── Bentuk ─────────────────────────────────────────────────────────── */
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -114,6 +162,8 @@
   /* ── Tata letak ─────────────────────────────────────────────────────── */
   /* Target sentuh minimum — PRD §4: ≥ 44px */
   --tap: 44px;
+  /* Tombol ajakan utama sengaja lebih tinggi dari target minimum. */
+  --tap-besar: 52px;
   --lebar-alat: 46rem;
   --lebar-pemasaran: 72rem;
 }
