@@ -149,7 +149,7 @@ function StrukContoh() {
       style={{ filter: "drop-shadow(0 18px 40px rgb(16 30 49 / 16%))" }}
     >
       <div
-        className="px-6 pt-6 pb-5"
+        className="px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5"
         style={{
           background: "var(--paper)",
           borderTop: "3px solid var(--blue-800)",
@@ -159,8 +159,12 @@ function StrukContoh() {
         <p className="label-kecil text-center" style={{ color: "var(--ink-soft)" }}>
           Contoh hitungan
         </p>
-        <h2 className="judul-kecil mt-2 text-center text-xl">{CONTOH.menu}</h2>
-        <div aria-hidden className="my-4" style={{ borderTop: "2px dotted var(--line-dotted)" }} />
+        {/* Sengaja <p>, bukan <h2>. Ini nama menu contoh di dalam sebuah
+         * gambar peraga — memberinya pangkat judul menyamakan bobotnya
+         * dengan "Sepuluh alat, dua pekerjaan" di daftar isi halaman, dan
+         * pembaca layar jadi mengumumkannya sebagai bagian tersendiri. */}
+        <p className="judul-kecil mt-2 text-center text-xl">{CONTOH.menu}</p>
+        <div aria-hidden className="my-3.5" style={{ borderTop: "2px dotted var(--line-dotted)" }} />
 
         {CONTOH.bahan.map((bahan) => (
           <div key={bahan.nama} className="flex items-baseline justify-between gap-3 py-1.5">
@@ -293,10 +297,21 @@ export default function BerandaPage() {
         </Bagian>
       </header>
 
-      {/* ── Hero ───────────────────────────────────────────────────────── */}
-      <Bagian className="pt-10 pb-14 sm:pt-16 sm:pb-20">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
-          <div>
+      {/* ── Hero ─────────────────────────────────────────────────────────
+       * Tiga blok, bukan dua kolom.
+       *
+       * Di HP urutannya: judul → BUKTI → tombol. Sebelumnya struk contoh ada
+       * di kolom kedua, jadi di bawah lg ia selalu jatuh setelah seluruh teks
+       * dan tombol — kira-kira 780px dari puncak halaman. Artinya satu-satunya
+       * elemen yang menjelaskan produk ini tanpa perlu dibaca justru tidak
+       * pernah terlihat pada layar pertama.
+       *
+       * Di layar lebar susunannya kembali seperti semula: teks di kiri
+       * (judul di atas, tombol di bawah), struk di kanan menjangkau dua baris.
+       */}
+      <Bagian className="pt-8 pb-14 sm:pt-14 sm:pb-20">
+        <div className="grid gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+          <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
             <span
               className="inline-flex items-center rounded-[var(--radius-pill)] px-3 py-1.5"
               style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
@@ -304,24 +319,37 @@ export default function BerandaPage() {
               <span className="label-kecil">Untuk warung, kedai &amp; kafe</span>
             </span>
 
-            {/* 60px baru dipakai di layar lebar. Pada 640px — batas sm —
-             * ukuran itu memaksa judul jadi lima baris dan mendorong tombol
-             * turun sampai keluar layar. */}
-            <h1 className="judul mt-5 text-4xl sm:text-5xl lg:text-6xl">
-              Menu mana yang benar-benar{" "}
-              <span style={{ color: "var(--blue-600)" }}>menghasilkan uang?</span>
+            {/* Judulnya menyebut pekerjaannya, bukan bertanya.
+             *
+             * Sebelumnya h1 berbunyi "Menu mana yang benar-benar menghasilkan
+             * uang?" — kail yang bagus, tapi orang yang baru mendarat butuh
+             * tahu ini ALAT APA sebelum ia mau menjawab pertanyaan apa pun.
+             * Pertanyaannya tidak dibuang, hanya turun jadi kalimat pertama
+             * paragraf, tempat ia memang berfungsi.
+             *
+             * 28px di HP, bukan 34px: pada 360px ukuran itu membuat judul
+             * jadi lima baris dan mendorong bukti serta tombol keluar layar. */}
+            <h1 className="judul mt-4 text-3xl sm:text-4xl lg:text-5xl">
+              Hitung untung asli tiap menu,{" "}
+              <span style={{ color: "var(--blue-600)" }}>lalu buat konten promosinya</span>
             </h1>
 
             <p
-              className="teks-rapi mt-5 max-w-xl text-lg leading-relaxed"
+              className="teks-rapi mt-4 max-w-xl text-base leading-relaxed sm:text-lg"
               style={{ color: "var(--ink-dim)" }}
             >
-              Digify Laris menghitung biaya asli tiap menu warung Anda, menentukan harga yang
-              benar termasuk untuk ojol, lalu membuatkan konten promosinya. Semuanya Bahasa
-              Indonesia, cukup dari HP.
+              Menu paling laris belum tentu menu paling untung. Digify Laris menghitung biaya
+              bahan tiap porsi, menentukan harga yang benar termasuk untuk ojol, lalu
+              menuliskan promosinya. Semua Bahasa Indonesia, cukup dari HP.
             </p>
+          </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="flex justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-end lg:self-center">
+            <StrukContoh />
+          </div>
+
+          <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <TombolUtama>Coba sekarang, gratis dicoba</TombolUtama>
               <Link
                 href="#alat"
@@ -339,7 +367,7 @@ export default function BerandaPage() {
             </div>
 
             <ul
-              className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm"
+              className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm"
               style={{ color: "var(--ink-dim)" }}
             >
               {[
@@ -359,10 +387,6 @@ export default function BerandaPage() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div className="flex justify-center lg:justify-end">
-            <StrukContoh />
           </div>
         </div>
       </Bagian>
