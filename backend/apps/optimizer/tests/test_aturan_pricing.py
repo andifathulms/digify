@@ -7,12 +7,18 @@ kosong sama sekali.
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 import pytest
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
 from apps.optimizer.features.hitungan import margin_persen
-from apps.optimizer.features.pricing import tentukan_harga
+from apps.optimizer.features.pricing import (
+    BOBOT_KOMPETITOR,
+    KELIPATAN_HARGA,
+    tentukan_harga,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -170,3 +176,31 @@ class TestEndpointTanpaKunciAI:
         dan biaya yang sama — bukan angka lain yang kebetulan mirip."""
         hasil = hitung()
         assert hasil["margin_at_recommended"] == margin_persen(hasil["dine_in_recommended"], 8500)
+
+
+class TestAngkaYangDicerminkanFrontend:
+    """Tab 2 sekarang MENERANGKAN dari mana harga yang disarankan berasal, dan
+    penjelasan itu disusun ulang di frontend dari masukan yang sama.
+
+    `frontend/src/lib/aturan.ts` menggandakan BOBOT_KOMPETITOR dan
+    KELIPATAN_HARGA untuk keperluan itu. Kalau angkanya melenceng, tangga
+    penjelasnya berhenti mendarat di angka backend dan komponennya memilih
+    diam — jadi yang hilang penjelasannya, bukan kebenaran angkanya. Test ini
+    supaya kehilangan itu ketahuan di sini, bukan dari laporan pengguna yang
+    bingung kenapa penjelasannya menghilang.
+    """
+
+    def test_bobot_kompetitor_cocok_dengan_frontend(self) -> None:
+        # Kalau gagal: samakan BOBOT_KOMPETITOR di frontend/src/lib/aturan.ts.
+        assert Decimal("0.5") == BOBOT_KOMPETITOR, "samakan dengan frontend/src/lib/aturan.ts"
+
+    def test_kelipatan_harga_cocok_dengan_frontend(self) -> None:
+        # Kalau gagal: samakan KELIPATAN_HARGA di frontend/src/lib/aturan.ts.
+        assert KELIPATAN_HARGA == 500, "samakan dengan frontend/src/lib/aturan.ts"  # noqa: SIM300
+
+    def test_kompetitor_hanya_menaikkan(self) -> None:
+        """Penjelasannya menyatakan harga kompetitor tidak pernah menurunkan.
+        Kalau itu berubah, kalimatnya jadi bohong."""
+        tanpa = hitung(competitorPrice=None)["dine_in_recommended"]
+        lebih_murah = hitung(competitorPrice=5000)["dine_in_recommended"]
+        assert lebih_murah == tanpa

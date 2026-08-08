@@ -6,6 +6,7 @@ import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
 import PenggeserHarga from "@/components/ui/PenggeserHarga";
+import PenjelasanHarga from "@/components/ui/PenjelasanHarga";
 import SimpanStruk from "@/components/ui/SimpanStruk";
 import {
   Struk,
@@ -227,6 +228,13 @@ export default function HargaJual() {
                   warna="var(--orange-600)"
                 />
               </div>
+
+              <PenjelasanHarga
+                biayaBahan={biayaBahan}
+                targetMargin={targetMargin}
+                hargaKompetitor={hargaKompetitor}
+                hargaDisarankan={hasil.dine_in_recommended}
+              />
 
               <BocorDiOjol
                 hargaDiTempat={hasil.dine_in_recommended}

@@ -31,6 +31,21 @@ export const AMBANG_MARGIN_RUGI = 20;
 export const AMBANG_MARGIN_SEHAT = 40;
 
 /**
+ * Seberapa jauh harga digeser ke arah harga kompetitor — cermin
+ * `BOBOT_KOMPETITOR` di `features/pricing.py`.
+ *
+ * Dipakai untuk MENERANGKAN, bukan untuk menghitung: angka yang ditampilkan
+ * tetap yang dikirim backend. Tangga penjelasnya hanya ditampilkan kalau
+ * susunan ulang di sini berakhir pada angka yang sama persis (lihat
+ * PenjelasanHarga di Tab 2), jadi kalau nilai ini melenceng dari backend yang
+ * terjadi adalah penjelasannya menghilang — bukan penjelasan yang salah.
+ */
+export const BOBOT_KOMPETITOR = 0.5;
+
+/** Harga jual selalu dibulatkan naik ke kelipatan ini. */
+export const KELIPATAN_HARGA = 500;
+
+/**
  * Status dari margin dan untung — cermin `_status()` di ranking.py.
  *
  * Dipakai penggeser harga di Tab 2 supaya warnanya berarti persis sama dengan
