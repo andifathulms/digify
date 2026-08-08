@@ -2,6 +2,7 @@
 
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import EditorMenu from "@/components/ui/EditorMenu";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
@@ -197,26 +198,26 @@ export default function OptimasiMenu() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          <Kartu>
-            <AngkaSorot
-              label="Perkiraan dampak kalau semua dijalankan"
-              nilai={`${hasil.total_estimated_impact > 0 ? "+" : ""}${formatRupiah(hasil.total_estimated_impact)}`}
-              keterangan="Per bulan. Perkiraan, bukan janji — pantau hasil nyatanya sebulan ke depan."
-              warna={hasil.total_estimated_impact >= 0 ? "var(--green)" : "var(--red)"}
-            />
-          </Kartu>
-
-          {KELOMPOK.map((kelompok) => (
-            <Kartu key={kelompok.kunci} judul={kelompok.judul}>
-              <DaftarRekomendasi
-                rekomendasi={hasil[kelompok.kunci]}
-                warna={kelompok.warna}
-                kosong={kelompok.kosong}
+        <BlokHasil judul="Hasil optimasi menu">
+            <Kartu>
+              <AngkaSorot
+                label="Perkiraan dampak kalau semua dijalankan"
+                nilai={`${hasil.total_estimated_impact > 0 ? "+" : ""}${formatRupiah(hasil.total_estimated_impact)}`}
+                keterangan="Per bulan. Perkiraan, bukan janji — pantau hasil nyatanya sebulan ke depan."
+                warna={hasil.total_estimated_impact >= 0 ? "var(--green)" : "var(--red)"}
               />
             </Kartu>
-          ))}
-        </>
+
+            {KELOMPOK.map((kelompok) => (
+              <Kartu key={kelompok.kunci} judul={kelompok.judul}>
+                <DaftarRekomendasi
+                  rekomendasi={hasil[kelompok.kunci]}
+                  warna={kelompok.warna}
+                  kosong={kelompok.kosong}
+                />
+              </Kartu>
+            ))}
+        </BlokHasil>
       ) : null}
     </>
   );

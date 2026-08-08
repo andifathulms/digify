@@ -1,6 +1,7 @@
 "use client";
 
 
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -138,92 +139,92 @@ export default function WasteTracker() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          {hasil.ringkasan_periode ? (
-            <Kartu>
-              <p className="text-sm leading-relaxed">{hasil.ringkasan_periode}</p>
-            </Kartu>
-          ) : null}
+        <BlokHasil judul="Hasil pelacakan bahan terbuang">
+            {hasil.ringkasan_periode ? (
+              <Kartu>
+                <p className="text-sm leading-relaxed">{hasil.ringkasan_periode}</p>
+              </Kartu>
+            ) : null}
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {/* Dua temuan ini sengaja ditampilkan berdampingan: sering bahan
-                yang berbeda, dan itu justru inti gunanya alat ini. */}
-            <AngkaSorot
-              label="Paling boros dari sisi persentase"
-              nilai={hasil.bahan_paling_boros_persen}
-              keterangan="Paling banyak terbuang dibanding jumlah belinya"
-              warna="var(--yellow)"
-            />
-            <AngkaSorot
-              label="Paling boros dari sisi rupiah"
-              nilai={hasil.bahan_paling_boros_rupiah}
-              keterangan="Paling banyak membuang uang Anda"
-              warna="var(--red)"
-            />
-          </div>
-
-          <SimpanStruk judul={`Pemborosan ${periode}`}>
-            <Struk>
-              <StrukJudul judul="Rincian pemborosan" subjudul={periode} />
-              <StrukGaris />
-
-              {hasil.waste_breakdown.map((baris, indeks) => (
-                <div key={`${baris.nama}-${indeks}`} className="py-2">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="text-sm">{baris.nama}</p>
-                    <p className="tabular shrink-0 text-sm font-medium">
-                      {formatRupiah(baris.nilai_rupiah)}
-                    </p>
-                  </div>
-                  <p className="tabular text-xs" style={{ color: "var(--ink-dim)" }}>
-                    terbuang {formatPersen(baris.persentase_terbuang)}
-                  </p>
-                  {baris.dugaan_penyebab ? (
-                    <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-                      {baris.dugaan_penyebab}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
-
-              <StrukTotal
-                label="Total terbuang"
-                nilai={formatRupiah(hasil.total_nilai_waste_rupiah)}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* Dua temuan ini sengaja ditampilkan berdampingan: sering bahan
+                  yang berbeda, dan itu justru inti gunanya alat ini. */}
+              <AngkaSorot
+                label="Paling boros dari sisi persentase"
+                nilai={hasil.bahan_paling_boros_persen}
+                keterangan="Paling banyak terbuang dibanding jumlah belinya"
+                warna="var(--yellow)"
               />
-              <StrukCatatan>
-                Sekitar {formatRupiah(hasil.total_nilai_waste_rupiah * 4)} sebulan kalau polanya
-                sama terus.
-              </StrukCatatan>
-            </Struk>
-          </SimpanStruk>
+              <AngkaSorot
+                label="Paling boros dari sisi rupiah"
+                nilai={hasil.bahan_paling_boros_rupiah}
+                keterangan="Paling banyak membuang uang Anda"
+                warna="var(--red)"
+              />
+            </div>
 
-          {hasil.rekomendasi.length > 0 ? (
-            <Kartu judul="Yang bisa Anda lakukan">
-              <ul className="flex flex-col gap-2.5">
-                {hasil.rekomendasi.map((saran, indeks) => (
-                  <li key={indeks} className="flex gap-3 text-sm leading-relaxed">
-                    <span
-                      aria-hidden
-                      className="tabular mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                      style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
-                    >
-                      {indeks + 1}
-                    </span>
-                    {saran}
-                  </li>
+            <SimpanStruk judul={`Pemborosan ${periode}`}>
+              <Struk>
+                <StrukJudul judul="Rincian pemborosan" subjudul={periode} />
+                <StrukGaris />
+
+                {hasil.waste_breakdown.map((baris, indeks) => (
+                  <div key={`${baris.nama}-${indeks}`} className="py-2">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-sm">{baris.nama}</p>
+                      <p className="tabular shrink-0 text-sm font-medium">
+                        {formatRupiah(baris.nilai_rupiah)}
+                      </p>
+                    </div>
+                    <p className="tabular text-xs" style={{ color: "var(--ink-dim)" }}>
+                      terbuang {formatPersen(baris.persentase_terbuang)}
+                    </p>
+                    {baris.dugaan_penyebab ? (
+                      <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+                        {baris.dugaan_penyebab}
+                      </p>
+                    ) : null}
+                  </div>
                 ))}
-              </ul>
-              <div className="mt-4">
-                <AngkaSorot
-                  label="Perkiraan hemat kalau dijalankan"
-                  nilai={formatRupiah(hasil.estimasi_penghematan_bulanan)}
-                  keterangan="per bulan"
-                  warna="var(--green)"
+
+                <StrukTotal
+                  label="Total terbuang"
+                  nilai={formatRupiah(hasil.total_nilai_waste_rupiah)}
                 />
-              </div>
-            </Kartu>
-          ) : null}
-        </>
+                <StrukCatatan>
+                  Sekitar {formatRupiah(hasil.total_nilai_waste_rupiah * 4)} sebulan kalau polanya
+                  sama terus.
+                </StrukCatatan>
+              </Struk>
+            </SimpanStruk>
+
+            {hasil.rekomendasi.length > 0 ? (
+              <Kartu judul="Yang bisa Anda lakukan">
+                <ul className="flex flex-col gap-2.5">
+                  {hasil.rekomendasi.map((saran, indeks) => (
+                    <li key={indeks} className="flex gap-3 text-sm leading-relaxed">
+                      <span
+                        aria-hidden
+                        className="tabular mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                        style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
+                      >
+                        {indeks + 1}
+                      </span>
+                      {saran}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4">
+                  <AngkaSorot
+                    label="Perkiraan hemat kalau dijalankan"
+                    nilai={formatRupiah(hasil.estimasi_penghematan_bulanan)}
+                    keterangan="per bulan"
+                    warna="var(--green)"
+                  />
+                </div>
+              </Kartu>
+            ) : null}
+        </BlokHasil>
       ) : null}
     </>
   );

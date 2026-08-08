@@ -1,5 +1,6 @@
 "use client";
 
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -191,99 +192,99 @@ export default function HargaJual() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          {/* Satu bagian, bukan tiga kartu yang kebetulan berurutan.
-           *
-           * Ketiganya membicarakan SATU harga: jawabannya, akibatnya di ojol,
-           * dan bagaimana angkanya bergerak. Sebelumnya ketiganya tampil
-           * sebagai tiga permukaan berbeda beruntun — abu-abu, kuning, putih —
-           * jadi warna terbaca sebagai variasi, bukan sebagai arti, dan tidak
-           * ada satu pun tanda bahwa ketiganya saling berhubungan.
-           *
-           * Judul bagian membuat hubungan itu terucap, dan garis kiri yang
-           * menyambung menahan ketiganya sebagai satu blok saat digulir di
-           * layar 360px, tempat hanya satu kartu terlihat sekaligus. */}
-          <section
-            className="animasi-masuk flex flex-col gap-3 pl-3"
-            style={{ borderLeft: "2px solid var(--blue-100)" }}
-            aria-labelledby="judul-harga"
-          >
-            <h2 id="judul-harga" className="judul-kecil text-lg">
-              Harga untuk {hasil.item_name}
-            </h2>
+        <BlokHasil judul="Hasil penetapan harga">
+            {/* Satu bagian, bukan tiga kartu yang kebetulan berurutan.
+             *
+             * Ketiganya membicarakan SATU harga: jawabannya, akibatnya di ojol,
+             * dan bagaimana angkanya bergerak. Sebelumnya ketiganya tampil
+             * sebagai tiga permukaan berbeda beruntun — abu-abu, kuning, putih —
+             * jadi warna terbaca sebagai variasi, bukan sebagai arti, dan tidak
+             * ada satu pun tanda bahwa ketiganya saling berhubungan.
+             *
+             * Judul bagian membuat hubungan itu terucap, dan garis kiri yang
+             * menyambung menahan ketiganya sebagai satu blok saat digulir di
+             * layar 360px, tempat hanya satu kartu terlihat sekaligus. */}
+            <section
+              className="animasi-masuk flex flex-col gap-3 pl-3"
+              style={{ borderLeft: "2px solid var(--blue-100)" }}
+              aria-labelledby="judul-harga"
+            >
+              <h2 id="judul-harga" className="judul-kecil text-lg">
+                Harga untuk {hasil.item_name}
+              </h2>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <AngkaSorot
-                label="Harga jual di tempat"
-                nilai={formatRupiah(hasil.dine_in_recommended)}
-                keterangan={`Margin ${formatPersen(hasil.margin_at_recommended)}`}
-                warna="var(--blue-deep)"
-              />
-              <AngkaSorot
-                label="Harga jual di ojol"
-                nilai={formatRupiah(hasil.delivery_recommended)}
-                keterangan={`Sudah dihitung dengan komisi ${formatPersen(komisi)}`}
-                warna="var(--orange-600)"
-              />
-            </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <AngkaSorot
+                  label="Harga jual di tempat"
+                  nilai={formatRupiah(hasil.dine_in_recommended)}
+                  keterangan={`Margin ${formatPersen(hasil.margin_at_recommended)}`}
+                  warna="var(--blue-deep)"
+                />
+                <AngkaSorot
+                  label="Harga jual di ojol"
+                  nilai={formatRupiah(hasil.delivery_recommended)}
+                  keterangan={`Sudah dihitung dengan komisi ${formatPersen(komisi)}`}
+                  warna="var(--orange-600)"
+                />
+              </div>
 
-            <BocorDiOjol
-              hargaDiTempat={hasil.dine_in_recommended}
-              biayaBahan={biayaBahan}
-              komisi={komisi}
-            />
-
-            <PenggeserHarga
-              biayaBahan={biayaBahan}
-              hargaDisarankan={hasil.dine_in_recommended}
-              balikModal={hasil.break_even_dine_in}
-              komisi={komisi}
-            />
-          </section>
-
-          <SimpanStruk judul={hasil.item_name}>
-            <Struk>
-              <StrukJudul judul={hasil.item_name} subjudul="Rincian penetapan harga" />
-              <StrukGaris />
-
-              <StrukBaris label="Biaya bahan per porsi" nilai={formatRupiah(biayaBahan)} />
-              <StrukBaris
-                label="Balik modal di tempat"
-                keterangan="Di bawah ini Anda rugi"
-                nilai={formatRupiah(hasil.break_even_dine_in)}
-              />
-              <StrukBaris
-                label="Balik modal di ojol"
-                keterangan={`Biaya bahan ÷ (100% − ${formatPersen(komisi)})`}
-                nilai={formatRupiah(hasil.break_even_delivery)}
+              <BocorDiOjol
+                hargaDiTempat={hasil.dine_in_recommended}
+                biayaBahan={biayaBahan}
+                komisi={komisi}
               />
 
-              <StrukGaris />
+              <PenggeserHarga
+                biayaBahan={biayaBahan}
+                hargaDisarankan={hasil.dine_in_recommended}
+                balikModal={hasil.break_even_dine_in}
+                komisi={komisi}
+              />
+            </section>
 
-              <StrukBaris
-                label="Harga yang disarankan (di tempat)"
-                nilai={formatRupiah(hasil.dine_in_recommended)}
-              />
-              <StrukBaris
-                label="Harga yang disarankan (ojol)"
-                nilai={formatRupiah(hasil.delivery_recommended)}
-              />
-              <StrukBaris
-                label="Harga yang terasa lebih murah"
-                keterangan="Angka bulat yang enak dilihat pembeli"
-                nilai={formatRupiah(hasil.psychological_price)}
-              />
+            <SimpanStruk judul={hasil.item_name}>
+              <Struk>
+                <StrukJudul judul={hasil.item_name} subjudul="Rincian penetapan harga" />
+                <StrukGaris />
 
-              <StrukTotal
-                label="Untung tiap porsi (di tempat)"
-                nilai={formatRupiah(hasil.dine_in_recommended - biayaBahan)}
-              />
-              <StrukCatatan>
-                Selisih harga ojol menutup komisi aplikasi, bukan menaikkan untung Anda.
-              </StrukCatatan>
-            </Struk>
-          </SimpanStruk>
-        </>
+                <StrukBaris label="Biaya bahan per porsi" nilai={formatRupiah(biayaBahan)} />
+                <StrukBaris
+                  label="Balik modal di tempat"
+                  keterangan="Di bawah ini Anda rugi"
+                  nilai={formatRupiah(hasil.break_even_dine_in)}
+                />
+                <StrukBaris
+                  label="Balik modal di ojol"
+                  keterangan={`Biaya bahan ÷ (100% − ${formatPersen(komisi)})`}
+                  nilai={formatRupiah(hasil.break_even_delivery)}
+                />
+
+                <StrukGaris />
+
+                <StrukBaris
+                  label="Harga yang disarankan (di tempat)"
+                  nilai={formatRupiah(hasil.dine_in_recommended)}
+                />
+                <StrukBaris
+                  label="Harga yang disarankan (ojol)"
+                  nilai={formatRupiah(hasil.delivery_recommended)}
+                />
+                <StrukBaris
+                  label="Harga yang terasa lebih murah"
+                  keterangan="Angka bulat yang enak dilihat pembeli"
+                  nilai={formatRupiah(hasil.psychological_price)}
+                />
+
+                <StrukTotal
+                  label="Untung tiap porsi (di tempat)"
+                  nilai={formatRupiah(hasil.dine_in_recommended - biayaBahan)}
+                />
+                <StrukCatatan>
+                  Selisih harga ojol menutup komisi aplikasi, bukan menaikkan untung Anda.
+                </StrukCatatan>
+              </Struk>
+            </SimpanStruk>
+        </BlokHasil>
       ) : null}
     </>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import FormKonten, { type IsiFormKonten } from "@/components/tools/FormKonten";
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import { FieldAngka } from "@/components/ui/Field";
 import Kartu from "@/components/ui/Kartu";
@@ -67,78 +68,78 @@ export default function CarouselTeks() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          {hasil.ringkasan_konsep ? (
-            <Kartu judul="Alur ceritanya">
-              <p className="text-sm leading-relaxed">{hasil.ringkasan_konsep}</p>
-            </Kartu>
-          ) : null}
-
-          {hasil.slides.map((slide) => (
-            <Kartu key={slide.nomor_slide}>
-              <div className="flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className="tabular flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
-                  style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
-                >
-                  {slide.nomor_slide}
-                </span>
-                <div className="min-w-0 flex-1">
-                  {slide.tipe_slide ? (
-                    <p
-                      className="text-xs font-semibold tracking-wide uppercase"
-                      style={{ color: "var(--orange-600)" }}
-                    >
-                      {slide.tipe_slide}
-                    </p>
-                  ) : null}
-                  <p className="mt-1 text-base leading-relaxed font-medium">{slide.teks_slide}</p>
-
-                  {slide.petunjuk_foto ? (
-                    <p
-                      className="mt-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm leading-relaxed"
-                      style={{ background: "var(--cream)", color: "var(--ink)" }}
-                    >
-                      <span className="font-semibold">Fotonya: </span>
-                      {slide.petunjuk_foto}
-                    </p>
-                  ) : null}
-                </div>
-                <TombolSalin teks={slide.teks_slide} />
-              </div>
-            </Kartu>
-          ))}
-
-          <Kartu judul="Caption untuk postingannya">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-sm leading-relaxed whitespace-pre-line">{hasil.caption_post}</p>
-              <TombolSalin teks={hasil.caption_post} />
-            </div>
-
-            {hasil.hashtag_rekomendasi.length > 0 ? (
-              <>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {hasil.hashtag_rekomendasi.map((tagar) => (
-                    <span
-                      key={tagar}
-                      className="rounded-full px-3 py-1.5 text-sm"
-                      style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
-                    >
-                      {tagar}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <TombolSalin
-                    teks={hasil.hashtag_rekomendasi.join(" ")}
-                    label="Salin semua hashtag"
-                  />
-                </div>
-              </>
+        <BlokHasil judul="Naskah carousel">
+            {hasil.ringkasan_konsep ? (
+              <Kartu judul="Alur ceritanya">
+                <p className="text-sm leading-relaxed">{hasil.ringkasan_konsep}</p>
+              </Kartu>
             ) : null}
-          </Kartu>
-        </>
+
+            {hasil.slides.map((slide) => (
+              <Kartu key={slide.nomor_slide}>
+                <div className="flex items-start gap-3">
+                  <span
+                    aria-hidden
+                    className="tabular flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                    style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
+                  >
+                    {slide.nomor_slide}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    {slide.tipe_slide ? (
+                      <p
+                        className="text-xs font-semibold tracking-wide uppercase"
+                        style={{ color: "var(--orange-600)" }}
+                      >
+                        {slide.tipe_slide}
+                      </p>
+                    ) : null}
+                    <p className="mt-1 text-base leading-relaxed font-medium">{slide.teks_slide}</p>
+
+                    {slide.petunjuk_foto ? (
+                      <p
+                        className="mt-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm leading-relaxed"
+                        style={{ background: "var(--cream)", color: "var(--ink)" }}
+                      >
+                        <span className="font-semibold">Fotonya: </span>
+                        {slide.petunjuk_foto}
+                      </p>
+                    ) : null}
+                  </div>
+                  <TombolSalin teks={slide.teks_slide} />
+                </div>
+              </Kartu>
+            ))}
+
+            <Kartu judul="Caption untuk postingannya">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm leading-relaxed whitespace-pre-line">{hasil.caption_post}</p>
+                <TombolSalin teks={hasil.caption_post} />
+              </div>
+
+              {hasil.hashtag_rekomendasi.length > 0 ? (
+                <>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {hasil.hashtag_rekomendasi.map((tagar) => (
+                      <span
+                        key={tagar}
+                        className="rounded-full px-3 py-1.5 text-sm"
+                        style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
+                      >
+                        {tagar}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <TombolSalin
+                      teks={hasil.hashtag_rekomendasi.join(" ")}
+                      label="Salin semua hashtag"
+                    />
+                  </div>
+                </>
+              ) : null}
+            </Kartu>
+        </BlokHasil>
       ) : null}
     </>
   );

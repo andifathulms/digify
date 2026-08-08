@@ -2,6 +2,7 @@
 
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu from "@/components/ui/Kartu";
@@ -169,112 +170,112 @@ export default function IdeMenu() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          {hasil.ringkasan_analisa ? (
-            <Kartu judul="Celah yang kami lihat">
-              <p className="text-sm leading-relaxed">{hasil.ringkasan_analisa}</p>
-            </Kartu>
-          ) : null}
+        <BlokHasil judul="Ide menu baru">
+            {hasil.ringkasan_analisa ? (
+              <Kartu judul="Celah yang kami lihat">
+                <p className="text-sm leading-relaxed">{hasil.ringkasan_analisa}</p>
+              </Kartu>
+            ) : null}
 
-          {hasil.ide_menu.length === 0 ? (
-            <KeadaanKosong>
-              Belum ada ide yang muat di batas biaya {formatRupiah(batasBiaya)}. Coba naikkan
-              batasnya sedikit, lalu minta lagi.
-            </KeadaanKosong>
-          ) : (
-            hasil.ide_menu.map((ide, indeks) => (
-              <Kartu key={`${ide.nama}-${indeks}`}>
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <h3 className="judul-kecil text-lg">{ide.nama}</h3>
-                  <div className="flex gap-2">
-                    {ide.kategori ? (
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
-                      >
-                        {ide.kategori}
-                      </span>
-                    ) : null}
-                    {ide.kesulitan ? (
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
-                      >
-                        {ide.kesulitan}
-                      </span>
-                    ) : null}
+            {hasil.ide_menu.length === 0 ? (
+              <KeadaanKosong>
+                Belum ada ide yang muat di batas biaya {formatRupiah(batasBiaya)}. Coba naikkan
+                batasnya sedikit, lalu minta lagi.
+              </KeadaanKosong>
+            ) : (
+              hasil.ide_menu.map((ide, indeks) => (
+                <Kartu key={`${ide.nama}-${indeks}`}>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <h3 className="judul-kecil text-lg">{ide.nama}</h3>
+                    <div className="flex gap-2">
+                      {ide.kategori ? (
+                        <span
+                          className="rounded-full px-2.5 py-1 text-xs font-semibold"
+                          style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
+                        >
+                          {ide.kategori}
+                        </span>
+                      ) : null}
+                      {ide.kesulitan ? (
+                        <span
+                          className="rounded-full px-2.5 py-1 text-xs font-semibold"
+                          style={{ background: "var(--orange-wash)", color: "var(--orange-600)" }}
+                        >
+                          {ide.kesulitan}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
 
-                <p className="mt-2 text-sm leading-relaxed">{ide.deskripsi}</p>
+                  <p className="mt-2 text-sm leading-relaxed">{ide.deskripsi}</p>
 
-                <dl
-                  className="tabular mt-4 grid grid-cols-3 gap-2 rounded-[var(--radius)] px-4 py-3 text-center"
-                  style={{ background: "var(--bg)" }}
-                >
-                  <div>
-                    <dt className="text-xs" style={{ color: "var(--ink-dim)" }}>
-                      Biaya bahan
-                    </dt>
-                    <dd className="mt-0.5 text-sm font-semibold">{formatRupiah(ide.cogs)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs" style={{ color: "var(--ink-dim)" }}>
-                      Harga jual
-                    </dt>
-                    <dd className="mt-0.5 text-sm font-semibold">{formatRupiah(ide.harga)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs" style={{ color: "var(--ink-dim)" }}>
-                      Untung
-                    </dt>
-                    <dd className="mt-0.5 text-sm font-semibold" style={{ color: "var(--green)" }}>
-                      {formatRupiah(ide.harga - ide.cogs)}
-                    </dd>
-                  </div>
-                </dl>
-                <p className="mt-1.5 text-center text-xs" style={{ color: "var(--ink-dim)" }}>
-                  Margin {formatPersen(ide.margin)}
-                </p>
-
-                {ide.bahan.length > 0 ? (
-                  <p className="mt-3 text-sm leading-relaxed">
-                    <span className="font-medium">Bahan: </span>
-                    <span style={{ color: "var(--ink-dim)" }}>{ide.bahan.join(", ")}</span>
-                  </p>
-                ) : null}
-
-                {ide.alasan ? (
-                  <p
-                    className="mt-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm leading-relaxed"
+                  <dl
+                    className="tabular mt-4 grid grid-cols-3 gap-2 rounded-[var(--radius)] px-4 py-3 text-center"
                     style={{ background: "var(--bg)" }}
                   >
-                    {ide.alasan}
+                    <div>
+                      <dt className="text-xs" style={{ color: "var(--ink-dim)" }}>
+                        Biaya bahan
+                      </dt>
+                      <dd className="mt-0.5 text-sm font-semibold">{formatRupiah(ide.cogs)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs" style={{ color: "var(--ink-dim)" }}>
+                        Harga jual
+                      </dt>
+                      <dd className="mt-0.5 text-sm font-semibold">{formatRupiah(ide.harga)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs" style={{ color: "var(--ink-dim)" }}>
+                        Untung
+                      </dt>
+                      <dd className="mt-0.5 text-sm font-semibold" style={{ color: "var(--green)" }}>
+                        {formatRupiah(ide.harga - ide.cogs)}
+                      </dd>
+                    </div>
+                  </dl>
+                  <p className="mt-1.5 text-center text-xs" style={{ color: "var(--ink-dim)" }}>
+                    Margin {formatPersen(ide.margin)}
                   </p>
-                ) : null}
-              </Kartu>
-            ))
-          )}
 
-          {hasil.tips_eksekusi.length > 0 ? (
-            <Kartu judul="Sebelum mulai jualan">
-              <ul className="flex flex-col gap-2.5">
-                {hasil.tips_eksekusi.map((tips, indeks) => (
-                  <li key={indeks} className="flex gap-3 text-sm leading-relaxed">
-                    <span
-                      aria-hidden
-                      className="tabular mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                      style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
+                  {ide.bahan.length > 0 ? (
+                    <p className="mt-3 text-sm leading-relaxed">
+                      <span className="font-medium">Bahan: </span>
+                      <span style={{ color: "var(--ink-dim)" }}>{ide.bahan.join(", ")}</span>
+                    </p>
+                  ) : null}
+
+                  {ide.alasan ? (
+                    <p
+                      className="mt-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm leading-relaxed"
+                      style={{ background: "var(--bg)" }}
                     >
-                      {indeks + 1}
-                    </span>
-                    {tips}
-                  </li>
-                ))}
-              </ul>
-            </Kartu>
-          ) : null}
-        </>
+                      {ide.alasan}
+                    </p>
+                  ) : null}
+                </Kartu>
+              ))
+            )}
+
+            {hasil.tips_eksekusi.length > 0 ? (
+              <Kartu judul="Sebelum mulai jualan">
+                <ul className="flex flex-col gap-2.5">
+                  {hasil.tips_eksekusi.map((tips, indeks) => (
+                    <li key={indeks} className="flex gap-3 text-sm leading-relaxed">
+                      <span
+                        aria-hidden
+                        className="tabular mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                        style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
+                      >
+                        {indeks + 1}
+                      </span>
+                      {tips}
+                    </li>
+                  ))}
+                </ul>
+              </Kartu>
+            ) : null}
+        </BlokHasil>
       ) : null}
     </>
   );

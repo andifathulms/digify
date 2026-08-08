@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import FormKonten, { type IsiFormKonten } from "@/components/tools/FormKonten";
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu from "@/components/ui/Kartu";
@@ -94,48 +95,48 @@ export default function CarouselGambar() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          {hasil.ringkasan_konsep ? (
-            <Kartu judul="Alur ceritanya">
-              <p className="text-sm leading-relaxed">{hasil.ringkasan_konsep}</p>
-            </Kartu>
-          ) : null}
-
-          <PapanCarousel
-            slides={hasil.slides}
-            namaMenu={isi.namaMenu}
-            namaWarung={namaWarung}
-          />
-
-          <Kartu judul="Caption untuk postingannya">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-sm leading-relaxed whitespace-pre-line">{hasil.caption_post}</p>
-              <TombolSalin teks={hasil.caption_post} />
-            </div>
-
-            {hasil.hashtag_rekomendasi.length > 0 ? (
-              <div className="mt-4">
-                <div className="flex flex-wrap gap-2">
-                  {hasil.hashtag_rekomendasi.map((tagar) => (
-                    <span
-                      key={tagar}
-                      className="rounded-full px-3 py-1.5 text-sm"
-                      style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
-                    >
-                      {tagar}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <TombolSalin
-                    teks={hasil.hashtag_rekomendasi.join(" ")}
-                    label="Salin semua hashtag"
-                  />
-                </div>
-              </div>
+        <BlokHasil judul="Gambar carousel">
+            {hasil.ringkasan_konsep ? (
+              <Kartu judul="Alur ceritanya">
+                <p className="text-sm leading-relaxed">{hasil.ringkasan_konsep}</p>
+              </Kartu>
             ) : null}
-          </Kartu>
-        </>
+
+            <PapanCarousel
+              slides={hasil.slides}
+              namaMenu={isi.namaMenu}
+              namaWarung={namaWarung}
+            />
+
+            <Kartu judul="Caption untuk postingannya">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm leading-relaxed whitespace-pre-line">{hasil.caption_post}</p>
+                <TombolSalin teks={hasil.caption_post} />
+              </div>
+
+              {hasil.hashtag_rekomendasi.length > 0 ? (
+                <div className="mt-4">
+                  <div className="flex flex-wrap gap-2">
+                    {hasil.hashtag_rekomendasi.map((tagar) => (
+                      <span
+                        key={tagar}
+                        className="rounded-full px-3 py-1.5 text-sm"
+                        style={{ background: "var(--blue-wash)", color: "var(--blue-deep)" }}
+                      >
+                        {tagar}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <TombolSalin
+                      teks={hasil.hashtag_rekomendasi.join(" ")}
+                      label="Salin semua hashtag"
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </Kartu>
+        </BlokHasil>
       ) : null}
     </>
   );

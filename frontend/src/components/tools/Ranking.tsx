@@ -2,6 +2,7 @@
 
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import EditorMenu from "@/components/ui/EditorMenu";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -83,25 +84,25 @@ export default function Ranking() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          <Kartu judul="Ringkasan seminggu">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <AngkaSorot
-                label="Total profit seminggu"
-                nilai={formatRupiah(hasil.total_weekly_profit)}
-                keterangan={`Sekitar ${formatRupiah(hasil.total_weekly_profit * 4)} sebulan`}
-                warna="var(--green)"
-              />
-              <AngkaSorot
-                label="Menu yang perlu ditindak"
-                nilai={`${hasil.items_to_reprice + hasil.items_to_remove} dari ${hasil.rankings.length}`}
-                keterangan={`${hasil.items_to_promote} pertahankan · ${hasil.items_to_reprice} perbaiki harga · ${hasil.items_to_remove} tinjau ulang`}
-              />
-            </div>
-          </Kartu>
+        <BlokHasil judul="Hasil ranking menu">
+            <Kartu judul="Ringkasan seminggu">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <AngkaSorot
+                  label="Total profit seminggu"
+                  nilai={formatRupiah(hasil.total_weekly_profit)}
+                  keterangan={`Sekitar ${formatRupiah(hasil.total_weekly_profit * 4)} sebulan`}
+                  warna="var(--green)"
+                />
+                <AngkaSorot
+                  label="Menu yang perlu ditindak"
+                  nilai={`${hasil.items_to_reprice + hasil.items_to_remove} dari ${hasil.rankings.length}`}
+                  keterangan={`${hasil.items_to_promote} pertahankan · ${hasil.items_to_reprice} perbaiki harga · ${hasil.items_to_remove} tinjau ulang`}
+                />
+              </div>
+            </Kartu>
 
-          <PapanRanking rankings={hasil.rankings} />
-        </>
+            <PapanRanking rankings={hasil.rankings} />
+        </BlokHasil>
       ) : null}
     </>
   );

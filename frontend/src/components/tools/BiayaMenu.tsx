@@ -1,5 +1,6 @@
 "use client";
 
+import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -148,62 +149,62 @@ export default function BiayaMenu() {
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
-        <>
-          <BahanTerlewat
-            teksBahan={bahan}
-            namaTerbaca={hasil.ingredients_breakdown.map((baris) => baris.nama)}
-          />
+        <BlokHasil judul="Hasil hitungan biaya menu">
+            <BahanTerlewat
+              teksBahan={bahan}
+              namaTerbaca={hasil.ingredients_breakdown.map((baris) => baris.nama)}
+            />
 
-          <SimpanStruk judul={hasil.item_name}>
-            <Struk>
-              <StrukJudul judul={hasil.item_name} subjudul={`Biaya bahan untuk 1 porsi · ${NAMA_WARUNG}`} />
-              <StrukGaris />
+            <SimpanStruk judul={hasil.item_name}>
+              <Struk>
+                <StrukJudul judul={hasil.item_name} subjudul={`Biaya bahan untuk 1 porsi · ${NAMA_WARUNG}`} />
+                <StrukGaris />
 
-              {hasil.ingredients_breakdown.map((bahanBaris, indeks) => (
-                <StrukBarisBahan
-                  key={`${bahanBaris.nama}-${indeks}`}
-                  nama={bahanBaris.nama}
-                  jumlah={bahanBaris.jumlah}
-                  satuan={bahanBaris.satuan}
-                  hargaBeli={bahanBaris.harga_beli}
-                  satuanBeli={bahanBaris.satuan_beli}
-                  biaya={formatRupiah(bahanBaris.biaya)}
+                {hasil.ingredients_breakdown.map((bahanBaris, indeks) => (
+                  <StrukBarisBahan
+                    key={`${bahanBaris.nama}-${indeks}`}
+                    nama={bahanBaris.nama}
+                    jumlah={bahanBaris.jumlah}
+                    satuan={bahanBaris.satuan}
+                    hargaBeli={bahanBaris.harga_beli}
+                    satuanBeli={bahanBaris.satuan_beli}
+                    biaya={formatRupiah(bahanBaris.biaya)}
+                  />
+                ))}
+
+                <StrukTotal label="Biaya per porsi" nilai={formatRupiah(hasil.cogs_per_portion)} />
+                <StrukCatatan>
+                  Dihitung dari harga bahan yang Anda tulis. Kalau harga bahan berubah, hitung ulang.
+                </StrukCatatan>
+              </Struk>
+            </SimpanStruk>
+
+            <Kartu judul="Artinya untuk warung Anda">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <AngkaSorot
+                  label="Untung tiap porsi"
+                  nilai={formatRupiah(hargaSekarang - hasil.cogs_per_portion)}
+                  keterangan={`Margin ${formatPersen(hasil.current_margin_percentage)} di harga ${formatRupiah(hargaSekarang)}`}
+                  warna={
+                    hargaSekarang - hasil.cogs_per_portion > 0 ? "var(--green)" : "var(--red)"
+                  }
                 />
-              ))}
-
-              <StrukTotal label="Biaya per porsi" nilai={formatRupiah(hasil.cogs_per_portion)} />
-              <StrukCatatan>
-                Dihitung dari harga bahan yang Anda tulis. Kalau harga bahan berubah, hitung ulang.
-              </StrukCatatan>
-            </Struk>
-          </SimpanStruk>
-
-          <Kartu judul="Artinya untuk warung Anda">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <AngkaSorot
-                label="Untung tiap porsi"
-                nilai={formatRupiah(hargaSekarang - hasil.cogs_per_portion)}
-                keterangan={`Margin ${formatPersen(hasil.current_margin_percentage)} di harga ${formatRupiah(hargaSekarang)}`}
-                warna={
-                  hargaSekarang - hasil.cogs_per_portion > 0 ? "var(--green)" : "var(--red)"
-                }
-              />
-              <AngkaSorot
-                label="Bahan terbuang"
-                nilai={formatPersen(hasil.food_waste_percentage)}
-                keterangan={`Sekitar ${formatRupiah((hasil.cogs_per_portion * hasil.food_waste_percentage) / 100)} per porsi ikut hilang`}
-                warna={hasil.food_waste_percentage > 10 ? "var(--yellow)" : "var(--ink)"}
-              />
-            </div>
-            <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-              Sudah tahu biaya aslinya? Lanjut ke{" "}
-              <a href="/alat/harga-jual" className="font-semibold" style={{ color: "var(--blue)" }}>
-                Harga Jual
-              </a>{" "}
-              untuk mencari harga yang benar, termasuk untuk ojol.
-            </p>
-          </Kartu>
-        </>
+                <AngkaSorot
+                  label="Bahan terbuang"
+                  nilai={formatPersen(hasil.food_waste_percentage)}
+                  keterangan={`Sekitar ${formatRupiah((hasil.cogs_per_portion * hasil.food_waste_percentage) / 100)} per porsi ikut hilang`}
+                  warna={hasil.food_waste_percentage > 10 ? "var(--yellow)" : "var(--ink)"}
+                />
+              </div>
+              <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+                Sudah tahu biaya aslinya? Lanjut ke{" "}
+                <a href="/alat/harga-jual" className="font-semibold" style={{ color: "var(--blue)" }}>
+                  Harga Jual
+                </a>{" "}
+                untuk mencari harga yang benar, termasuk untuk ojol.
+              </p>
+            </Kartu>
+        </BlokHasil>
       ) : null}
     </>
   );
