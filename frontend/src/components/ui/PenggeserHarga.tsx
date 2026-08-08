@@ -88,7 +88,14 @@ export default function PenggeserHarga({
       </p>
 
       <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <p className="judul tabular text-4xl" style={{ color: warna }}>
+        {/* 20px — tingkat paling bawah dari tiga blok berangka di halaman ini.
+         *
+         * Sebelumnya 34px, dan itu menjadikan angka coba-coba sebagai teks
+         * terbesar di seluruh halaman: lebih besar daripada harga yang
+         * benar-benar disarankan. Di layar 360px ukuran relatif adalah
+         * satu-satunya penanda mana yang lebih penting, jadi urutannya harus
+         * jawaban (28) → akibat (24) → coba-coba (20). */}
+        <p className="judul tabular text-xl" style={{ color: warna }}>
           {formatRupiah(harga)}
         </p>
         <p className="tabular text-base font-semibold" style={{ color: warna }}>

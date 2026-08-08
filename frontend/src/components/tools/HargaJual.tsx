@@ -67,7 +67,13 @@ function BocorDiOjol({
         Kalau harga di tempat dipakai apa adanya di ojol
       </p>
 
-      <p className="judul tabular mt-2 text-3xl" style={{ color: rugi ? "var(--red)" : "var(--ink)" }}>
+      {/* 24px, satu tingkat DI BAWAH harga yang disarankan (28px).
+       * Halaman ini bertanya "harga berapa yang benar?", jadi jawabannya yang
+       * harus paling besar; angka ini alasan untuk peduli, bukan jawabannya. */}
+      <p
+        className="judul tabular mt-2 text-2xl"
+        style={{ color: rugi ? "var(--red)" : "var(--ink)" }}
+      >
         −{formatRupiah(potongan)}
       </p>
       <p className="teks-rapi mt-1 text-base leading-relaxed">
