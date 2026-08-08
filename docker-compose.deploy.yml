@@ -1,0 +1,143 @@
+# SATU-SATUNYA berkas yang perlu ada di server produksi, selain .env.
+#
+# Tidak ada `build:`, tidak ada bind mount ke berkas repo. Semua image ditarik
+# dari GHCR, dibangun oleh .github/workflows/build-images.yml setiap kali ada
+# push ke main.
+#
+# Di server:
+#     mkdir -p /opt/digify && cd /opt/digify
+#     # salin berkas ini jadi docker-compose.yml, dan .env.deploy.example jadi .env
+#     docker compose pull
+#     docker compose up -d
+#
+# Panduan lengkap dari nol: docs/DEPLOY_VPS.md
+#
+# Beda dengan docker-compose.prod.yml: berkas itu membangun image DI server
+# (butuh repo lengkap + RAM untuk build). Berkas ini hanya menarik. Keduanya
+# menghasilkan susunan yang sama.
+
+name: digify
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-digify}
+      POSTGRES_USER: ${POSTGRES_USER:-digify}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD wajib diisi}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Sengaja TIDAK ada `ports:`. Database hanya bisa dihubungi dari dalam
+    # jaringan Docker. Membukanya ke internet adalah cara tercepat kehilangan
+    # seluruh data pelanggan.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-digify}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER wajib diisi}/digify-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: /app/entrypoint.prod.sh
+    env_file: [.env]
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      POSTGRES_HOST: db
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - staticfiles:/app/staticfiles
+      - mediafiles:/app/mediafiles
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER wajib diisi}/digify-frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      NODE_ENV: production
+      BACKEND_INTERNAL_URL: http://backend:8000
+    depends_on:
+      - backend
+
+  nginx:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER wajib diisi}/digify-nginx:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - certbot_www:/var/www/certbot
+      - staticfiles:/var/www/static:ro
+      - mediafiles:/var/www/media:ro
+    # Muat ulang berkala supaya sertifikat yang baru diperpanjang certbot
+    # benar-benar dipakai. Tanpa ini Nginx memegang sertifikat lama di memori
+    # sampai kontainernya di-restart — dan itu baru ketahuan waktu sudah
+    # kedaluwarsa, biasanya di hari libur.
+    command:
+      - /bin/sh
+      - -c
+      - "while :; do sleep 12h; nginx -s reload; done & exec nginx -g 'daemon off;'"
+    depends_on:
+      - backend
+      - frontend
+
+  # Menerbitkan dan memperpanjang sertifikat Let's Encrypt otomatis.
+  #
+  # Certbot menulis ke /etc/letsencrypt dengan nama folder berisi domain;
+  # digify.conf menunggu dua berkas bernama tetap di /etc/nginx/certs. Hook
+  # inilah yang menjembatani keduanya, dipanggil HANYA saat perpanjangan
+  # benar-benar terjadi.
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    environment:
+      DIGIFY_DOMAIN: ${DIGIFY_DOMAIN:?DIGIFY_DOMAIN wajib diisi}
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+      - certs:/certs
+    entrypoint:
+      - /bin/sh
+      - -c
+      - "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --deploy-hook 'cp -L /etc/letsencrypt/live/$$DIGIFY_DOMAIN/*.pem /certs/'; sleep 12h & wait $${!}; done"
+    depends_on:
+      - nginx
+
+  # Backup Postgres harian. Wajib ada sebelum jual publik (PRD §10).
+  # Sengaja ke folder host, bukan volume Docker: backup yang tidak bisa
+  # disalin keluar server dengan scp/rsync bukan backup.
+  backup:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER wajib diisi}/digify-backup:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-digify}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD wajib diisi}
+      PGDATABASE: ${POSTGRES_DB:-digify}
+      SIMPAN_BACKUP_HARI: ${SIMPAN_BACKUP_HARI:-14}
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      db: {condition: service_healthy}
+
+volumes:
+  pgdata:
+  staticfiles:
+  mediafiles:
+  certs:
+  letsencrypt:
+  certbot_www:

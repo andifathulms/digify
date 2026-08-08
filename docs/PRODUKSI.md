@@ -3,6 +3,12 @@
 Ditulis supaya orang yang belum pernah menyentuh project ini bisa menaikkannya
 dari nol di VPS bersih. Ikuti berurutan.
 
+> **Ada jalan yang lebih pendek.** Bagian 1–2 di bawah membangun image DI server.
+> `docs/DEPLOY_VPS.md` menggantinya: GitHub Actions yang membangun, server cukup
+> `docker compose pull && up -d`, dan TLS diperpanjang sendiri. Itu yang saya
+> sarankan. **Bagian 3–7 di berkas ini tetap berlaku dan tetap wajib** —
+> uji restore, checklist keamanan, perawatan, dan §6.
+
 ---
 
 ## 0. Memilih tempat hosting
@@ -52,6 +58,31 @@ berpengaruh di situ.)
 | **DigitalOcean** | Singapura | $6–12/bln | Dokumentasi paling banyak |
 | **Contabo** | Singapura | $7–9/bln | RAM paling besar per rupiah, performa kadang tidak stabil |
 | **Alibaba Cloud** | Jakarta | bervariasi | Region Indonesia, penagihan lebih rumit |
+
+### Tahap gratis sebelum ada pembeli: Oracle Cloud Always Free
+
+**Oracle Cloud Always Free, region Singapura** — Ampere A1 ARM, 2 OCPU / 12 GB
+(batas per Juni 2026), 200 GB disk, 10 TB lalu lintas per bulan, **Rp 0
+selamanya**. Latensi Singapura→Indonesia 15–40 ms. Ini satu-satunya "gratis"
+yang benar-benar muat menjalankan seluruh susunan ini; Fly.io sudah tidak punya
+free tier, kredit Railway habis dalam dua minggu, dan Render free 512 MB tidak
+cukup untuk Django + Postgres + Redis sekaligus.
+
+Tiga syaratnya, dan ketiganya penting:
+
+1. **Naikkan akun ke Pay As You Go.** Resource Always Free tetap Rp 0, tapi
+   kebijakan *idle reclaim* (mematikan instance yang CPU-nya di bawah 20% selama
+   7 hari) tidak lagi berlaku. Aplikasi yang belum punya pembeli pasti kena itu.
+2. **Arsitekturnya ARM.** Sudah ditangani — workflow GHCR membangun arm64 dan
+   amd64 sekaligus.
+3. **Tidak ada SLA, tidak ada banding.** Akun free tier Oracle bisa ditutup
+   tanpa penjelasan. Itu sebabnya ini untuk tahap pengembangan, **bukan** untuk
+   menampung pembeli yang sudah membayar.
+
+**Pindah ke VPS Jakarta sebelum pembeli pertama.** Bukan karena performa —
+karena akuntabilitas. Rp 150 rb/bulan menghilangkan satu kelas risiko
+sepenuhnya. Caranya ada di akhir `docs/DEPLOY_VPS.md`, dan karena semuanya
+image, itu pekerjaan satu sore.
 
 **Ukuran yang dibutuhkan.** Satu VPS menjalankan lima kontainer: PostgreSQL,
 Redis, Django (3 worker Gunicorn), Next.js, dan Nginx.

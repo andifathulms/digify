@@ -765,3 +765,64 @@ kategori di Tab 1 (kategorinya tidak ada di response — butuh perubahan kontrak
 membalik rumus lewat aljabar untuk mencari titik ambang di penggeser ketahanan
 (dicari selangkah demi selangkah dengan rumus yang sama, supaya angka yang
 ditunjuk pasti angka yang benar-benar muncul saat digeser ke sana).
+
+---
+
+## 2026-08-08 · Deploy lewat image di GHCR, bukan build di server
+
+**Keputusan.** GitHub Actions membangun empat image (`digify-backend`,
+`digify-frontend`, `digify-nginx`, `digify-backup`) setiap push ke main dan
+mendorongnya ke GitHub Container Registry. Server produksi hanya menyimpan
+`docker-compose.yml` + `.env`, lalu `docker compose pull && up -d`.
+Panduan: `docs/DEPLOY_VPS.md`.
+
+**Alasan.**
+1. **Server tidak perlu RAM untuk build.** `npm run build` Next.js adalah bagian
+   paling rakus di project ini. Menjalankannya di VPS 4 GB yang sedang melayani
+   pembeli berarti aplikasinya melambat setiap kali di-update.
+2. **Update jadi tidak menakutkan.** Satu perintah, tanpa `git pull` di server,
+   tanpa risiko konflik atau berkas asing di folder produksi.
+3. **Rollback nyata.** Tiap build juga bertag `sha-<commit>`. Kembali ke versi
+   sebelumnya = ganti satu baris di `.env`, bukan git revert lalu build ulang
+   20 menit sementara aplikasi rusak.
+4. **Rahasia tidak pernah ada di image.** `.dockerignore` menahan `.env`, dan
+   `nginx/.dockerignore` menahan `certs/` — image ini didorong ke registry, jadi
+   kunci privat TLS yang ikut terbawa berarti kunci yang bocor.
+
+**Dua arsitektur sekaligus** (`linux/amd64` + `linux/arm64`). Tahap gratis
+berjalan di Oracle Cloud Ampere yang ARM, tahap berbayar di VPS Jakarta yang
+x86. Satu tag melayani keduanya, jadi pindah server nanti tidak perlu build
+ulang. Harganya: build arm64 lewat emulasi QEMU, ~15–30 menit yang pertama.
+
+**`docker-compose.prod.yml` tetap ada** dan tidak diubah — dia jalan tanpa GHCR
+sama sekali, dan itu jaring pengaman kalau Actions atau registry sedang mati.
+
+**Yang berubah bentuknya:**
+- Konfigurasi Nginx dan `backup.sh` sekarang dijahit ke dalam image, bukan
+  di-bind mount. Ini yang membuat server benar-benar tidak butuh salinan repo.
+- Image Nginx membawa **sertifikat self-signed sementara**. Tanpa itu Nginx
+  menolak start karena `fullchain.pem` belum ada, padahal certbot butuh Nginx
+  hidup di port 80 untuk memverifikasi domain — telur dan ayam. Docker mengisi
+  volume kosong dari isi image, jadi sertifikat asli menimpanya begitu terbit.
+- Perpanjangan TLS jadi otomatis lewat kontainer `certbot` + reload berkala
+  Nginx. Sebelumnya certbot di host dan salin manual (`PRODUKSI.md` §5).
+- `NEXT_PUBLIC_URL_BELI` pindah dari `.env` server ke **repository variable**
+  GitHub. Nilainya memang dijahit saat build, dan build-nya sekarang di CI.
+  Konsekuensinya: mengubah alamat pembayaran butuh menjalankan ulang workflow.
+
+**Yang ditolak.** Membangun di server lewat SSH deploy action (menaruh kunci SSH
+server di GitHub, dan tetap membebani RAM produksi); Docker Hub (rate limit pull
+anonim, dan butuh akun terpisah — GHCR ikut izin repo yang sudah ada);
+menjadikan paket GHCR publik demi menghindari `docker login` (image-nya tidak
+berisi rahasia, tapi berisi seluruh kode aplikasi).
+
+### Ditemukan saat menguji: backup gagal yang mengaku berhasil
+
+`scripts/backup.sh` menguji status `pg_dump | gzip`, dan itu status **gzip** —
+yang sukses membungkus keluaran kosong dari `pg_dump` yang ditolak database.
+Hasilnya berkas 20 byte, log bertuliskan "Backup selesai", dan tidak ada
+tanda apa pun sampai hari restore dibutuhkan. Diperbaiki dengan `set -o pipefail`.
+
+Ini persis skenario yang diperingatkan komentar di skrip itu sendiri, dan
+alasan kenapa `PRODUKSI.md` §3 (uji restore) wajib dijalankan, bukan dianggap
+formalitas.

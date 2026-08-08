@@ -1,0 +1,3 @@
+# Sertifikat TLS asli TIDAK BOLEH ikut masuk image — image ini didorong ke
+# GHCR, dan siapa pun yang bisa menariknya akan mendapatkan kunci privat Anda.
+certs/

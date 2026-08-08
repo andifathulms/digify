@@ -5,6 +5,12 @@
 # Cara mengujinya ada di README, dan itu WAJIB dilakukan sekali sebelum
 # produk dijual ke publik (PRD §10).
 set -e
+# WAJIB. Tanpa ini, status `pg_dump | gzip` yang dilihat adalah status gzip —
+# dan gzip berhasil membungkus keluaran kosong dari pg_dump yang gagal. Efeknya
+# persis kebalikan dari tujuan skrip ini: pg_dump ditolak database, tapi yang
+# tercatat "Backup selesai" dan tersisa berkas .sql.gz 20 byte yang terlihat
+# sah sampai hari Anda benar-benar membutuhkannya.
+set -o pipefail
 
 SIMPAN_HARI="${SIMPAN_BACKUP_HARI:-14}"
 

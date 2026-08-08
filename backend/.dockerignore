@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+staticfiles/
+mediafiles/
+# Rahasia lokal tidak boleh ikut ke dalam image yang didorong ke GHCR.
+.env
+.env.*

@@ -1,0 +1,114 @@
+# Membangun keempat image dan mendorongnya ke GitHub Container Registry (GHCR).
+# Setelah workflow ini hijau, VPS cukup menjalankan:
+#
+#     docker compose pull && docker compose up -d
+#
+# Tidak ada kode sumber, tidak ada `build`, dan tidak ada `git clone` di server.
+#
+# Dua arsitektur dibangun sekaligus:
+#   linux/arm64 → Oracle Cloud Ampere A1 (tahap gratis)
+#   linux/amd64 → VPS Jakarta biasa (tahap berbayar)
+# Satu tag melayani keduanya, jadi pindah server nanti tidak perlu build ulang.
+#
+# Kalau nanti sudah pasti di VPS x86 saja, buat repository variable
+# BUILD_PLATFORMS = linux/amd64. Build jadi 3-4x lebih cepat karena arm64
+# dibangun lewat emulasi QEMU dan itu bagian paling lambat di sini.
+
+name: Bangun image ke GHCR
+
+on:
+  push:
+    branches: [main]
+    # Perubahan yang tidak masuk image tidak perlu memicu build 20 menit.
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+  workflow_dispatch:
+
+concurrency:
+  # Push beruntun: batalkan build lama, yang dipakai hanya yang terakhir.
+  group: build-images-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: backend
+            context: ./backend
+            target: ""
+            build_args: ""
+          - name: frontend
+            context: ./frontend
+            target: prod
+            # NEXT_PUBLIC_* dijahit ke bundel SAAT BUILD, bukan saat kontainer
+            # jalan (lihat frontend/Dockerfile). Karena build-nya sekarang di
+            # sini, nilainya harus datang dari sini juga — mengisinya di .env
+            # server tidak akan berpengaruh apa-apa.
+            #
+            # Isi lewat: Settings → Secrets and variables → Actions → Variables
+            #            → New repository variable → NEXT_PUBLIC_URL_BELI
+            # Ini alamat halaman pembayaran publik, jadi variable, bukan secret.
+            # Mengubahnya butuh build ulang (jalankan workflow ini manual).
+            build_args: |
+              NEXT_PUBLIC_URL_BELI=${{ vars.NEXT_PUBLIC_URL_BELI }}
+          - name: nginx
+            context: ./nginx
+            target: ""
+            build_args: ""
+          - name: backup
+            context: ./scripts
+            target: ""
+            build_args: ""
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Nama pemilik di GHCR harus huruf kecil semua; nama akun GitHub belum
+      # tentu begitu. Kalau tidak diturunkan, push-nya ditolak.
+      - name: Turunkan nama pemilik jadi huruf kecil
+        id: pemilik
+        run: echo "lc=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Masuk ke GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Susun tag
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.pemilik.outputs.lc }}/digify-${{ matrix.name }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long,prefix=sha-
+
+      - name: Bangun dan dorong
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          build-args: ${{ matrix.build_args }}
+          platforms: ${{ vars.BUILD_PLATFORMS || 'linux/amd64,linux/arm64' }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,scope=${{ matrix.name }},mode=max
