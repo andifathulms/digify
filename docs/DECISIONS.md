@@ -613,3 +613,52 @@ menyimpan halaman: HP warung sering dipakai bergantian, dan angka keuangan yang
 mengendap di perangkat bisa terlihat oleh orang berikutnya. Menyimpan riwayat
 omzet dan biaya di `localStorage` adalah versi yang lebih buruk dari masalah itu,
 bukan jalan pintas yang cerdik.
+
+---
+
+## 2026-08-08 · Isian form pindah ke URL — dan apa yang ikut terbawa
+
+**Keputusan.** Seluruh isian sepuluh alat, termasuk tabel menu dan tabel bahan
+serta posisi penggeser harga, disimpan di alamat halaman lewat
+`history.replaceState`. Form masuk tidak ikut.
+
+**Alasan.** Isian hilang tiap kali halaman dimuat ulang, dan hitungan tidak bisa
+dikirim ke orang lain selain dengan menyuruhnya mengetik ulang semua angkanya.
+
+**Ditolak.** `useSearchParams` (memaksa batas `<Suspense>` saat render statis dan
+menjalankan ulang router tiap ketukan tombol); `pushState` (tombol "kembali"
+jadi harus ditekan sekali per huruf); membaca URL saat render (HTML server dan
+klien berbeda, React membuang seluruh pohonnya).
+
+### ⚠ Yang berubah artinya — silakan ditimbang ulang
+
+Menaruh isian di URL berarti **angka biaya, harga, dan penjualan mingguan warung
+ikut tercatat di riwayat browser**, dan ikut terbawa setiap kali alamatnya
+ditempel ke mana pun.
+
+Itu bertentangan dengan alasan yang dipakai saat memutuskan service worker tidak
+boleh menyimpan halaman (28 Juli): *HP warung sering dipakai bergantian, dan
+angka keuangan yang mengendap di perangkat bisa terlihat oleh orang berikutnya.*
+Riwayat browser adalah tempat mengendap yang persis sama.
+
+Bedanya dengan `localStorage`: URL hanya terisi kalau halamannya memang sedang
+dipakai, tidak bertahan sendiri setelah tab ditutup, dan bisa dibersihkan
+pemiliknya. Dan yang didapat memang diminta: hitungan yang bisa dikirim.
+
+Kalau pertukaran itu tidak sepadan, yang perlu dibatalkan cuma satu berkas —
+`frontend/src/lib/useUrlState.ts` — dengan mengembalikan `useUrlState` menjadi
+`useState` biasa di kesepuluh alat. Tidak ada bagian lain yang bergantung
+padanya.
+
+### Batas yang dijaga
+
+- Nilai dari URL diperiksa bentuknya sebelum dipakai, dan objek disusun ulang
+  dari kunci yang dikenal saja — alamat karangan tidak bisa menyuntikkan bentuk
+  data asing ke form maupun ke badan permintaan API.
+- URL rusak diam-diam kembali ke contoh bawaan. Pesan error untuk alamat salah
+  ketik cuma menakuti tanpa memberi sesuatu yang bisa dikerjakan.
+- Penggeser harga menolak nilai di luar rentang hitungan yang sedang tampil, dan
+  kembali ke harga yang disarankan — **bukan** dijepit ke tepi rentang.
+  Menjepit akan memunculkan harga yang tidak pernah diketik siapa pun dan tidak
+  berasal dari aturan mana pun.
+- Kata sandi tidak pernah masuk URL.
