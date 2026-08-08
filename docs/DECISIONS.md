@@ -826,3 +826,24 @@ tanda apa pun sampai hari restore dibutuhkan. Diperbaiki dengan `set -o pipefail
 Ini persis skenario yang diperingatkan komentar di skrip itu sendiri, dan
 alasan kenapa `PRODUKSI.md` §3 (uji restore) wajib dijalankan, bukan dianggap
 formalitas.
+
+### Ditemukan saat build CI pertama: lockfile hanya mengenal satu arsitektur
+
+Build arm64 hijau, amd64 mati: `Cannot find module '../lightningcss.linux-x64-musl.node'`.
+
+`frontend/package-lock.json` lahir di Alpine/Apple Silicon, dan npm punya bug
+lama ([npm/cli#4828](https://github.com/npm/cli/issues/4828)): saat menulis
+lockfile ia hanya mencatat biner platform untuk mesin yang sedang dipakai.
+Isinya jadi arm64-musl saja — tidak ada satu pun varian x64 untuk
+`lightningcss`, `@tailwindcss/oxide`, maupun `sharp`.
+
+Diperbaiki dengan menyebut keenam biner itu eksplisit di `optionalDependencies`
+`frontend/package.json`, lalu membuat ulang lockfile di dalam kontainer. npm
+melewati yang tidak cocok dengan mesinnya, jadi di macOS tidak ada yang berubah.
+**Ini bukan dependency baru** — semuanya biner platform milik paket yang sudah
+dipakai, dan versinya wajib dikunci sama persis dengan paket induknya.
+
+Yang membuat ini pantas dicatat: masalahnya tidak akan pernah muncul selama
+pengembangan hanya di Mac dan deploy hanya ke ARM. Ia menunggu sampai pindah ke
+VPS Jakarta yang x86 — persis saat sedang buru-buru migrasi. Membangun kedua
+arsitektur sejak sekarang yang memunculkannya hari ini.
