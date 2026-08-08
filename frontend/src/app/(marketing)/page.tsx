@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import IkonAlat from "@/components/ui/IkonAlat";
 import Logo from "@/components/ui/Logo";
 import StatusServer from "@/components/ui/StatusServer";
 import { formatRupiah } from "@/lib/format";
@@ -464,7 +465,7 @@ export default function BerandaPage() {
                 </span>
                 <h3 className="judul-kecil mt-3 text-lg">{masalah.judul}</h3>
                 <p
-                  className="teks-rapi mt-2 text-sm leading-relaxed"
+                  className="teks-rapi mt-2 text-base leading-relaxed"
                   style={{ color: "var(--ink-dim)" }}
                 >
                   {masalah.isi}
@@ -512,33 +513,49 @@ export default function BerandaPage() {
               >
                 <span className="label-kecil">{mesin.nama}</span>
               </span>
-              <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+              <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-dim)" }}>
                 {mesin.ringkas}
               </p>
 
+              {/* Ikonnya sudah ada dan dipakai di dalam aplikasi; di sini
+               * daftarnya justru cuma teks. Sepuluh baris tulisan berturut-turut
+               * dibaca satu per satu — dengan ikon, isi paketnya terlihat sekali
+               * pandang. Nomornya pindah ke kanan: yang berguna adalah nama
+               * alatnya, bukan urutannya. */}
               <ul className="mt-5 flex flex-col">
                 {mesin.daftar.map((tab) => (
                   <li
                     key={tab.slug}
-                    className="flex gap-3 border-t py-3.5"
+                    className="flex items-start gap-3.5 border-t py-3.5"
                     style={{ borderColor: "var(--line)" }}
                   >
                     <span
                       aria-hidden
-                      className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-xs)] text-xs font-semibold"
-                      style={{ background: mesin.latar, color: mesin.warna }}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center"
+                      style={{
+                        background: mesin.latar,
+                        color: mesin.warna,
+                        borderRadius: "var(--radius-sm)",
+                      }}
                     >
-                      {tab.nomor}
+                      <IkonAlat slug={tab.slug} ukuran={20} />
                     </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold">{tab.judul}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-base font-semibold">{tab.judul}</p>
                       <p
-                        className="teks-rapi mt-0.5 text-xs leading-relaxed"
+                        className="teks-rapi mt-0.5 text-sm leading-relaxed"
                         style={{ color: "var(--ink-dim)" }}
                       >
                         {tab.ringkas}
                       </p>
                     </div>
+                    <span
+                      aria-hidden
+                      className="tabular shrink-0 text-sm"
+                      style={{ color: "var(--ink-soft)" }}
+                    >
+                      {tab.nomor}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -579,7 +596,7 @@ export default function BerandaPage() {
                 </span>
                 <h3 className="judul-kecil mt-4 text-lg">{langkah.judul}</h3>
                 <p
-                  className="teks-rapi mt-2 text-sm leading-relaxed"
+                  className="teks-rapi mt-2 text-base leading-relaxed"
                   style={{ color: "var(--ink-dim)" }}
                 >
                   {langkah.isi}
@@ -638,7 +655,7 @@ export default function BerandaPage() {
                 <div className="min-w-0">
                   <h3 className="judul-kecil text-base">{langkah.judul}</h3>
                   <p
-                    className="teks-rapi mt-1.5 text-sm leading-relaxed"
+                    className="teks-rapi mt-1.5 text-base leading-relaxed"
                     style={{ color: "var(--ink-dim)" }}
                   >
                     {langkah.isi}
@@ -683,7 +700,7 @@ export default function BerandaPage() {
                   borderRadius: "var(--radius-lg)",
                 }}
               >
-                <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-semibold">
+                <summary className="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold">
                   {item.tanya}
                   <span
                     aria-hidden
@@ -694,7 +711,7 @@ export default function BerandaPage() {
                   </span>
                 </summary>
                 <p
-                  className="teks-rapi mt-3 text-sm leading-relaxed"
+                  className="teks-rapi mt-3 text-base leading-relaxed"
                   style={{ color: "var(--ink-dim)" }}
                 >
                   {item.jawab}
