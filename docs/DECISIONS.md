@@ -662,3 +662,49 @@ padanya.
   Menjepit akan memunculkan harga yang tidak pernah diketik siapa pun dan tidak
   berasal dari aturan mana pun.
 - Kata sandi tidak pernah masuk URL.
+
+---
+
+## 2026-08-08 · Pemeriksaan aksesibilitas: dua keputusan yang bisa ditinjau ulang
+
+### Semua target sentuh naik ke `var(--tap)` (44px)
+
+**Keputusan.** Tidak ada token `--tap-kecil`. Kontrol yang sebelumnya 36px atau
+kurang — Salin, Keluar, Hapus menu, Hapus bahan — semuanya naik ke `--tap`.
+
+**Yang dibatalkan.** Komentar di `EditorMenu.tsx` membenarkan 36px sebagai
+kesengajaan: *"aksi merusak yang tidak boleh segampang menekan tombol utama"*.
+Alasan itu sengaja dibatalkan. Memperkecil sasaran tidak mencegah salah tekan —
+ia memindahkan salah tekan ke tetangganya, dan yang paling menanggung akibatnya
+justru orang dengan keterbatasan gerak, yang paling tidak mampu menanggungnya.
+Tujuan "jangan terlalu gampang ditekan" tetap dikerjakan, lewat bobot visual:
+merah, tanpa latar, tanpa bingkai.
+
+**Satu perkecualian, dicatat di kodenya.** Tombol "Lihat" kata sandi duduk di
+DALAM isian setinggi 44px; 44px penuh membuatnya menempel tepi. Disisakan 4px
+tiap sisi (36px), masih di atas ambang WCAG 2.5.8.
+
+**Ditolak.** Token `--tap-kecil: 36px` — itu menuliskan penyimpangan dari aturan
+proyek sendiri ke dalam lapisan token, tempat ia akan menyebar tanpa ditanya
+lagi.
+
+### Tautan "lewati navigasi" ditambahkan meski ada aturan menahan chrome baru
+
+**Keputusan.** Rangka alat mendapat tautan lewati yang tak terlihat sampai
+difokus.
+
+**Alasan.** Sebelas tautan alat mendahului isi halaman, di tiap halaman. Pemakai
+pembaca layar bisa melompatinya lewat landmark `<nav>`/`<main>` yang sudah ada —
+jadi WCAG 2.4.1 memang sudah terpenuhi — tapi pemakai keyboard yang melihat
+layar tidak dilayani sama sekali oleh landmark. Karena itu tautan ini tidak
+menduplikasi apa pun: ia melayani kelompok yang saat ini tidak punya jalan
+pintas. Tidak menambah satu piksel pun ke tampilan biasa.
+
+### Catatan: satu perbaikan sesi lalu diam-diam memperburuk hal lain
+
+Jeda 300ms pada kerangka pemuatan (dipasang untuk menghentikan kedipan) membuat
+wilayah `role="status"` sering tidak sempat terpasang di Tab 1–6. Akibatnya
+pemakai pembaca layar tidak mendengar apa pun dari awal sampai akhir hitungan.
+Diperbaiki dengan memindahkan fokus ke blok hasil, bukan dengan membatalkan
+jedanya. Layak diingat bahwa perbaikan di satu sumbu bisa merusak sumbu lain
+yang tidak sedang diperiksa.
