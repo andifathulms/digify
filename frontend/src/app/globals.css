@@ -186,6 +186,35 @@ body {
   outline: none;
 }
 
+/* ── Mode kontras paksa (Windows High Contrast) ─────────────────────────────
+ * Di mode itu browser membuang `box-shadow`. Karena cincin fokus isian
+ * digambar PAKAI box-shadow dan `outline` sudah dimatikan di atas, isian form
+ * jadi tidak punya penanda fokus sama sekali di sana — pemakai keyboard
+ * kehilangan jejak sepenuhnya. `outline` dikembalikan khusus untuk mode ini.
+ *
+ * Warnanya `Highlight`, warna sistem, bukan token brand: di mode kontras
+ * paksa palet kita memang tidak dipakai, dan memaksanya justru melawan
+ * pengaturan yang sengaja dipilih pemakainya. */
+@media (forced-colors: active) {
+  .isian:focus,
+  .isian:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* ── Fokus pada label yang membungkus isian tersembunyi ─────────────────────
+ * Pemilih foto carousel memakai <input type="file" class="sr-only"> di dalam
+ * <label> yang tampil sebagai tombol. `sr-only` menyembunyikan input secara
+ * visual tapi TIDAK mencabutnya dari urutan Tab — jadi pemakai keyboard bisa
+ * mendarat di kontrol yang tidak terlihat sama sekali, karena cincin fokusnya
+ * menempel di input yang tersembunyi, bukan di label yang terlihat.
+ * `:focus-within` memindahkan cincinnya ke label. */
+.label-isian:focus-within {
+  outline: 2px solid var(--blue-500);
+  outline-offset: 2px;
+}
+
 /* ── Gerak ──────────────────────────────────────────────────────────────
  * Hasil analisa muncul dengan naik-halus. Tanpa itu, blok hasil setinggi
  * satu layar terasa "melompat" masuk dan user kehilangan posisi baca. */

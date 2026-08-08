@@ -185,7 +185,7 @@ export default function PapanCarousel({
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <label
-                className="inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] px-5 text-sm font-semibold"
+                className="label-isian inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] px-5 text-sm font-semibold"
                 style={{
                   minHeight: "var(--tap-besar)",
                   background: adaFoto ? "var(--green-wash)" : "var(--surface)",
