@@ -54,7 +54,7 @@ export default function SimpanStruk({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center">
       {/* Jarak dalam ikut tertangkap, jadi struk tidak menempel tepi gambar. */}
       <div ref={wadah} className="w-full px-3 pt-3 pb-1">
         {children}
@@ -65,7 +65,7 @@ export default function SimpanStruk({
         onClick={simpan}
         disabled={sedang}
         aria-busy={sedang || undefined}
-        className={`inline-flex items-center justify-center gap-2 px-5 text-sm font-semibold ${
+        className={`mt-3 inline-flex items-center justify-center gap-2 px-5 text-sm font-semibold ${
           sedang ? "cursor-not-allowed opacity-65" : "cursor-pointer active:translate-y-px"
         }`}
         style={{
@@ -103,8 +103,22 @@ export default function SimpanStruk({
       </button>
 
       {/* aria-live: hasilnya perlu diumumkan, karena di HP lembar berbagi
-       * menutup layar dan tidak ada perubahan tampak setelah ia ditutup. */}
-      <p aria-live="polite" className="min-h-5 text-sm" style={{ color: "var(--ink-dim)" }}>
+       * menutup layar dan tidak ada perubahan tampak setelah ia ditutup.
+       *
+       * Tingginya tidak dipesan di muka. `min-h-5` sebelumnya menyisakan 20px
+       * kosong di bawah keempat struk sepanjang waktu, dan di layar 360px
+       * ruang tegak yang paling mahal.
+       *
+       * Yang dimatikan saat kosong hanya jaraknya (`empty:mt-0`), BUKAN
+       * elemennya. `display: none` akan mengeluarkan wadah ini dari pohon
+       * aksesibilitas sebelum pesan pertama datang, dan sebagian pembaca layar
+       * tidak mengumumkan wilayah live yang baru muncul bersama isinya.
+       * Paragraf kosong sendiri tingginya nol. */}
+      <p
+        aria-live="polite"
+        className="mt-2 text-sm empty:mt-0"
+        style={{ color: "var(--ink-dim)" }}
+      >
         {pesan}
       </p>
     </div>
