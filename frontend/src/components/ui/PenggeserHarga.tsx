@@ -103,50 +103,85 @@ export default function PenggeserHarga({
         </p>
       </div>
 
-      {/* Rel dengan dua penanda tetap. Penanda inilah yang membedakan alat ini
-       * dari penggeser biasa: posisinya selalu terbaca relatif terhadap dua
-       * angka yang berasal dari aturan, bukan dari selera. */}
-      <div className="relative mt-5 mb-2">
-        {[
+      {/* Penanda tetap — inilah yang membedakan alat ini dari penggeser biasa:
+       * posisinya selalu terbaca relatif terhadap dua angka yang berasal dari
+       * aturan, bukan dari selera.
+       *
+       * Ditumpuk sebagai TIGA baris terpisah (garis · penggeser · nama), bukan
+       * ditempel di atas penggesernya dengan jarak yang dihitung sendiri.
+       * Sebelumnya penanda dipasang `absolute -top-1` lalu namanya didorong
+       * `mt-8` — angka yang cocok hanya untuk satu tinggi kenop di satu
+       * browser. Tinggi dan letak rel `input[type=range]` berbeda-beda antara
+       * Safari, Chrome, dan Firefox, jadi penanda "balik modal" bisa berhenti
+       * di atas harga yang bukan balik modal. Penanda yang menunjuk angka
+       * salah lebih buruk daripada tidak ada penanda.
+       *
+       * Yang tersisa dihitung sendiri cuma posisi mendatar, dan itu memang
+       * murni persentase dari rentang — tidak bergantung gaya bawaan browser.
+       *
+       * `px-2` di ketiga baris menyamakan tepi kiri-kanan dengan jangkauan
+       * pusat kenop, yang tidak pernah benar-benar mencapai ujung rel. */}
+      {(() => {
+        const tanda = [
           { nilai: balikModal, label: "balik modal", warnaTanda: "var(--red)" },
           { nilai: hargaDisarankan, label: "disarankan", warnaTanda: "var(--blue-600)" },
-        ]
-          .filter((tanda) => tanda.nilai >= minimum && tanda.nilai <= maksimum)
-          .map((tanda) => (
-            <div
-              key={tanda.label}
-              aria-hidden
-              className="absolute -top-1 flex flex-col items-center"
-              style={{ left: `${posisi(tanda.nilai)}%`, transform: "translateX(-50%)" }}
-            >
-              <span
-                className="block h-3 w-0.5"
-                style={{ background: tanda.warnaTanda, opacity: 0.55 }}
-              />
-              <span
-                className="mt-8 text-2xs whitespace-nowrap"
-                style={{ color: "var(--ink-soft)" }}
-              >
-                {tanda.label}
-              </span>
+        ].filter((t) => t.nilai >= minimum && t.nilai <= maksimum);
+
+        return (
+          <div className="mt-4">
+            <div aria-hidden className="relative h-3 px-2">
+              {tanda.map((t) => (
+                <span
+                  key={t.label}
+                  className="absolute bottom-0 block h-3 w-0.5"
+                  style={{
+                    left: `${posisi(t.nilai)}%`,
+                    transform: "translateX(-50%)",
+                    background: t.warnaTanda,
+                    opacity: 0.55,
+                  }}
+                />
+              ))}
             </div>
-          ))}
 
-        <input
-          type="range"
-          min={minimum}
-          max={maksimum}
-          step={KELIPATAN}
-          value={harga}
-          onChange={(event) => setHarga(Number(event.target.value))}
-          aria-label="Harga jual di tempat"
-          aria-valuetext={`${formatRupiah(harga)}, untung ${formatRupiah(untung)}, margin ${formatPersen(margin)}`}
-          className="relative w-full cursor-pointer"
-          style={{ accentColor: warna, minHeight: "var(--tap)" }}
-        />
-      </div>
+            <div className="px-2">
+              <input
+                type="range"
+                min={minimum}
+                max={maksimum}
+                step={KELIPATAN}
+                value={harga}
+                onChange={(event) => setHarga(Number(event.target.value))}
+                aria-label="Harga jual di tempat"
+                aria-valuetext={`${formatRupiah(harga)}, untung ${formatRupiah(untung)}, margin ${formatPersen(margin)}`}
+                className="block w-full cursor-pointer"
+                style={{ accentColor: warna, minHeight: "var(--tap)" }}
+              />
+            </div>
 
-      <div className="flex justify-between text-2xs" style={{ color: "var(--ink-soft)" }}>
+            <div aria-hidden className="relative h-4 px-2">
+              {tanda.map((t) => (
+                <span
+                  key={t.label}
+                  className="text-2xs absolute top-0 whitespace-nowrap"
+                  style={{
+                    left: `${posisi(t.nilai)}%`,
+                    transform: "translateX(-50%)",
+                    color: "var(--ink-soft)",
+                  }}
+                >
+                  {t.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      <div
+        className="text-2xs mt-1 flex justify-between px-2"
+        style={{ color: "var(--ink-soft)" }}
+      >
         <span className="tabular">{formatRupiah(minimum)}</span>
         <span className="tabular">{formatRupiah(maksimum)}</span>
       </div>
