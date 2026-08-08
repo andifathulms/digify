@@ -20,7 +20,7 @@ export default function Ranking() {
     CONTOH_MENU.map((baris) => ({ ...baris })),
   );
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<RankingResponse, RankingRequest>(
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<RankingResponse, RankingRequest>(
     "/ranking",
   );
   const tersimpan = useMenuTersimpan();
@@ -77,7 +77,7 @@ export default function Ranking() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung /> : null}
+      {tampilkanTunggu ? <SedangMenghitung /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

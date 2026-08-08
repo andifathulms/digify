@@ -28,7 +28,7 @@ export default function CarouselTeks() {
   });
   const [jumlahSlide, setJumlahSlide] = useState(4);
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<CarouselResponse, CarouselRequest>(
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<CarouselResponse, CarouselRequest>(
     "/carousel-content",
   );
 
@@ -62,7 +62,7 @@ export default function CarouselTeks() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung pesan="Sedang menyusun slide… bisa 10–30 detik." /> : null}
+      {tampilkanTunggu ? <SedangMenghitung pesan="Sedang menyusun slide… bisa 10–30 detik." /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

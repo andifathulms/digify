@@ -113,7 +113,7 @@ export default function OptimasiMenu() {
   const [minItems, setMinItems] = useState(4);
   const [jamSibuk, setJamSibuk] = useState("11.00–13.00 dan 18.00–20.00");
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     OptimasiMenuResponse,
     OptimasiMenuRequest
   >("/menu-engineering");
@@ -191,7 +191,7 @@ export default function OptimasiMenu() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung /> : null}
+      {tampilkanTunggu ? <SedangMenghitung /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

@@ -21,7 +21,7 @@ export default function KontenPromosi() {
     infoPromo: "",
   });
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     KontenPromosiResponse,
     KontenPromosiRequest
   >("/marketing-content");
@@ -41,7 +41,7 @@ export default function KontenPromosi() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung pesan="Sedang menulis… bisa 10–30 detik." /> : null}
+      {tampilkanTunggu ? <SedangMenghitung pesan="Sedang menulis… bisa 10–30 detik." /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

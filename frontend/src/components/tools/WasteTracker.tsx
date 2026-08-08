@@ -20,7 +20,7 @@ export default function WasteTracker() {
     CONTOH_BAHAN_WASTE.map((baris) => ({ ...baris })),
   );
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<WasteResponse, WasteRequest>(
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<WasteResponse, WasteRequest>(
     "/waste-tracker",
   );
 
@@ -132,7 +132,7 @@ export default function WasteTracker() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung /> : null}
+      {tampilkanTunggu ? <SedangMenghitung /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

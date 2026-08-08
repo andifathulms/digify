@@ -120,7 +120,7 @@ export default function HargaJual() {
   const [komisi, setKomisi] = useState(27);
   const [lokasi, setLokasi] = useState("Semarang");
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     HargaJualResponse,
     HargaJualRequest
   >("/pricing");
@@ -186,7 +186,7 @@ export default function HargaJual() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung /> : null}
+      {tampilkanTunggu ? <SedangMenghitung /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

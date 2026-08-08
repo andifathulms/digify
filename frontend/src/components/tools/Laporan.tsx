@@ -31,7 +31,7 @@ export default function Laporan() {
     })),
   );
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<LaporanResponse, LaporanRequest>(
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<LaporanResponse, LaporanRequest>(
     "/export",
   );
   const tersimpan = useMenuTersimpan();
@@ -139,7 +139,7 @@ export default function Laporan() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung pesan="Sedang menyusun laporan…" /> : null}
+      {tampilkanTunggu ? <SedangMenghitung pesan="Sedang menyusun laporan…" /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (

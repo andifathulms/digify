@@ -90,7 +90,7 @@ export default function BiayaMenu() {
   const [beratPorsi, setBeratPorsi] = useState(350);
   const [hargaSekarang, setHargaSekarang] = useState(25000);
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     BiayaMenuResponse,
     BiayaMenuRequest
   >("/cost-calculator");
@@ -145,7 +145,7 @@ export default function BiayaMenu() {
         </div>
       </Kartu>
 
-      {sedangJalan ? <SedangMenghitung /> : null}
+      {tampilkanTunggu ? <SedangMenghitung /> : null}
       {galat ? <PesanGagal pesan={galat} /> : null}
 
       {hasil && !sedangJalan ? (
