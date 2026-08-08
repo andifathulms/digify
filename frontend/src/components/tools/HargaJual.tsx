@@ -150,10 +150,12 @@ export default function HargaJual() {
             />
             <FieldAngka
               label="Harga warung sebelah"
-              bantuan="Kosongkan (isi 0) kalau tidak tahu."
+              bantuan="Boleh dikosongkan kalau tidak tahu."
+              placeholder="Tidak tahu"
               nilai={hargaKompetitor}
               onUbah={setHargaKompetitor}
               rupiah
+              bolehKosong
             />
             <FieldAngka
               label="Komisi aplikasi ojol"

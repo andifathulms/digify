@@ -80,6 +80,17 @@ export function FieldTeks({
   );
 }
 
+/**
+ * Isian angka.
+ *
+ * `bolehKosong` mengubah tipe nilainya jadi `number | null`. Dipakai untuk
+ * isian yang memang opsional — sebelumnya isian seperti itu bertipe `number`
+ * saja, dan satu-satunya cara menyatakan "saya tidak tahu" adalah mengetik 0,
+ * dengan teks bantuan yang menyuruh begitu ("Kosongkan (isi 0) kalau tidak
+ * tahu"). Menyuruh orang mengetik angka untuk menyatakan ketiadaan angka
+ * adalah bahasa program, bukan bahasa manusia (CLAUDE.md §8) — dan 0 adalah
+ * harga yang sah, jadi artinya juga ambigu.
+ */
 export function FieldAngka({
   label,
   bantuan,
@@ -87,17 +98,22 @@ export function FieldAngka({
   onUbah,
   satuan,
   rupiah = false,
+  bolehKosong = false,
+  placeholder,
 }: {
   label: string;
   bantuan?: string;
-  nilai: number;
+  nilai: number | null;
   onUbah: (nilai: number) => void;
   satuan?: string;
   rupiah?: boolean;
+  bolehKosong?: boolean;
+  placeholder?: string;
 }) {
   const id = useId();
   const idBantuan = `${id}-bantuan`;
-  const tampil = rupiah ? formatAngka(nilai) : String(nilai);
+  const kosong = nilai === null || (bolehKosong && nilai === 0);
+  const tampil = kosong ? "" : rupiah ? formatAngka(nilai ?? 0) : String(nilai ?? 0);
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -118,6 +134,7 @@ export function FieldAngka({
           // inputMode numeric: keyboard angka di HP, bukan keyboard huruf.
           inputMode="numeric"
           value={tampil}
+          placeholder={placeholder}
           aria-describedby={bantuan ? idBantuan : undefined}
           onChange={(event) => onUbah(parseAngka(event.target.value))}
           className={`isian tabular py-2.5 text-base font-semibold ${
