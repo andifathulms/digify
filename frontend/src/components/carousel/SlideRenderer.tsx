@@ -98,7 +98,7 @@ export default function SlideRenderer({
               fontWeight: 700,
               letterSpacing: 3,
               textTransform: "uppercase",
-              color: slidePenutup ? WARNA.biruLight : WARNA.oranye,
+              color: slidePenutup ? WARNA.biruPucat : WARNA.oranyeTeks,
             }}
           >
             {slide.tipe_slide}
