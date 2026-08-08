@@ -320,10 +320,15 @@ export default function BerandaPage() {
             </span>
           </div>
 
+          {/* Status server sengaja TIDAK di sini.
+           *
+           * Ia menjawab pertanyaan "apakah layanannya sedang jalan?" — yang
+           * baru masuk akal bagi orang yang sudah membeli dan sedang menunggu
+           * hitungannya. Pengunjung baru belum tahu ini alat apa; menaruh
+           * kabar operasional di sebelah satu-satunya ajakan justru mencuri
+           * perhatian dari pertanyaan yang sedang ia punya. Tetap ada di kaki
+           * halaman dan di dalam aplikasi, tempat ia memang berguna. */}
           <div className="flex items-center gap-2">
-            <div className="hidden sm:block">
-              <StatusServer />
-            </div>
             <Link
               href="/masuk"
               className="inline-flex items-center px-4 text-sm font-semibold"
