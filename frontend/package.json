@@ -15,6 +15,15 @@
     "react-dom": "19.0.0",
     "html2canvas-pro": "1.5.8"
   },
+  "_catatan_optionalDependencies": "Bukan dependency baru — ini biner platform milik tailwindcss, lightningcss, dan sharp yang SUDAH dipakai. npm punya bug lama (npm/cli#4828): saat lockfile dibuat, ia hanya mencatat biner untuk arsitektur mesin yang membuatnya. Lockfile ini lahir di Alpine/Apple Silicon, jadi isinya arm64-musl saja, dan `npm run build` di x64 mati dengan 'Cannot find module lightningcss.linux-x64-musl.node'. Menyebutkan keenamnya di sini memaksa npm mencatat semuanya. Versinya WAJIB sama persis dengan paket induknya di lockfile. Yang tidak cocok dengan mesinnya dilewati npm, jadi ini tidak menambah apa pun di macOS.",
+  "optionalDependencies": {
+    "lightningcss-linux-arm64-musl": "1.32.0",
+    "lightningcss-linux-x64-musl": "1.32.0",
+    "@tailwindcss/oxide-linux-arm64-musl": "4.3.3",
+    "@tailwindcss/oxide-linux-x64-musl": "4.3.3",
+    "@img/sharp-linuxmusl-arm64": "0.33.5",
+    "@img/sharp-linuxmusl-x64": "0.33.5"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
     "@types/node": "22.13.1",
