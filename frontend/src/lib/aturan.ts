@@ -31,6 +31,20 @@ export const AMBANG_MARGIN_RUGI = 20;
 export const AMBANG_MARGIN_SEHAT = 40;
 
 /**
+ * Status dari margin dan untung — cermin `_status()` di ranking.py.
+ *
+ * Dipakai penggeser harga di Tab 2 supaya warnanya berarti persis sama dengan
+ * warna di papan ranking. Kalau penggesernya memakai ambang sendiri, dua layar
+ * akan menyebut menu yang sama dengan dua warna berbeda, dan yang rusak bukan
+ * cuma tampilannya — melainkan kepercayaan pada dua-duanya.
+ */
+export function statusDariMargin(margin: number, untung: number): StatusMenu {
+  if (untung <= 0 || margin < AMBANG_MARGIN_RUGI) return "RED";
+  if (margin < AMBANG_MARGIN_SEHAT) return "YELLOW";
+  return "GREEN";
+}
+
+/**
  * Kalimat yang menerangkan kenapa satu menu mendapat statusnya, memakai angka
  * menu itu sendiri — bukan penjelasan umum tentang apa arti warna merah.
  *

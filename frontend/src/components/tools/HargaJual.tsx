@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
+import PenggeserHarga from "@/components/ui/PenggeserHarga";
 import SimpanStruk from "@/components/ui/SimpanStruk";
 import {
   Struk,
@@ -194,6 +195,13 @@ export default function HargaJual() {
           <BocorDiOjol
             hargaDiTempat={hasil.dine_in_recommended}
             biayaBahan={biayaBahan}
+            komisi={komisi}
+          />
+
+          <PenggeserHarga
+            biayaBahan={biayaBahan}
+            hargaDisarankan={hasil.dine_in_recommended}
+            balikModal={hasil.break_even_dine_in}
             komisi={komisi}
           />
 
