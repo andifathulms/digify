@@ -99,9 +99,16 @@ export default function PapanRanking({ rankings }: { rankings: BarisRanking[] })
                  * membuka. Tertutup secara bawaan — pertanyaan "kenapa?" baru
                  * muncul setelah warnanya terlihat, bukan sebelum. */}
                 <details className="group mt-2">
+                  {/* Sengaja tenang, bukan biru tebal.
+                   *
+                   * Ada satu baris ini per menu. Dengan sepuluh menu, sepuluh
+                   * tautan biru tebal berdiri sejajar dengan pita status —
+                   * padahal seluruh tugas papan ini adalah dipindai lewat
+                   * warna pitanya. Penjelasan harus mudah DITEMUKAN saat
+                   * dicari, bukan ikut berebut perhatian saat tidak. */}
                   <summary
-                    className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold"
-                    style={{ color: "var(--blue-600)" }}
+                    className="inline-flex cursor-pointer items-center gap-1.5 text-sm"
+                    style={{ color: "var(--ink-dim)" }}
                   >
                     Kenapa {baris.status === "RED" ? "merah" : baris.status === "YELLOW" ? "kuning" : "hijau"}?
                     <span aria-hidden className="transition-transform group-open:rotate-45">
