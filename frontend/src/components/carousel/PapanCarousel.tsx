@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import SlideRenderer from "@/components/carousel/SlideRenderer";
 import { bacaFotoSebagaiDataUrl, namaBerkasSlide, unduhSlide } from "@/components/carousel/unduh";
@@ -17,9 +18,65 @@ import type { SlideCarousel } from "@/lib/types/api";
  * itu yang dibaca html2canvas (CLAUDE.md §9.3).
  */
 
-/** Lebar pratinjau di layar. 300px muat di 360px dengan sisa ruang untuk padding. */
-const LEBAR_PRATINJAU = 300;
-const SKALA_PRATINJAU = LEBAR_PRATINJAU / LEBAR_SLIDE;
+/** Lebar pratinjau paling besar. Di bawah ini ia menyusut mengikuti wadahnya. */
+const LEBAR_PRATINJAU_MAKS = 300;
+
+/**
+ * Kotak pratinjau slide yang ikut menyusut bersama layarnya.
+ *
+ * Sebelumnya lebarnya dipaku 300px. Di dalam `p-5` milik kartu dan `px-5`
+ * milik halaman, pada layar selebar 320px hanya tersisa ~240px — dan karena
+ * kotaknya `overflow: hidden`, sisi kanan tiap slide terpotong diam-diam
+ * alih-alih bisa digeser. Sama juga saat halaman diperbesar 400%.
+ * (WCAG 1.4.10 Reflow.)
+ *
+ * Lebarnya sekarang diukur, lalu skalanya diturunkan dari lebar itu. Diukur,
+ * bukan dihitung dari lebar layar dikurangi padding: padding-nya berubah per
+ * breakpoint, dan angka yang ditebak akan meleset lagi begitu tata letaknya
+ * disesuaikan.
+ */
+function KotakPratinjau({ children }: { children: ReactNode }) {
+  const kotak = useRef<HTMLDivElement>(null);
+  const [lebar, setLebar] = useState(LEBAR_PRATINJAU_MAKS);
+
+  useEffect(() => {
+    const simpul = kotak.current;
+    if (!simpul) return;
+    const pengamat = new ResizeObserver((entri) => {
+      const lebarBaru = entri[0]?.contentRect.width;
+      if (lebarBaru) setLebar(lebarBaru);
+    });
+    pengamat.observe(simpul);
+    return () => pengamat.disconnect();
+  }, []);
+
+  const skala = lebar / LEBAR_SLIDE;
+
+  return (
+    <div
+      ref={kotak}
+      className="mx-auto mt-4 overflow-hidden"
+      style={{
+        width: "100%",
+        maxWidth: LEBAR_PRATINJAU_MAKS,
+        height: TINGGI_SLIDE * skala,
+        borderRadius: 12,
+        border: "1px solid var(--line)",
+      }}
+    >
+      <div
+        style={{
+          transform: `scale(${skala})`,
+          transformOrigin: "top left",
+          width: LEBAR_SLIDE,
+          height: TINGGI_SLIDE,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function PapanCarousel({
   slides,
@@ -110,34 +167,14 @@ export default function PapanCarousel({
               ) : null}
             </div>
 
-            {/* Kotak pratinjau: ukurannya hasil perkalian skala, supaya tidak
-                menyisakan ruang kosong di bawah slide. */}
-            <div
-              className="mx-auto mt-4 overflow-hidden"
-              style={{
-                width: LEBAR_PRATINJAU,
-                height: TINGGI_SLIDE * SKALA_PRATINJAU,
-                maxWidth: "100%",
-                borderRadius: 12,
-                border: "1px solid var(--line)",
-              }}
-            >
-              <div
-                style={{
-                  transform: `scale(${SKALA_PRATINJAU})`,
-                  transformOrigin: "top left",
-                  width: LEBAR_SLIDE,
-                  height: TINGGI_SLIDE,
-                }}
-              >
-                <SlideRenderer
-                  slide={slide}
-                  foto={foto[slide.nomor_slide] || null}
-                  namaWarung={namaWarung}
-                  slidePenutup={slidePenutup}
-                />
-              </div>
-            </div>
+            <KotakPratinjau>
+              <SlideRenderer
+                slide={slide}
+                foto={foto[slide.nomor_slide] || null}
+                namaWarung={namaWarung}
+                slidePenutup={slidePenutup}
+              />
+            </KotakPratinjau>
 
             {/* Salinan untuk di-capture, dipasang di luar layar pada ukuran
                 asli tanpa satu pun leluhur ber-transform.
