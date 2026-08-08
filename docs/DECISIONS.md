@@ -869,3 +869,53 @@ Yang membuatnya pantas dicatat: ketiga jalur yang gampang diuji (halaman depan,
 berkas statis, admin) semuanya lewat Nginx dan semuanya hijau. Satu-satunya
 jalur yang rusak adalah satu-satunya yang tidak lewat Nginx. Sehat di
 permukaan bukan bukti sehat — makanya uji login sungguhan masuk daftar.
+
+---
+
+## 2026-08-08 · Deploy otomatis: push ke main → server ikut berubah
+
+**Keputusan.** Pipa penuh di `.github/workflows/build-images.yml`:
+`uji-backend` + `uji-frontend` → `bangun` (4 image) → `terapkan` (SSH ke server).
+Satu test merah = tidak ada image dibangun dan server tidak disentuh.
+
+**Gerbang uji ditambahkan lebih dulu, dan itu bukan pelengkap.** Sebelum ini CI
+membangun image tanpa menjalankan satu test pun — 288 test backend tidak pernah
+dieksekusi. Menyambungkan deploy otomatis ke pipa seperti itu bukan otomatisasi,
+cuma cara lebih cepat menerbitkan kerusakan ke pembeli.
+
+**Kunci SSH-nya tidak bisa membuka shell.** Ini yang membalik keputusan
+sebelumnya (yang menolak SSH deploy action karena "menaruh kunci SSH server di
+GitHub"). Kuncinya dipasang di `~/.ssh/authorized_keys` sebagai:
+
+```
+restrict,command="/opt/digify/deploy.sh" ssh-ed25519 AAAA…
+```
+
+`restrict` mematikan pty, port forwarding, agent forwarding, dan X11.
+`command=` membuat apa pun yang diminta diabaikan — yang jalan selalu skrip itu.
+Sudah diuji: `ssh … 'cat /opt/digify/.env'` menjalankan deploy, bukan mencetak
+rahasia. Kalau `VPS_SSH_KEY` bocor, yang bisa dilakukan penyerang hanya menyuruh
+server menarik ulang image milik kita sendiri.
+
+**Sidik jari server disematkan** (`VPS_HOST_KEY`), bukan `ssh-keyscan` saat
+jalan. keyscan mempercayai apa pun yang menjawab hari itu.
+
+**`deploy.sh` merah kalau situsnya mati.** Setelah `up -d` ia menunggu halaman
+depan menjawab 200, maksimal 90 detik, lalu keluar dengan status gagal beserta
+40 baris log kalau tidak. Deploy yang "berhasil" tapi meninggalkan situs kosong
+adalah kegagalan paling mahal: CI hijau, pemakai melihat layar putih.
+
+**Batasnya, dan ini nyata:** `deploy.sh` hanya menjalankan `docker compose pull`
++ `up -d`. **Perubahan pada `docker-compose.yml` atau `.env` TIDAK ikut
+terkirim** — service baru, volume baru, atau variabel baru tetap harus disalin
+manual dengan `scp` lalu deploy. Sengaja: mengizinkan kunci itu menulis berkas
+compose sama saja mengembalikan akses shell, karena compose bisa me-mount
+apa pun dari host.
+
+**Yang ditolak.** Watchtower (tidak butuh rahasia di GitHub, tapi menunda deploy
+sampai satu siklus polling, menambah dependency pihak ketiga, dan sama-sama
+tidak bisa menerapkan perubahan compose); deploy manual (aman, tapi satu langkah
+yang gampang lupa dan bikin server diam-diam tertinggal dari main).
+
+**Rollback tetap satu baris:** `IMAGE_TAG=sha-<commit>` di `.env` server lalu
+jalankan `deploy.sh`. Itu alasan tag `sha-` ada.

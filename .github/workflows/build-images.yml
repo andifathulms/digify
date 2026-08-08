@@ -1,40 +1,106 @@
-# Membangun keempat image dan mendorongnya ke GitHub Container Registry (GHCR).
-# Setelah workflow ini hijau, VPS cukup menjalankan:
+# Pipa penuh: uji → bangun image → terapkan ke server.
 #
-#     docker compose pull && docker compose up -d
+#   push ke main
+#     ├─ uji-backend   (288 test + ruff)   ┐
+#     ├─ uji-frontend  (tsc + eslint)      ┤ keduanya harus hijau
+#     ↓
+#   bangun 4 image (amd64 + arm64) → GHCR
+#     ↓
+#   deploy: satu perintah SSH yang HANYA bisa menjalankan /opt/digify/deploy.sh
 #
-# Tidak ada kode sumber, tidak ada `build`, dan tidak ada `git clone` di server.
+# Kalau satu test merah, tidak ada image yang dibangun dan server tidak
+# disentuh sama sekali. Itu inti dari urutan ini — otomatis tanpa gerbang uji
+# bukan otomatisasi, cuma cara lebih cepat menerbitkan kerusakan.
 #
 # Dua arsitektur dibangun sekaligus:
-#   linux/arm64 → Oracle Cloud Ampere A1 (tahap gratis)
-#   linux/amd64 → VPS Jakarta biasa (tahap berbayar)
-# Satu tag melayani keduanya, jadi pindah server nanti tidak perlu build ulang.
-#
-# Kalau nanti sudah pasti di VPS x86 saja, buat repository variable
+#   linux/arm64 → Oracle Cloud Ampere A1 (server sekarang)
+#   linux/amd64 → VPS Jakarta biasa (nanti)
+# Satu tag melayani keduanya, jadi pindah server tidak perlu build ulang.
+# Kalau nanti sudah pasti x86 saja, buat repository variable
 # BUILD_PLATFORMS = linux/amd64. Build jadi 3-4x lebih cepat karena arm64
 # dibangun lewat emulasi QEMU dan itu bagian paling lambat di sini.
 
-name: Bangun image ke GHCR
+name: Uji, bangun, terapkan
 
 on:
   push:
     branches: [main]
-    # Perubahan yang tidak masuk image tidak perlu memicu build 20 menit.
+    # Perubahan yang tidak masuk image tidak perlu memicu pipa 20 menit.
     paths-ignore:
       - "**.md"
       - "docs/**"
   workflow_dispatch:
 
 concurrency:
-  # Push beruntun: batalkan build lama, yang dipakai hanya yang terakhir.
-  group: build-images-${{ github.ref }}
+  # Push beruntun: batalkan yang lama. Khusus deploy, ini juga mencegah dua
+  # `docker compose up` berebut di server yang sama.
+  group: rilis-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
-  build:
+  uji-backend:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: digify
+          POSTGRES_USER: digify
+          POSTGRES_PASSWORD: digify
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U digify"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      # Di runner, service berjalan di localhost — bukan di nama host Docker
+      # seperti waktu docker compose.
+      POSTGRES_HOST: localhost
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - run: pip install ".[dev]"
+        working-directory: backend
+      - name: Test (288 buah)
+        run: pytest -q
+        working-directory: backend
+      - name: Ruff
+        run: ruff check . && ruff format --check .
+        working-directory: backend
+
+  uji-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: frontend
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: frontend
+      - name: Lint
+        run: npm run lint
+        working-directory: frontend
+
+  bangun:
+    needs: [uji-backend, uji-frontend]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,14 +118,13 @@ jobs:
             context: ./frontend
             target: prod
             # NEXT_PUBLIC_* dijahit ke bundel SAAT BUILD, bukan saat kontainer
-            # jalan (lihat frontend/Dockerfile). Karena build-nya sekarang di
-            # sini, nilainya harus datang dari sini juga — mengisinya di .env
-            # server tidak akan berpengaruh apa-apa.
+            # jalan (lihat frontend/Dockerfile). Karena build-nya di sini,
+            # nilainya harus datang dari sini juga — mengisinya di .env server
+            # tidak akan berpengaruh apa-apa.
             #
-            # Isi lewat: Settings → Secrets and variables → Actions → Variables
-            #            → New repository variable → NEXT_PUBLIC_URL_BELI
-            # Ini alamat halaman pembayaran publik, jadi variable, bukan secret.
-            # Mengubahnya butuh build ulang (jalankan workflow ini manual).
+            # Settings → Secrets and variables → Actions → Variables
+            #          → NEXT_PUBLIC_URL_BELI
+            # Ini alamat halaman publik, jadi variable, bukan secret.
             build_args: |
               NEXT_PUBLIC_URL_BELI=${{ vars.NEXT_PUBLIC_URL_BELI }}
           - name: nginx
@@ -112,3 +177,35 @@ jobs:
           provenance: false
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,scope=${{ matrix.name }},mode=max
+
+  terapkan:
+    needs: bangun
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pasang kunci deploy
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+          # Sidik jari server disematkan, BUKAN ssh-keyscan saat jalan.
+          # keyscan mempercayai apa pun yang menjawab hari itu; menyematkannya
+          # berarti runner menolak bicara dengan server yang bukan server kita.
+          printf '%s\n' "${{ secrets.VPS_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Terapkan ke server
+        # Tidak ada perintah yang dikirim, dan itu memang tidak perlu: kunci ini
+        # terpasang di server dengan `restrict,command="/opt/digify/deploy.sh"`,
+        # jadi apa pun yang diminta, yang jalan tetap skrip itu. Kalau rahasia
+        # ini bocor, yang bisa dilakukan penyerang hanya menyuruh server menarik
+        # ulang image milik kita sendiri — bukan membuka shell.
+        run: |
+          ssh -i ~/.ssh/deploy \
+              -o BatchMode=yes \
+              -o ConnectTimeout=30 \
+              ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}
+
+      - name: Bersihkan kunci
+        if: always()
+        run: rm -f ~/.ssh/deploy
