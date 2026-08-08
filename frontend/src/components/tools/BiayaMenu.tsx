@@ -2,6 +2,7 @@
 
 import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
+import ContohTerpandu from "@/components/ui/ContohTerpandu";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
@@ -97,6 +98,12 @@ export default function BiayaMenu() {
 
   return (
     <>
+      {/* Di ATAS form: yang perlu diterangkan justru hal yang pemakainya
+       * belum tahu perlu ditanyakan, jadi ia harus berada di jalan yang
+       * memang dilewatinya. Tertutup secara bawaan supaya yang sudah paham
+       * tidak melewatinya dua kali. */}
+      <ContohTerpandu />
+
       <Kartu
         judul="Berapa biaya asli satu porsi?"
         keterangan="Tulis bahannya apa adanya, satu per baris. Tidak perlu rapi — biar kami yang mengurai jumlah dan harganya."
