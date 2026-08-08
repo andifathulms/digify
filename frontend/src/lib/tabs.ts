@@ -1,11 +1,32 @@
 /** Daftar 10 tab. Satu tempat, dipakai navigasi dan judul halaman. */
 
+export type Kelompok = "Profit" | "Growth";
+
 export type Tab = {
   slug: string;
   nomor: number;
   judul: string;
   ringkas: string;
-  kelompok: "Profit" | "Growth";
+  kelompok: Kelompok;
+};
+
+/**
+ * Nama kelompok yang DILIHAT pengguna.
+ *
+ * Kunci "Profit"/"Growth" tetap istilah dalam kode — dipakai untuk menyaring
+ * dan mewarnai. Yang berubah hanya labelnya, dan itu memang harus berubah:
+ * "Mesin Growth" tercetak di sidebar, di kepala tiap alat, dan di halaman
+ * depan pada bagian yang justru bertugas menerangkan isi produk. "Growth"
+ * bukan kata yang dipakai pemilik warung, dan CLAUDE.md §3.3 memang melarang
+ * bahasa Inggris di teks yang dilihat pengguna.
+ *
+ * Ditulis di sini, bukan diulang di empat berkas seperti sebelumnya —
+ * dulu nama yang sama diketik ulang di DaftarAlat, JudulTab, halaman alat,
+ * dan halaman depan, jadi mengubahnya berarti empat kesempatan untuk lupa.
+ */
+export const NAMA_KELOMPOK: Record<Kelompok, string> = {
+  Profit: "Rapikan Untung",
+  Growth: "Tambah Pembeli",
 };
 
 export const TABS: readonly Tab[] = [
@@ -47,7 +68,7 @@ export const TABS: readonly Tab[] = [
   {
     slug: "waste",
     nomor: 6,
-    judul: "Waste Tracker",
+    judul: "Bahan Terbuang",
     ringkas: "Lacak bahan yang terbuang dan berapa rupiah yang hilang karenanya.",
     kelompok: "Profit",
   },
@@ -68,15 +89,15 @@ export const TABS: readonly Tab[] = [
   {
     slug: "carousel-teks",
     nomor: 9,
-    judul: "Carousel (Teks)",
+    judul: "Naskah Carousel",
     ringkas: "Susun alur cerita carousel beserta petunjuk fotonya.",
     kelompok: "Growth",
   },
   {
     slug: "carousel-gambar",
     nomor: 10,
-    judul: "Carousel (Gambar)",
-    ringkas: "Ubah carousel jadi gambar siap posting yang bisa langsung di-download.",
+    judul: "Gambar Carousel",
+    ringkas: "Ubah carousel jadi gambar siap posting yang bisa langsung diunduh.",
     kelompok: "Growth",
   },
 ] as const;

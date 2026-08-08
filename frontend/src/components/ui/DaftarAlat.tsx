@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import IkonAlat from "@/components/ui/IkonAlat";
-import { TABS } from "@/lib/tabs";
+import { NAMA_KELOMPOK, TABS } from "@/lib/tabs";
 
 /**
  * Daftar sepuluh alat, dikelompokkan per mesin.
@@ -19,13 +19,13 @@ export default function DaftarAlat({ onPilih }: { onPilih?: () => void }) {
 
   const kelompok = [
     {
-      nama: "Mesin Profit",
+      nama: NAMA_KELOMPOK.Profit,
       ringkas: "Merapikan untung",
       warna: "var(--blue-600)",
       daftar: TABS.filter((tab) => tab.kelompok === "Profit"),
     },
     {
-      nama: "Mesin Growth",
+      nama: NAMA_KELOMPOK.Growth,
       ringkas: "Menambah pembeli",
       warna: "var(--orange-600)",
       daftar: TABS.filter((tab) => tab.kelompok === "Growth"),

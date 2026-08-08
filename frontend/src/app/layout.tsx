@@ -48,7 +48,7 @@ const plexMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Digify Laris — Menu Optimizer",
+  title: "Digify Laris — Hitung Untung Menu Warung",
   description:
     "Hitung profit asli tiap menu warung Anda, lalu buat konten promosinya. Semua dalam Bahasa Indonesia.",
   manifest: "/manifest.webmanifest",

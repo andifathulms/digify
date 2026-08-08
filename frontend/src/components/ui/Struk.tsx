@@ -60,7 +60,7 @@ export function Struk({ children }: { children: ReactNode }) {
           className="label-kecil mb-4 text-center"
           style={{ color: "var(--ink-soft)" }}
         >
-          Digify Laris · Menu Optimizer
+          Digify Laris · Hitung Untung Menu
         </p>
         {children}
       </section>

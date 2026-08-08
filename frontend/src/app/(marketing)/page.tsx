@@ -3,7 +3,7 @@ import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import StatusServer from "@/components/ui/StatusServer";
 import { formatRupiah } from "@/lib/format";
-import { TABS } from "@/lib/tabs";
+import { NAMA_KELOMPOK, TABS } from "@/lib/tabs";
 import { BELI_KE_LUAR, URL_BELI } from "@/lib/tautan";
 
 /**
@@ -276,15 +276,15 @@ function StrukContoh() {
 export default function BerandaPage() {
   const MESIN = [
     {
-      nama: "Mesin Profit",
-      ringkas: "Merapikan untung dari menu yang sudah Anda punya.",
+      nama: NAMA_KELOMPOK.Profit,
+      ringkas: "Enam alat untuk menu yang sudah Anda punya: cari yang bocor, benahi harganya.",
       warna: "var(--blue-600)",
       latar: "var(--blue-wash)",
       daftar: TABS.filter((tab) => tab.kelompok === "Profit"),
     },
     {
-      nama: "Mesin Growth",
-      ringkas: "Menambah pembeli tanpa perlu Canva atau desainer.",
+      nama: NAMA_KELOMPOK.Growth,
+      ringkas: "Empat alat untuk membawa pembeli baru, tanpa perlu Canva atau jasa desainer.",
       warna: "var(--orange-600)",
       latar: "var(--orange-wash)",
       daftar: TABS.filter((tab) => tab.kelompok === "Growth"),

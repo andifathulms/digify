@@ -35,7 +35,7 @@ export default function MasukLayout({ children }: { children: React.ReactNode })
               Digify Laris
             </span>
             <span className="text-xs" style={{ color: "var(--on-dark-dim)" }}>
-              Menu Optimizer
+              Hitung Untung Menu
             </span>
           </span>
         </Link>
@@ -81,7 +81,7 @@ export default function MasukLayout({ children }: { children: React.ReactNode })
                 Digify Laris
               </span>
               <span className="text-xs" style={{ color: "var(--ink-dim)" }}>
-                Menu Optimizer
+                Hitung Untung Menu
               </span>
             </span>
           </Link>

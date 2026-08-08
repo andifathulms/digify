@@ -3,7 +3,7 @@ import Link from "next/link";
 import AjakanPasang from "@/components/pwa/AjakanPasang";
 import IkonAlat from "@/components/ui/IkonAlat";
 import { ambilProfil } from "@/lib/sesiServer";
-import { TABS } from "@/lib/tabs";
+import { NAMA_KELOMPOK, TABS } from "@/lib/tabs";
 
 export const metadata = { title: "Semua Alat — Digify Laris" };
 
@@ -27,7 +27,7 @@ export default async function BerandaAlatPage() {
 
   const kelompok = [
     {
-      nama: "Mesin Profit",
+      nama: NAMA_KELOMPOK.Profit,
       ringkas: "Enam alat untuk merapikan untung dari menu yang sudah Anda punya.",
       warna: "var(--blue-600)",
       latar: "var(--blue-wash)",
@@ -35,7 +35,7 @@ export default async function BerandaAlatPage() {
       daftar: TABS.filter((tab) => tab.kelompok === "Profit"),
     },
     {
-      nama: "Mesin Growth",
+      nama: NAMA_KELOMPOK.Growth,
       ringkas: "Empat alat untuk membawa pembeli baru, tanpa Canva atau desainer.",
       warna: "var(--orange-600)",
       latar: "var(--orange-wash)",

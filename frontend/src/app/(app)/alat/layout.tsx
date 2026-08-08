@@ -44,7 +44,7 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
               Digify Laris
             </span>
             <span className="text-2xs" style={{ color: "var(--ink-soft)" }}>
-              Menu Optimizer
+              Hitung Untung Menu
             </span>
           </span>
         </Link>

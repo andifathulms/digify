@@ -1,4 +1,4 @@
-import { cariTab, TABS } from "@/lib/tabs";
+import { cariTab, NAMA_KELOMPOK, TABS } from "@/lib/tabs";
 
 /**
  * Judul dan satu kalimat penjelas di atas tiap alat.
@@ -16,7 +16,7 @@ export default function JudulTab({ slug }: { slug: string }) {
   const seKelompok = TABS.filter((lain) => lain.kelompok === tab.kelompok);
   const urutan = seKelompok.findIndex((lain) => lain.slug === tab.slug) + 1;
   const warnaKelompok = tab.kelompok === "Profit" ? "var(--blue-500)" : "var(--orange-600)";
-  const namaKelompok = tab.kelompok === "Profit" ? "Mesin Profit" : "Mesin Growth";
+  const namaKelompok = NAMA_KELOMPOK[tab.kelompok];
 
   return (
     <header>
