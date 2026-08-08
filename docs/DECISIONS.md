@@ -550,3 +550,66 @@ menebak harga ojol pemilik warung sekarang untuk menghitung kerugiannya (angka
 yang tidak bisa ditelusuri ke aturan mana pun); membuat panel "penjelasan" yang
 selalu terbuka (papan ranking dibaca sambil berdiri — pertanyaan "kenapa?" baru
 muncul setelah warnanya terlihat, jadi penjelasannya tertutup secara bawaan).
+
+---
+
+## 2026-08-08 · Struk bisa disimpan jadi gambar; penggeser harga dipasangi rambu
+
+Dua tambahan yang berguna tapi tidak menambah kemampuan analisa — keduanya soal
+apa yang bisa dilakukan pemiliknya dengan angka yang sudah ada.
+
+### Struk jadi gambar
+
+**Keputusan.** Keempat struk (Biaya Menu, Harga Jual, Bahan Terbuang, Laporan
+Final) bisa disimpan jadi PNG, dengan lembar berbagi didahulukan daripada
+unduhan.
+
+**Alasan.** Hitungan yang paling sering perlu ditunjukkan ke orang lain justru
+yang paling sulit dipindahkan; satu-satunya jalan sebelumnya adalah tangkapan
+layar, yang di HP selalu terpotong. Memakai `html2canvas-pro` yang sudah
+terpasang untuk carousel — tidak ada dependensi baru.
+
+**Isi gambar sama persis dengan layar.** Tidak ada tanggal atau tanda air yang
+cuma muncul di berkas. Janji produk ini "yang dilihat di sini yang akan keluar",
+dan itu berlaku dua arah. Tanggalnya masuk ke nama berkas saja — gambar struk
+beredar di WhatsApp jauh lebih lama daripada masa berlaku angkanya, dan nama
+berkas adalah cara termurah menandai umurnya tanpa mengubah tampilan.
+
+**Ditolak.** Ekspor PDF (masuk backlog PRD §11 #2, dan bukan bentuk yang dikirim
+lewat WhatsApp); menambahkan tanda air/tanggal ke dalam gambar (menjadikan yang
+dilihat berbeda dari yang keluar); mengubah `Struk` sendiri jadi komponen klien
+(memaksa seluruh pemakainya ikut).
+
+### Penggeser harga
+
+**Keputusan.** Tab 2 mendapat penggeser harga yang dibatasi titik balik modal,
+berkelipatan 500, memakai ambang warna yang sama dengan papan ranking, dan
+menandai titik balik modal serta harga yang disarankan di atas relnya.
+
+**Alasan menolaknya lebih dulu, lalu membangunnya begini.** Alat yang bisa
+digeser mengundang orang menggeser sampai angkanya terlihat enak — persis
+kebiasaan "kira-kira" yang produk ini ada untuk menggantikan. Yang membuatnya
+layak dibangun adalah rambunya: dengan batas bawah dan warna yang berasal dari
+aturan, penggeser berhenti jadi kotak coba-coba dan berubah jadi cara melihat
+BENTUK hubungan harga dan untung — berapa yang hilang tiap Rp 500 diturunkan,
+dan di titik mana warnanya berubah. Satu angka tidak pernah bisa menunjukkan itu.
+
+**Ambangnya dicerminkan, bukan ditulis ulang.** `statusDariMargin()` mengikuti
+`_status()` di `ranking.py`. Kalau penggesernya memakai ambang sendiri, dua layar
+akan menyebut menu yang sama dengan dua warna berbeda.
+
+**Ditolak.** Penggeser bebas tanpa batas bawah (menyediakan harga rugi sebagai
+pilihan); memanggil `/api/pricing` tiap geseran (menunggu 10–30 detik per
+gerakan, dan memakan kuota untuk hitungan yang rumusnya sudah kita punya).
+
+### Yang TIDAK dibangun: perbandingan waste antar periode
+
+Butuh data tersimpan, dan itu `MenuItem`/katalog di Fase 5 — CLAUDE.md melarang
+mengerjakannya lebih awal, dan PRD §9 melarang mendahului fase.
+
+Versi tanpa backend (menyimpan di `localStorage`) sengaja tidak dipilih, dengan
+alasan yang sama yang sudah dipakai saat memutuskan service worker tidak boleh
+menyimpan halaman: HP warung sering dipakai bergantian, dan angka keuangan yang
+mengendap di perangkat bisa terlihat oleh orang berikutnya. Menyimpan riwayat
+omzet dan biaya di `localStorage` adalah versi yang lebih buruk dari masalah itu,
+bukan jalan pintas yang cerdik.
