@@ -29,6 +29,16 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="lg:flex">
+      {/* Sebelas tautan alat mendahului isi halaman di layar lebar, di SETIAP
+       * halaman. Pemakai pembaca layar bisa melompat lewat landmark <nav>
+       * dan <main> yang sudah ada, jadi WCAG 2.4.1 secara teknis terpenuhi —
+       * tapi pemakai keyboard yang melihat layar tidak punya jalan pintas apa
+       * pun dan harus menekan Tab sebelas kali, berulang, tiap berpindah alat.
+       * Tautan ini melayani mereka, dan tidak menduplikasi landmark yang
+       * melayani kelompok lain. Tak terlihat sampai difokus. */}
+      <a href="#isi-alat" className="lewati">
+        Langsung ke isi halaman
+      </a>
       {/* ── Sidebar (layar lebar) ─────────────────────────────────────── */}
       <aside
         className="sticky top-0 hidden h-dvh w-[268px] shrink-0 flex-col lg:flex"
@@ -99,7 +109,7 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
           className="mx-auto w-full max-w-[var(--lebar-alat)] px-5 pt-6 pb-14 sm:px-8 lg:pt-10"
           style={{ paddingBottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
         >
-          <main className="flex flex-col gap-5">{children}</main>
+          <main id="isi-alat" tabIndex={-1} className="flex flex-col gap-5">{children}</main>
           <NavigasiLanjut />
         </div>
       </div>

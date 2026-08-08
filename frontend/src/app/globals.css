@@ -203,6 +203,30 @@ body {
   }
 }
 
+/* ── Tautan lewati navigasi ─────────────────────────────────────────────────
+ * Tak terlihat sampai difokus, lalu muncul di puncak layar. Tidak menambah
+ * satu piksel pun ke tampilan biasa; yang bertambah hanya satu perhentian Tab
+ * untuk orang yang memang sedang memakai Tab. */
+.lewati {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -150%);
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  box-shadow: var(--shadow);
+  font-weight: 600;
+  transition: transform var(--dur) var(--ease);
+}
+
+.lewati:focus {
+  transform: translate(-50%, 0);
+}
+
 /* ── Fokus pada label yang membungkus isian tersembunyi ─────────────────────
  * Pemilih foto carousel memakai <input type="file" class="sr-only"> di dalam
  * <label> yang tampil sebagai tombol. `sr-only` menyembunyikan input secara
