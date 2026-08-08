@@ -507,3 +507,46 @@ jadi tidak ada slug rute atau nama field API yang tersentuh.
 serapan yang sudah lazim dipakai sehari-hari); mengganti tagline "Digital. Make
 Simple" (itu merek Digify.ID, bukan teks antarmuka — kontrasnya saja yang
 diperbaiki).
+
+---
+
+## 2026-08-08 · Aturan yang menghasilkan angka ikut ditampilkan, bukan cuma hasilnya
+
+**Keputusan.** Tiga tempat di Profit Engine sekarang menunjukkan dasar
+hitungannya: ambang warna di papan ranking, jumlah baris bahan yang benar-benar
+terhitung di Tab 1, dan besarnya komisi ojol yang sedang memakan untung di Tab 2.
+
+**Alasan.** Sejak Tab 1–6 dilepas dari AI (28 Juli), alasan nomor dua yang
+dicatat adalah: *"Kalau dia bertanya 'kenapa menu ini disuruh dihentikan?',
+jawabannya bisa ditunjuk angkanya."* Kemampuan itu sudah dibeli — aturannya
+deterministik dan ada test-nya — tapi tidak pernah dikirim ke layar. Aplikasinya
+deterministik tapi belum transparan, dan bagi pemakainya keduanya terasa sama
+saja: angka yang muncul entah dari mana.
+
+Ketiganya satu masalah yang sama, dilihat dari tiga sisi:
+- Pita status muncul sebagai vonis tanpa dasar; yang tidak tahu artinya memilih
+  jalan paling aman, yaitu mengabaikannya.
+- Baris bahan yang gagal diurai hilang tanpa jejak, dan biaya per porsi keluar
+  terlalu rendah — lalu lima tab sesudahnya berdiri di atas angka itu.
+- Kerugian ojol dijawab dengan harga baru tanpa pernah menyebut kerugian yang
+  sedang berjalan.
+
+**Ambang digandakan di frontend, dijaga test di backend.** `docs/API_CONTRACT.md`
+mengikat dan menambah field ke response adalah perubahan kontrak yang butuh
+persetujuan Owner (CLAUDE.md §10). Sebagai gantinya
+`test_ambang_cocok_dengan_frontend` gagal kalau angkanya berbeda, dengan pesan
+yang menyebut nama berkas frontend-nya.
+
+**Batas keyakinan ditulis apa adanya.** Di Tab 1, JUMLAH baris yang terlewat
+adalah hitungan pasti dan dinyatakan sebagai fakta; BARIS MANA yang terlewat
+adalah dugaan (parser menormalkan nama bahan) dan ditulis "sepertinya baris ini".
+Mencampur dua tingkat keyakinan di balik satu kalimat adalah cara tercepat
+membuat satu tebakan meleset merusak kepercayaan pada seluruh angkanya.
+
+**Ditolak.** Menambahkan ambang ke response API (perubahan kontrak untuk sesuatu
+yang bisa dijaga test); menuliskan ambang langsung di komponen tanpa penjaga apa
+pun (penggandaan yang melenceng berarti aplikasi berbohong dengan percaya diri);
+menebak harga ojol pemilik warung sekarang untuk menghitung kerugiannya (angka
+yang tidak bisa ditelusuri ke aturan mana pun); membuat panel "penjelasan" yang
+selalu terbuka (papan ranking dibaca sambil berdiri — pertanyaan "kenapa?" baru
+muncul setelah warnanya terlihat, jadi penjelasannya tertutup secara bawaan).
