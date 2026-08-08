@@ -158,7 +158,7 @@ export default function Laporan() {
                 <AngkaSorot
                   label="Perkiraan tambahan profit"
                   nilai={formatRupiah(hasil.ringkasan.estimasi_kenaikan_profit_bulanan)}
-                  keterangan="per bulan"
+                  keterangan="per bulan · satu bulan dihitung empat minggu"
                   warna={
                     hasil.ringkasan.estimasi_kenaikan_profit_bulanan >= 0
                       ? "var(--green)"

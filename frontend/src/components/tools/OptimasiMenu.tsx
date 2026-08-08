@@ -227,7 +227,7 @@ export default function OptimasiMenu() {
               <AngkaSorot
                 label="Perkiraan dampak kalau semua dijalankan"
                 nilai={`${hasil.total_estimated_impact > 0 ? "+" : ""}${formatRupiah(hasil.total_estimated_impact)}`}
-                keterangan="Per bulan. Perkiraan, bukan janji — pantau hasil nyatanya sebulan ke depan."
+                keterangan="Per bulan, dengan satu bulan dihitung empat minggu. Perkiraan, bukan janji — pantau hasil nyatanya sebulan ke depan."
                 warna={hasil.total_estimated_impact >= 0 ? "var(--green)" : "var(--red)"}
               />
             </Kartu>

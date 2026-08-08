@@ -218,9 +218,25 @@ export default function WasteTracker() {
                   <AngkaSorot
                     label="Perkiraan hemat kalau dijalankan"
                     nilai={formatRupiah(hasil.estimasi_penghematan_bulanan)}
-                    keterangan="per bulan"
+                    keterangan="per bulan · dua perkiraan, lihat di bawah"
                     warna="var(--green)"
                   />
+                  {/* Angka ini = total waste × 0,5 × 4. Dua perkiraan
+                    * dikalikan jadi satu angka rupiah yang terlihat pasti.
+                    * Keduanya masuk akal dan tertulis rapi di komentar
+                    * backend — tapi tidak satu pun pernah sampai ke layar,
+                    * padahal yang 0,5 itulah bedanya antara Rp 340.000 dan
+                    * Rp 680.000. */}
+                  <p
+                    className="teks-rapi mt-2 text-sm leading-relaxed"
+                    style={{ color: "var(--ink-dim)" }}
+                  >
+                    Dihitung dari dua perkiraan: <strong>separuh</strong> pemborosan
+                    dianggap bisa dicegah dengan cara simpan dan takar yang lebih baik —
+                    sisanya melekat pada proses masak, seperti kulit, tulang, dan batang —
+                    dan <strong>satu bulan dihitung empat minggu</strong>. Kalau periode yang
+                    Anda isi bukan satu minggu, angka ini ikut meleset.
+                  </p>
                 </div>
               </Kartu>
             ) : null}

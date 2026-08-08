@@ -192,7 +192,7 @@ export default function BiayaMenu() {
                 <AngkaSorot
                   label="Untung tiap porsi"
                   nilai={formatRupiah(hargaSekarang - hasil.cogs_per_portion)}
-                  keterangan={`Margin ${formatPersen(hasil.current_margin_percentage)} di harga ${formatRupiah(hargaSekarang)}`}
+                  keterangan={`${formatPersen(hasil.current_margin_percentage)} dari harga jual ${formatRupiah(hargaSekarang)} — itulah yang disebut "margin"`}
                   warna={
                     hargaSekarang - hasil.cogs_per_portion > 0 ? "var(--green)" : "var(--red)"
                   }
