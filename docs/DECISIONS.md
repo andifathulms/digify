@@ -847,3 +847,25 @@ Yang membuat ini pantas dicatat: masalahnya tidak akan pernah muncul selama
 pengembangan hanya di Mac dan deploy hanya ke ARM. Ia menunggu sampai pindah ke
 VPS Jakarta yang x86 — persis saat sedang buru-buru migrasi. Membangun kedua
 arsitektur sejak sekarang yang memunculkannya hari ini.
+
+### Ditemukan saat deploy pertama: SECURE_SSL_REDIRECT mematikan login
+
+Gejalanya menyesatkan: `/admin/` normal, halaman depan normal, tapi login gagal
+dengan "Koneksi ke server terputus" — pesan yang menuduh jaringan pemakai.
+
+Sebabnya `DJANGO_SECURE_SSL_REDIRECT=1`. Django mengalihkan setiap permintaan
+yang tidak membawa `X-Forwarded-Proto: https`. Nginx mengirim header itu, jadi
+`/admin/` dan `/api/webhooks/` selamat. Tapi Route Handler Next.js memanggil
+Django lewat `http://backend:8000` **tanpa** header itu — Django mengalihkannya
+ke `https://backend:8000`, dan tidak ada yang mendengarkan di 443 di sana.
+Hasilnya connect timeout, yang muncul ke pemakai sebagai masalah internet.
+
+Disetel `0`. Bukan kompromi: TLS diputus di Nginx, dan Nginx sudah mengalihkan
+`http→https` di tepi (terbukti 301). Django tidak pernah menghadap internet,
+jadi pengalihannya hanya pernah kena lalu lintas internal. HSTS, `SESSION_COOKIE_SECURE`,
+dan `CSRF_COOKIE_SECURE` semuanya tetap menyala.
+
+Yang membuatnya pantas dicatat: ketiga jalur yang gampang diuji (halaman depan,
+berkas statis, admin) semuanya lewat Nginx dan semuanya hijau. Satu-satunya
+jalur yang rusak adalah satu-satunya yang tidak lewat Nginx. Sehat di
+permukaan bukan bukti sehat — makanya uji login sungguhan masuk daftar.
