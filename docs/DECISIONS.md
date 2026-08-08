@@ -420,3 +420,90 @@ lebih buruk daripada sekadar lambat. Karena itu:
 justru menyimpan halaman — persis yang tidak boleh di sini); mode offline penuh
 (seluruh nilai produk ini ada di hitungan sisi server, jadi offline penuh cuma
 menjanjikan sesuatu yang tidak bisa ditepati).
+
+---
+
+## 2026-08-08 · Halaman depan dibuat terbaca dalam lima detik
+
+Sasarannya satu: pengunjung yang baru mendarat paham ini alat apa dan untuk apa,
+tanpa membaca dokumen. Empat keputusan di bawah lahir dari menelaah halaman
+depan pada lebar 360px.
+
+### Tombol ajakan mengarah ke pembayaran, bukan ke /alat
+
+**Keputusan.** Tombol utama mengarah ke `NEXT_PUBLIC_URL_BELI`; selama alamat
+itu belum diisi, ia turun ke bagian "Cara mulai" di halaman depan.
+
+**Alasan.** Sebelumnya tombol itu mengarah ke `/alat/biaya-menu`. Rute itu
+dijaga: pengunjung tanpa sesi langsung dilempar ke `/masuk`, dan akun hanya
+terbit lewat webhook affiliate.id setelah pembayaran — tidak ada pendaftaran
+sendiri. Jadi setiap pengunjung baru yang menekan tombol terbesar di halaman
+itu mendarat di form masuk yang tidak mungkin ia lewati, setelah dijanjikan
+"gratis dicoba" dan "tanpa mendaftar apa pun". Untuk produk yang menjual
+ketelitian soal uang, janji yang dibantah satu ketukan kemudian adalah kerugian
+yang mahal.
+
+**Ditolak.** Membiarkan tombolnya ke `/alat` dan hanya memperhalus kalimatnya
+(masalahnya bukan kalimat, melainkan pintu terkunci); membuat mode coba tanpa
+akun (itu perubahan produk dan kuota, bukan perubahan tampilan — dan PRD §9
+menaruh pekerjaan kuota di fase 5); mengarang alamat pembayaran (kanal
+pembayarannya memang masih terbuka di PRD §8.1).
+
+**Catatan pemasangan.** `NEXT_PUBLIC_*` dijahit ke bundel saat `npm run build`,
+bukan dibaca saat kontainer jalan. Karena itu ARG-nya dipasang di
+`frontend/Dockerfile` dan diteruskan dari `docker-compose.prod.yml`. Tanpa itu,
+mengisinya di `.env` tidak berpengaruh apa-apa dan alamatnya hilang diam-diam.
+
+### Tangga tipografi mengganti tangga bawaan Tailwind
+
+**Keputusan.** `--fs-*` dan `--lh-*` ditulis di `tokens.css`, lalu dipetakan ke
+`--text-*` milik Tailwind lewat jembatan `@theme` di `globals.css`.
+
+**Alasan.** Ukuran huruf dulu diputuskan per komponen: 85 `text-sm`, 44
+`text-xs`, plus enam ukuran satu-satu seperti `text-[1.75rem]` dan
+`text-[10px]`. Karena tangganya mengganti bawaan Tailwind, seluruh pemakaian
+yang sudah ada ikut naik tanpa satu pun berkas komponen disentuh — dan
+sesudahnya tidak ada lagi cara menulis ukuran huruf di luar tangga.
+
+Lantainya dinaikkan (12px → 14px, 14px → 15px, teks isi 16px) karena
+penggunanya pemilik warung setengah baya, di luar ruangan, sambil memegang HP.
+Di sana 12px bukan teks kecil, melainkan teks yang tidak dibaca.
+
+**Ditolak.** Menambah tangga baru berdampingan dengan tangga Tailwind (dua
+tangga hidup bersama selalu berakhir dengan komponen memakai yang salah);
+menaikkan SEMUA teks ke 16px (struk dan tabel jadi panjang tanpa menambah
+paham — keterangan di dalam daftar tetap 15px).
+
+### Kontras diperbaiki dengan menggelapkan, bukan mengganti warna
+
+**Keputusan.** Oranye tombol, `--ink-soft`, dan ketiga warna status digelapkan
+sampai lolos 4.5:1. Hue-nya tidak diubah. Rasio tiap pasangan dicatat di kepala
+`tokens.css`.
+
+**Alasan.** Teks putih di atas tombol utama hanya 2,79:1 — separuh dari yang
+dibutuhkan, pada tombol terpenting di produk ini. Pita GREEN/YELLOW/RED, yang
+justru membawa kesimpulan produk, semuanya di bawah 4:1 di atas wash-nya.
+`--orange-600` sudah ada di tangga sejak awal, jadi ini bukan warna baru.
+
+**Ditolak.** Memakai teks gelap di atas oranye terang (rasionya lebih tinggi
+dan warnanya tetap persis, tapi tombol oranye bertulisan gelap terbaca sebagai
+peringatan, dan itu berlaku ke seluruh tombol utama di aplikasi); mengganti
+oranye dengan warna lain (itu rebranding, bukan perbaikan kontras).
+
+### Nama pilar dan dua nama alat diterjemahkan
+
+**Keputusan.** "Mesin Profit"/"Mesin Growth" → "Rapikan Untung"/"Tambah
+Pembeli"; "Waste Tracker" → "Bahan Terbuang"; "Carousel (Teks)"/"(Gambar)" →
+"Naskah Carousel"/"Gambar Carousel". Nama pilarnya kini tinggal di
+`NAMA_KELOMPOK` pada `lib/tabs.ts`.
+
+**Alasan.** Keempatnya tercetak persis di daftar yang dipakai pengunjung untuk
+memutuskan "ini buat saya atau bukan", dan "Growth" bukan kata yang dipakai
+pemilik warung. CLAUDE.md §3.3 memang sudah melarangnya. Kunci
+`"Profit"`/`"Growth"` tetap istilah dalam kode — yang berubah hanya labelnya,
+jadi tidak ada slug rute atau nama field API yang tersentuh.
+
+**Ditolak.** Ikut mengganti "Ranking Menu" dan "Laporan Final" (dua-duanya kata
+serapan yang sudah lazim dipakai sehari-hari); mengganti tagline "Digital. Make
+Simple" (itu merek Digify.ID, bukan teks antarmuka — kontrasnya saja yang
+diperbaiki).
