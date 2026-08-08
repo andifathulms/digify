@@ -19,11 +19,18 @@ export default async function StatusServer() {
 
   return (
     // Di layar 360px, header berisi logo + status + tombol keluar. Teks
-    // statusnya yang paling boleh dikorbankan: titik hijau sudah cukup
-    // menyampaikan "beres", dan teks lengkapnya tetap dibacakan pembaca layar
-    // lewat aria-label.
+    // statusnya yang paling boleh dikorbankan secara VISUAL: titik hijau sudah
+    // cukup menyampaikan "beres".
+    //
+    // Sebelumnya teks lengkapnya dipasang sebagai aria-label di <span> ini,
+    // dengan kedua anaknya aria-hidden. Itu tidak pernah bekerja: aria-label
+    // dilarang pada role="generic" — yang memang peran bawaan <span> — jadi
+    // pembaca layar mengabaikannya. Karena teksnya juga disembunyikan,
+    // lencana ini terbaca sebagai TIDAK ADA APA-APA di semua ukuran layar.
+    //
+    // Sekarang teksnya nyata, cuma disembunyikan secara visual saat sempit.
+    // Tidak ada ARIA sama sekali.
     <span
-      aria-label={teks}
       className="inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-xs font-semibold sm:px-3 sm:text-sm"
       style={{
         background: aktif ? "var(--green-wash)" : "var(--red-wash)",
@@ -35,9 +42,17 @@ export default async function StatusServer() {
         className={`h-2 w-2 shrink-0 rounded-full ${aktif ? "" : "animate-pulse"}`}
         style={{ background: aktif ? "var(--green)" : "var(--red)" }}
       />
-      <span aria-hidden className={aktif ? "hidden sm:inline" : "inline"}>
-        {aktif ? teks : "Gangguan"}
-      </span>
+      {aktif ? (
+        <>
+          <span className="sr-only sm:hidden">{teks}</span>
+          <span className="hidden sm:inline">{teks}</span>
+        </>
+      ) : (
+        <>
+          <span className="sr-only">{teks}</span>
+          <span aria-hidden>Gangguan</span>
+        </>
+      )}
     </span>
   );
 }
