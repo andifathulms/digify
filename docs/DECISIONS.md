@@ -708,3 +708,60 @@ pemakai pembaca layar tidak mendengar apa pun dari awal sampai akhir hitungan.
 Diperbaiki dengan memindahkan fokus ke blok hasil, bukan dengan membatalkan
 jedanya. Layak diingat bahwa perbaikan di satu sumbu bisa merusak sumbu lain
 yang tidak sedang diperiksa.
+
+---
+
+## 2026-08-08 · Aplikasi menerangkan hitungannya, bukan cuma mengeluarkannya
+
+**Latar.** `PRD.md` §1 menyebut masalahnya bukan "pemilik warung tidak punya
+angka", melainkan "harga ditentukan kira-kira". Artinya produk ini menjual
+pemahaman, bukan sekadar keluaran. Sejak Profit Engine dilepas dari AI
+(28 Juli), kemampuan menerangkan itu sudah dibeli — tapi sebagian besar
+berhenti di dalam kode.
+
+**Yang dikerjakan.** Contoh terpandu sebelum form pertama; langkah konversi
+satuan dicetak di tiap baris struk; tangga empat langkah di balik harga yang
+disarankan; metode Kasavana–Smith disebut namanya berikut angka kedua sumbunya;
+asumsi 4 minggu dan "separuh bisa dicegah" dinyatakan di tempat angkanya
+muncul; "margin" didefinisikan saat pertama kali dipakai; penggeser "kalau
+harga bahan naik" untuk menjawab soal ketahanan.
+
+### ⚠ Angka terukur vs angka perkiraan — pemisahan yang sebelumnya tidak ada
+
+Temuan paling penting dari pemeriksaan ini: `food_waste_percentage` di Tab 1
+adalah **tebakan kami dari tabel kategori bahan**, ditampilkan berdampingan
+dengan biaya per porsi — yang diturunkan dari nota belanja pengguna sendiri —
+dalam kotak yang bentuknya sama persis. Juru masak cermat dan juru masak boros
+mendapat angka yang sama.
+
+Untuk produk yang seluruh janjinya "angkanya bisa ditunjuk asalnya", mencampur
+angka terukur dan angka karangan tanpa tanda apa pun adalah kerusakan yang
+paling mahal, dan itu terjadi di layar andalannya. Sekarang dipisahkan secara
+eksplisit.
+
+**Aturan yang berlaku ke depan:** setiap angka yang TIDAK berasal dari masukan
+pengguna harus menyebut dirinya perkiraan, di tempat ia muncul.
+
+### Pola: cerminan konstanta backend dijaga test, bukan dikirim lewat API
+
+Tiga penjelasan baru butuh nilai antara yang tidak ada di response
+(`BOBOT_KOMPETITOR`, `KELIPATAN_HARGA`, `AMBANG_LARIS`). Kontrak API mengikat
+dan menambah field butuh persetujuan Owner, jadi polanya sama seperti ambang
+warna: digandakan di `frontend/src/lib/aturan.ts`, dijaga test di backend yang
+menyebut nama berkas frontend-nya.
+
+Khusus tangga harga ada pagar tambahan: susunan ulangnya dicocokkan dengan
+angka backend, dan **kalau berbeda sedikit pun seluruh penjelasan tidak
+ditampilkan**. Penjelasan yang meleset dari angkanya sendiri lebih merusak
+daripada tidak ada penjelasan — yang boleh hilang penjelasannya, bukan
+kebenaran angkanya.
+
+### Ditolak
+
+Tooltip (tidak terlihat di layar sentuh, tidak bisa dicari); halaman "tentang"
+atau modal terpisah (harus dicari lebih dulu, padahal yang perlu diterangkan
+justru hal yang pemakainya belum tahu perlu ditanyakan); rincian waste per
+kategori di Tab 1 (kategorinya tidak ada di response — butuh perubahan kontrak);
+membalik rumus lewat aljabar untuk mencari titik ambang di penggeser ketahanan
+(dicari selangkah demi selangkah dengan rumus yang sama, supaya angka yang
+ditunjuk pasti angka yang benar-benar muncul saat digeser ke sana).
