@@ -177,7 +177,7 @@ class TestHitungBiayaMenu:
         assert minyak["satuan_beli"] == "liter"
 
     def test_satuan_beli_ikut_satuan_pakai_kalau_harganya_tanpa_garis_miring(self) -> None:
-        """"2 butir @ Rp 2.500" — harganya memang per butir."""
+        """ "2 butir @ Rp 2.500" — harganya memang per butir."""
         telur = hitung("Telur 2 butir @ Rp 2.500")["ingredients_breakdown"][0]
         assert telur["harga_beli"] == 2500.0
         assert telur["satuan_beli"] == "butir"
