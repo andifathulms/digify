@@ -19,6 +19,14 @@
 
 ---
 
+> **Tab names in this file are the internal ones.** Several on-screen labels were
+> translated on 8 August 2026 (`Waste Tracker` → `Bahan Terbuang`,
+> `Carousel (Teks)` → `Naskah Carousel`, `Carousel (Gambar)` → `Gambar Carousel`,
+> `Profit`/`Growth Engine` → `Rapikan Untung`/`Tambah Pembeli`). **No path, slug,
+> or field name changed** — only what the user reads. See `PRD.md` §5 for the map.
+
+---
+
 ## `GET /api/health`
 
 Health indicator for the frontend's "Server aktif" badge.

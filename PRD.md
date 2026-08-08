@@ -118,6 +118,24 @@ Konsultan/agensi F&B **bukan** segmen terpisah untuk sekarang.
 
 Semua fitur sudah jadi & tervalidasi di versi Express. Semantik dan bentuk output **tidak boleh berubah** saat porting.
 
+> **Nama internal ≠ nama di layar.** Sejak 8 Agustus 2026 sebagian label yang
+> dilihat pengguna diterjemahkan ke Bahasa Indonesia (CLAUDE.md §3.3). Dokumen
+> ini tetap memakai nama internal karena itu yang dipakai di kode, slug rute,
+> dan nama field API — semuanya **tidak berubah**. Petanya:
+>
+> | Nama di dokumen & kode | Yang dilihat pengguna |
+> |---|---|
+> | Profit Engine | Rapikan Untung |
+> | Growth Engine | Tambah Pembeli |
+> | Tab 6 · Waste Tracker | Bahan Terbuang |
+> | Tab 9 · Carousel Konten (teks) | Naskah Carousel |
+> | Tab 10 · Carousel Visual | Gambar Carousel |
+> | Menu Optimizer (subjudul produk) | Hitung Untung Menu |
+>
+> Jangan "membetulkan" layar supaya cocok dengan tabel kiri — arahnya justru
+> sebaliknya. Sumber kebenaran label layar ada di `frontend/src/lib/tabs.ts`
+> (`TABS` dan `NAMA_KELOMPOK`).
+
 ### Kelompok A — Profit Engine (Tab 1–6)
 
 **Tab 1 · Biaya Menu (Cost Calculator).** User menempel daftar bahan sebagai teks bebas (satu bahan per baris, format bebas: `- Beras 500g @ Rp 8000/kg`). AI mengurai satuan & menghitung biaya proporsional. **Keputusan produk penting: user TIDAK dipaksa mengisi form terstruktur per bahan.**

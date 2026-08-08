@@ -46,7 +46,7 @@ margin diam-diam kalau harga dine-in dipakai apa adanya.
 
 ## Sepuluh alat, dua mesin
 
-**Mesin Profit** — merapikan untung dari menu yang sudah ada.
+**Rapikan Untung** — merapikan untung dari menu yang sudah ada.
 
 | # | Alat | Yang dikerjakan |
 |:--:|---|---|
@@ -55,16 +55,16 @@ margin diam-diam kalau harga dine-in dipakai apa adanya.
 | 3 | Ranking Menu | Mengurutkan menu dari profit seminggu, bukan dari margin saja |
 | 4 | Optimasi Menu | Mana yang dihentikan, didorong, diperbaiki harganya, atau dipaketkan |
 | 5 | Laporan Final | Merangkum semua perubahan jadi satu laporan yang bisa disimpan |
-| 6 | Waste Tracker | Melacak bahan terbuang dan berapa rupiah yang hilang karenanya |
+| 6 | Bahan Terbuang | Melacak bahan terbuang dan berapa rupiah yang hilang karenanya |
 
-**Mesin Growth** — menambah pembeli, tanpa Canva atau desainer.
+**Tambah Pembeli** — menambah pembeli, tanpa Canva atau desainer.
 
 | # | Alat | Yang dikerjakan |
 |:--:|---|---|
 | 7 | Ide Menu Baru | Ide menu yang modalnya masih masuk akal untuk warung tersebut |
 | 8 | Konten Promosi | Caption, hashtag, dan waktu posting |
-| 9 | Carousel (Teks) | Alur cerita carousel beserta petunjuk fotonya |
-| 10 | Carousel (Gambar) | Carousel jadi PNG 1080×1350 siap posting, bisa di-download |
+| 9 | Naskah Carousel | Alur cerita carousel beserta petunjuk fotonya |
+| 10 | Gambar Carousel | Carousel jadi PNG 1080×1350 siap posting, bisa diunduh |
 
 Alat 1–6 dihitung oleh aturan di dalam kode sendiri — cepat, gratis, dan hasilnya
 selalu sama untuk input yang sama. Hanya alat 7–10 yang memanggil Gemini.
