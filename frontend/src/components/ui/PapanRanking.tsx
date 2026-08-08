@@ -63,7 +63,10 @@ export default function PapanRanking({ rankings }: { rankings: BarisRanking[] })
 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <h4 className="judul-kecil text-base sm:text-lg">{baris.item}</h4>
+                  {/* h3, bukan h4: papan ini selalu berada di dalam Kartu yang
+                   * judulnya h2, jadi h4 melompati satu tingkat dan pembaca
+                   * layar mengumumkan kerangka halaman yang bolong. */}
+                  <h3 className="judul-kecil text-base sm:text-lg">{baris.item}</h3>
                   <StatusPita status={baris.status} />
                 </div>
 

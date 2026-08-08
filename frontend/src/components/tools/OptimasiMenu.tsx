@@ -77,7 +77,9 @@ function DaftarRekomendasi({
           }}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h4 className="text-base font-semibold">{baris.item}</h4>
+            {/* h3: kartu pembungkusnya (Kartu) memakai h2, jadi h4 melompati
+             * satu tingkat. */}
+            <h3 className="text-base font-semibold">{baris.item}</h3>
             {baris.estimasi_dampak !== 0 ? (
               <span
                 className="tabular text-sm font-semibold"
