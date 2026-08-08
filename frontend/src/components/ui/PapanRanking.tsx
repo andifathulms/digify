@@ -1,4 +1,5 @@
 import StatusPita, { warnaStatus } from "@/components/ui/StatusPita";
+import { alasanStatus, RINGKASAN_ATURAN } from "@/lib/aturan";
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { BarisRanking } from "@/lib/types/api";
 
@@ -25,7 +26,8 @@ export default function PapanRanking({ rankings }: { rankings: BarisRanking[] })
   }
 
   return (
-    <ol className="animasi-masuk flex flex-col gap-3">
+    <div className="animasi-masuk flex flex-col gap-3">
+      <ol className="flex flex-col gap-3">
       {rankings.map((baris) => {
         const tigaBesar = baris.rank <= 3;
         const warna = warnaStatus(baris.status);
@@ -89,11 +91,67 @@ export default function PapanRanking({ rankings }: { rankings: BarisRanking[] })
                     {baris.action}
                   </p>
                 ) : null}
+
+                {/* Dasar vonisnya, memakai angka menu ini sendiri.
+                 *
+                 * <details> supaya tidak menambah kebisingan pada papan yang
+                 * dibaca sambil berdiri: yang percaya lewat, yang curiga bisa
+                 * membuka. Tertutup secara bawaan — pertanyaan "kenapa?" baru
+                 * muncul setelah warnanya terlihat, bukan sebelum. */}
+                <details className="group mt-2">
+                  <summary
+                    className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold"
+                    style={{ color: "var(--blue-600)" }}
+                  >
+                    Kenapa {baris.status === "RED" ? "merah" : baris.status === "YELLOW" ? "kuning" : "hijau"}?
+                    <span aria-hidden className="transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+                  <p
+                    className="teks-rapi mt-2 text-sm leading-relaxed"
+                    style={{ color: "var(--ink-dim)" }}
+                  >
+                    {alasanStatus(baris.status, baris.margin_percentage, baris.weekly_profit)}
+                  </p>
+                </details>
               </div>
             </div>
           </li>
         );
       })}
-    </ol>
+      </ol>
+
+      {/* Aturannya ditulis terbuka, sekali, di bawah papan.
+       *
+       * Warna status adalah kesimpulan produk ini. Selama ambangnya
+       * dirahasiakan, pemiliknya tidak punya cara menilai apakah ambang itu
+       * masuk akal untuk warungnya — dan angka yang tidak bisa dinilai pada
+       * akhirnya tidak dipakai. */}
+      <div
+        className="px-4 py-3.5"
+        style={{
+          background: "var(--surface-2)",
+          border: "1px solid var(--line)",
+          borderRadius: "var(--radius)",
+        }}
+      >
+        <p className="label-kecil" style={{ color: "var(--ink-dim)" }}>
+          Dasar warnanya
+        </p>
+        <ul className="mt-2 flex flex-col gap-1">
+          {RINGKASAN_ATURAN.map((baris) => (
+            <li key={baris} className="text-sm leading-relaxed">
+              {baris}
+            </li>
+          ))}
+        </ul>
+        <p className="teks-rapi mt-2.5 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+          Untung dihitung dari harga jual dikurangi biaya bahan, bukan dari omzet. Urutannya
+          sendiri memakai profit seminggu — menu bermargin tipis tapi laris bisa menyumbang
+          lebih banyak daripada menu bermargin tebal yang jarang laku.
+        </p>
+      </div>
+    </div>
   );
 }

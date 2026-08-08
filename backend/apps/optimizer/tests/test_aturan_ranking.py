@@ -186,3 +186,30 @@ class TestNilaiEkstrem:
     def test_hasil_sama_persis_kalau_diulang(self) -> None:
         menu = [satu("A"), satu("B", cogs=12000, price=16000)]
         assert urutkan(menu) == urutkan(menu)
+
+
+class TestAmbangDitampilkanKeUser:
+    """Ambang di bawah ini sekarang DICETAK di layar, bukan cuma dipakai.
+
+    `frontend/src/lib/aturan.ts` menggandakannya untuk menerangkan ke pemilik
+    warung kenapa sebuah menu diberi warna tertentu ("Merah karena untungnya
+    12%, di bawah 20%"). Penggandaan selalu bisa melenceng, dan kalau melenceng
+    aplikasinya berbohong dengan percaya diri — persis hal yang paling merusak
+    untuk produk berisi angka uang.
+
+    Test ini pagarnya: mengubah salah satu angka di sini akan membuatnya merah
+    sampai berkas frontend-nya ikut diubah.
+    """
+
+    def test_ambang_cocok_dengan_frontend(self) -> None:
+        # Kalau baris ini gagal: samakan juga AMBANG_MARGIN_RUGI dan
+        # AMBANG_MARGIN_SEHAT di frontend/src/lib/aturan.ts, lalu perbaiki
+        # kalimat penjelasnya — angkanya disebut langsung di dalam kalimat.
+        assert AMBANG_MARGIN_RUGI == 20.0, "samakan dengan frontend/src/lib/aturan.ts"
+        assert AMBANG_MARGIN_SEHAT == 40.0, "samakan dengan frontend/src/lib/aturan.ts"
+
+    def test_ketiga_status_masih_mungkin_terjadi(self) -> None:
+        """Penjelasan di frontend menulis ketiga warna. Kalau salah satu ambang
+        digeser sampai satu warna tidak pernah muncul, penjelasannya jadi
+        menyebut keadaan yang tidak ada."""
+        assert 0 < AMBANG_MARGIN_RUGI < AMBANG_MARGIN_SEHAT < 100
