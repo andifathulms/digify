@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import ContohTerpandu from "@/components/ui/ContohTerpandu";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
+import PenggeserKenaikanBahan from "@/components/ui/PenggeserKenaikanBahan";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
 import SimpanStruk from "@/components/ui/SimpanStruk";
 import {
@@ -253,6 +254,11 @@ export default function BiayaMenu() {
                 untuk mencari harga yang benar, termasuk untuk ojol.
               </p>
             </Kartu>
+
+            <PenggeserKenaikanBahan
+              biayaBahan={hasil.cogs_per_portion}
+              hargaJual={hargaSekarang}
+            />
         </BlokHasil>
       ) : null}
     </>
