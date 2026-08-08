@@ -190,12 +190,53 @@ export default function BiayaMenu() {
                   }
                 />
                 <AngkaSorot
-                  label="Bahan terbuang"
+                  label="Bahan terbuang · perkiraan kami"
                   nilai={formatPersen(hasil.food_waste_percentage)}
                   keterangan={`Sekitar ${formatRupiah((hasil.cogs_per_portion * hasil.food_waste_percentage) / 100)} per porsi ikut hilang`}
                   warna={hasil.food_waste_percentage > 10 ? "var(--yellow)" : "var(--ink)"}
                 />
               </div>
+
+              {/* Angka ini SATU-SATUNYA di kartu ini yang tidak berasal dari
+                * apa yang pengguna tulis.
+                *
+                * Biaya per porsi diturunkan dari nota belanjanya sendiri;
+                * bahan terbuang ditebak dari JENIS bahannya lewat tabel di
+                * `aturan/bahan.py` (sayur dan daun 15%, dan seterusnya),
+                * ditimbang menurut besar biaya tiap bahan. Artinya juru masak
+                * yang cermat dan yang boros mendapat angka yang sama persis.
+                *
+                * Sebelumnya keduanya berdampingan dalam kotak yang bentuknya
+                * sama, tanpa satu pun tanda bahwa yang satu diukur dan yang
+                * satu dikarang. Untuk produk yang menjual ketelitian soal
+                * uang, mencampur keduanya diam-diam adalah kerusakan yang
+                * paling mahal. */}
+              <p
+                className="teks-rapi mt-3 px-3.5 py-3 text-sm leading-relaxed"
+                style={{
+                  background: "var(--surface-2)",
+                  borderLeft: "3px solid var(--line-strong)",
+                  borderRadius: "var(--radius-sm)",
+                  color: "var(--ink-dim)",
+                }}
+              >
+                <span className="font-semibold" style={{ color: "var(--ink)" }}>
+                  Soal angka bahan terbuang:
+                </span>{" "}
+                itu perkiraan kami, bukan hasil ukur. Ditebak dari jenis bahannya — sayur
+                dan daun biasanya terbuang lebih banyak daripada beras atau minyak — lalu
+                ditimbang menurut besar biaya tiap bahan. Dapur Anda bisa jauh lebih hemat
+                atau jauh lebih boros dari ini.{" "}
+                <a
+                  href="/alat/waste"
+                  className="font-semibold"
+                  style={{ color: "var(--blue-600)" }}
+                >
+                  Ukur yang sebenarnya di Bahan Terbuang
+                </a>
+                . Biaya per porsi di atas TIDAK memakai angka ini — itu murni dari harga
+                yang Anda tulis sendiri.
+              </p>
               <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
                 Sudah tahu biaya aslinya? Lanjut ke{" "}
                 <a href="/alat/harga-jual" className="font-semibold" style={{ color: "var(--blue)" }}>
