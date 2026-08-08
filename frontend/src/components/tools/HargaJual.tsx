@@ -63,7 +63,15 @@ function BocorDiOjol({
         borderRadius: "var(--radius)",
       }}
     >
-      <p className="label-kecil" style={{ color: "var(--ink-dim)" }}>
+      {/* Kalimat, jadi ditulis sebagai kalimat.
+       *
+       * Sebelumnya memakai .label-kecil — 13px, HURUF BESAR SEMUA, berjarak
+       * 0.08em. Kelas itu untuk penanda pendek ("DASAR WARNANYA"); catatan di
+       * globals.css-nya sendiri menyebut huruf besar butuh jarak ekstra supaya
+       * tidak terbaca sebagai gumpalan, dan kalimat sepanjang 46 huruf tetap
+       * jadi gumpalan meski diberi jarak. Padahal justru kalimat inilah yang
+       * menerangkan seluruh kartu. */}
+      <p className="text-sm font-semibold" style={{ color: "var(--ink-dim)" }}>
         Kalau harga di tempat dipakai apa adanya di ojol
       </p>
 
