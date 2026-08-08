@@ -40,7 +40,7 @@ export default function NavigasiLanjut() {
             }}
           >
             <span className="label-kecil" style={{ color: "var(--ink-soft)" }}>
-              ← Sebelumnya
+              <span aria-hidden>← </span>Sebelumnya
             </span>
             <span className="mt-0.5 text-sm font-semibold">{sebelum.judul}</span>
           </Link>
@@ -60,7 +60,7 @@ export default function NavigasiLanjut() {
             }}
           >
             <span className="label-kecil" style={{ color: "var(--blue-600)" }}>
-              Lanjut →
+              Lanjut<span aria-hidden> →</span>
             </span>
             <span className="mt-0.5 text-sm font-semibold" style={{ color: "var(--blue-800)" }}>
               {sesudah.judul}

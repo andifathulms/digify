@@ -41,7 +41,16 @@ export default function TombolSalin({ teks, label = "Salin" }: { teks: string; l
         transition: "background var(--dur) var(--ease), color var(--dur) var(--ease)",
       }}
     >
-      {tersalin ? "Tersalin ✓" : label}
+      {/* Centangnya dekoratif: pembaca layar sudah mengumumkan nama tombol
+        * berubah jadi "Tersalin". Tanpa aria-hidden ia terbaca sebagai
+        * "tanda centang" — bunyi tambahan yang tidak menambah apa pun. */}
+      {tersalin ? (
+        <>
+          Tersalin<span aria-hidden> ✓</span>
+        </>
+      ) : (
+        label
+      )}
     </button>
   );
 }
