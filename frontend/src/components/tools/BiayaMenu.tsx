@@ -14,10 +14,73 @@ import {
   StrukJudul,
   StrukTotal,
 } from "@/components/ui/Struk";
+import { periksaBahanTerbaca } from "@/lib/bahanTerbaca";
 import { CONTOH_BAHAN, MENU_UTAMA, NAMA_WARUNG } from "@/lib/contoh";
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { BiayaMenuRequest, BiayaMenuResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+
+/**
+ * Peringatan bahan yang tidak ikut terhitung.
+ *
+ * Muncul DI ATAS struk, bukan di bawahnya. Kalau biaya per porsi ternyata
+ * kurang, itu harus diketahui sebelum angkanya dibaca — bukan sesudah
+ * pemiliknya terlanjur memakainya untuk menetapkan harga.
+ *
+ * Nadanya sengaja bukan nada error: tidak ada yang rusak, dan tidak ada yang
+ * salah diketik. Ini akibat wajar dari boleh menulis bebas, dan yang
+ * dibutuhkan pemiliknya cuma tahu bahwa itu terjadi.
+ */
+function BahanTerlewat({
+  teksBahan,
+  namaTerbaca,
+}: {
+  teksBahan: string;
+  namaTerbaca: string[];
+}) {
+  const bacaan = periksaBahanTerbaca(teksBahan, namaTerbaca);
+  if (!bacaan.adaYangTerlewat) return null;
+
+  return (
+    <div
+      className="animasi-masuk px-4 py-3.5"
+      style={{
+        background: "var(--yellow-wash)",
+        border: "1px solid var(--line)",
+        borderLeft: "4px solid var(--yellow)",
+        borderRadius: "var(--radius)",
+      }}
+    >
+      <p className="text-base font-semibold">
+        {bacaan.jumlahTerbaca} dari {bacaan.jumlahDitulis} baris bahan yang terhitung
+      </p>
+      <p className="teks-rapi mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+        Baris tanpa jumlah atau harga yang jelas tidak bisa dihitung, jadi biaya per porsi di
+        bawah ini lebih rendah dari yang sebenarnya. Lengkapi barisnya, lalu hitung ulang.
+      </p>
+
+      {bacaan.barisTakDikenali.length > 0 ? (
+        <>
+          <p className="mt-3 text-sm font-semibold">Sepertinya baris ini:</p>
+          <ul className="mt-1.5 flex flex-col gap-1">
+            {bacaan.barisTakDikenali.map((baris, indeks) => (
+              <li
+                key={`${baris}-${indeks}`}
+                className="tabular px-2.5 py-1.5 text-sm"
+                style={{ background: "var(--surface)", borderRadius: "var(--radius-xs)" }}
+              >
+                {baris}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm" style={{ color: "var(--ink-dim)" }}>
+            Contoh baris yang terbaca: “Kecap manis 15 ml @ Rp 24.000/liter”.
+          </p>
+        </>
+      ) : null}
+    </div>
+  );
+}
 
 /** Tab 1 · Biaya Menu. */
 export default function BiayaMenu() {
@@ -86,6 +149,11 @@ export default function BiayaMenu() {
 
       {hasil && !sedangJalan ? (
         <>
+          <BahanTerlewat
+            teksBahan={bahan}
+            namaTerbaca={hasil.ingredients_breakdown.map((baris) => baris.nama)}
+          />
+
           <Struk>
             <StrukJudul judul={hasil.item_name} subjudul={`Biaya bahan untuk 1 porsi · ${NAMA_WARUNG}`} />
             <StrukGaris />
