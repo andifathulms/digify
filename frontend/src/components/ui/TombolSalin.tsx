@@ -34,7 +34,7 @@ export default function TombolSalin({ teks, label = "Salin" }: { teks: string; l
       onClick={salin}
       className="shrink-0 cursor-pointer rounded-[var(--radius-sm)] px-3 py-2 text-xs font-semibold active:translate-y-px"
       style={{
-        minHeight: "36px",
+        minHeight: "var(--tap)",
         background: tersalin ? "var(--green-wash)" : "var(--blue-wash)",
         color: tersalin ? "var(--green)" : "var(--blue-600)",
         border: `1px solid ${tersalin ? "var(--green)" : "var(--blue-100)"}`,

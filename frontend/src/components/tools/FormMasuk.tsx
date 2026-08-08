@@ -53,8 +53,17 @@ function Isian({
           <button
             type="button"
             onClick={() => setTerlihat((sebelumnya) => !sebelumnya)}
-            className="absolute right-1.5 cursor-pointer rounded-[var(--radius-xs)] px-2.5 py-1.5 text-xs font-semibold"
-            style={{ color: "var(--blue-600)", background: "var(--blue-wash)" }}
+            // Satu-satunya target yang sengaja di bawah --tap, dan alasannya
+            // geometri: tombol ini duduk DI DALAM isian setinggi --tap, jadi
+            // 44px penuh akan membuatnya menempel tepi atas dan bawah isian.
+            // Disisakan 4px di tiap sisi. Isiannya sendiri tetap 44px, dan
+            // 36px masih di atas ambang WCAG 2.5.8 (24px).
+            className="absolute right-1.5 inline-flex cursor-pointer items-center rounded-[var(--radius-xs)] px-2.5 text-xs font-semibold"
+            style={{
+              minHeight: "calc(var(--tap) - 8px)",
+              color: "var(--blue-600)",
+              background: "var(--blue-wash)",
+            }}
           >
             {terlihat ? "Sembunyikan" : "Lihat"}
           </button>

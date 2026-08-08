@@ -25,8 +25,9 @@ export default function TombolKeluar() {
       type="button"
       onClick={keluar}
       disabled={sedangKeluar}
-      className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold sm:text-sm"
+      className="cursor-pointer rounded-full px-3 text-xs font-semibold sm:text-sm"
       style={{
+        minHeight: "var(--tap)",
         border: "1px solid var(--line-strong)",
         background: "var(--surface)",
         color: "var(--ink-dim)",
