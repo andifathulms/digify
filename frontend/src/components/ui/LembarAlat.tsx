@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import DaftarAlat from "@/components/ui/DaftarAlat";
@@ -36,31 +36,97 @@ export default function LembarAlat({
   const [dipasang, setDipasang] = useState(false);
   useEffect(() => setDipasang(true), []);
 
-  // Esc menutup lembar, dan halaman di belakangnya dikunci supaya tidak ikut
-  // bergulir saat jari menggeser di atas lembar.
+  const lembar = useRef<HTMLDivElement>(null);
+  const pemicu = useRef<HTMLButtonElement>(null);
+
+  /**
+   * Esc menutup lembar, halaman di belakangnya dikunci supaya tidak ikut
+   * bergulir, DAN fokus keyboard diurus.
+   *
+   * Bagian fokus ini sebelumnya tidak ada sama sekali, padahal lembarnya
+   * mengaku `role="dialog"` + `aria-modal="true"`. Akibatnya bagi pemakai
+   * keyboard: fokus tetap tertinggal di tombol pemicu yang kini tertutup
+   * tirai, Tab berjalan menembus ke halaman di belakang lembar, dan setelah
+   * lembar ditutup fokus jatuh ke <body> sehingga Tab berikutnya mengulang
+   * dari puncak dokumen. Janji "modal" dan perilakunya bertentangan.
+   *
+   * Tiga hal yang dikerjakan: pindahkan fokus ke dalam saat dibuka, putar
+   * Tab di dalam selama terbuka, kembalikan fokus ke pemicunya saat ditutup.
+   */
   useEffect(() => {
     if (!terbuka) return;
 
+    const sebelumnya = document.activeElement as HTMLElement | null;
+    // Disalin di sini, bukan dibaca saat pembersihan: saat pembersihan
+    // berjalan, ref-nya bisa saja sudah menunjuk simpul lain (atau kosong).
+    const tombolPemicu = pemicu.current;
+
+    function fokusable(): HTMLElement[] {
+      if (!lembar.current) return [];
+      return Array.from(
+        lembar.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.offsetParent !== null);
+    }
+
     function padaTombol(peristiwa: KeyboardEvent) {
-      if (peristiwa.key === "Escape") setTerbuka(false);
+      if (peristiwa.key === "Escape") {
+        setTerbuka(false);
+        return;
+      }
+      if (peristiwa.key !== "Tab") return;
+
+      const daftar = fokusable();
+      const pertama = daftar[0];
+      const terakhir = daftar[daftar.length - 1];
+      if (!pertama || !terakhir) return;
+
+      const aktif = document.activeElement;
+
+      // Termasuk saat fokus entah bagaimana berada di luar lembar: Tab
+      // menariknya kembali masuk, bukan melepasnya ke halaman di belakang.
+      if (!lembar.current?.contains(aktif as Node)) {
+        peristiwa.preventDefault();
+        pertama.focus();
+      } else if (peristiwa.shiftKey && aktif === pertama) {
+        peristiwa.preventDefault();
+        terakhir.focus();
+      } else if (!peristiwa.shiftKey && aktif === terakhir) {
+        peristiwa.preventDefault();
+        pertama.focus();
+      }
     }
 
     const gulirSemula = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", padaTombol);
+    // Fokus mendarat di panelnya sendiri, bukan langsung di tombol pertama.
+    // Dengan begitu pembaca layar mengumumkan "Daftar alat, dialog" lebih
+    // dulu — kalau langsung melompat ke tautan pertama, pemakainya mendengar
+    // nama sebuah alat tanpa tahu ia baru saja masuk ke mana.
+    lembar.current?.focus();
 
     return () => {
       document.body.style.overflow = gulirSemula;
       window.removeEventListener("keydown", padaTombol);
+      // Kembalikan ke tempat asalnya. `pemicu` dipakai kalau elemen semula
+      // sudah tidak ada di dokumen — mis. karena lembarnya ikut dilepas.
+      const tujuan = sebelumnya?.isConnected ? sebelumnya : tombolPemicu;
+      tujuan?.focus();
     };
   }, [terbuka]);
 
   return (
     <>
       <button
+        ref={pemicu}
         type="button"
         onClick={() => setTerbuka(true)}
-        aria-expanded={terbuka}
+        // aria-expanded dibuang: atribut itu untuk pengungkap yang isinya
+        // bersebelahan, sementara tombol ini membuka dialog modal.
+        // aria-haspopup menyatakan hal itu dengan tepat.
+        aria-haspopup="dialog"
         className="inline-flex shrink-0 cursor-pointer items-center gap-2 px-3.5 text-sm font-semibold whitespace-nowrap"
         style={{
           minHeight: "var(--tap)",
@@ -108,9 +174,11 @@ export default function LembarAlat({
           />
 
           <div
+            ref={lembar}
             role="dialog"
             aria-modal="true"
             aria-label="Daftar alat"
+            tabIndex={-1}
             className="animasi-masuk absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col"
             style={{
               background: "var(--bg)",
