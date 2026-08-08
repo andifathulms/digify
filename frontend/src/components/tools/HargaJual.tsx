@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
+import SimpanStruk from "@/components/ui/SimpanStruk";
 import {
   Struk,
   StrukBaris,
@@ -196,46 +197,48 @@ export default function HargaJual() {
             komisi={komisi}
           />
 
-          <Struk>
-            <StrukJudul judul={hasil.item_name} subjudul="Rincian penetapan harga" />
-            <StrukGaris />
+          <SimpanStruk judul={hasil.item_name}>
+            <Struk>
+              <StrukJudul judul={hasil.item_name} subjudul="Rincian penetapan harga" />
+              <StrukGaris />
 
-            <StrukBaris label="Biaya bahan per porsi" nilai={formatRupiah(biayaBahan)} />
-            <StrukBaris
-              label="Balik modal di tempat"
-              keterangan="Di bawah ini Anda rugi"
-              nilai={formatRupiah(hasil.break_even_dine_in)}
-            />
-            <StrukBaris
-              label="Balik modal di ojol"
-              keterangan={`Biaya bahan ÷ (100% − ${formatPersen(komisi)})`}
-              nilai={formatRupiah(hasil.break_even_delivery)}
-            />
+              <StrukBaris label="Biaya bahan per porsi" nilai={formatRupiah(biayaBahan)} />
+              <StrukBaris
+                label="Balik modal di tempat"
+                keterangan="Di bawah ini Anda rugi"
+                nilai={formatRupiah(hasil.break_even_dine_in)}
+              />
+              <StrukBaris
+                label="Balik modal di ojol"
+                keterangan={`Biaya bahan ÷ (100% − ${formatPersen(komisi)})`}
+                nilai={formatRupiah(hasil.break_even_delivery)}
+              />
 
-            <StrukGaris />
+              <StrukGaris />
 
-            <StrukBaris
-              label="Harga yang disarankan (di tempat)"
-              nilai={formatRupiah(hasil.dine_in_recommended)}
-            />
-            <StrukBaris
-              label="Harga yang disarankan (ojol)"
-              nilai={formatRupiah(hasil.delivery_recommended)}
-            />
-            <StrukBaris
-              label="Harga yang terasa lebih murah"
-              keterangan="Angka bulat yang enak dilihat pembeli"
-              nilai={formatRupiah(hasil.psychological_price)}
-            />
+              <StrukBaris
+                label="Harga yang disarankan (di tempat)"
+                nilai={formatRupiah(hasil.dine_in_recommended)}
+              />
+              <StrukBaris
+                label="Harga yang disarankan (ojol)"
+                nilai={formatRupiah(hasil.delivery_recommended)}
+              />
+              <StrukBaris
+                label="Harga yang terasa lebih murah"
+                keterangan="Angka bulat yang enak dilihat pembeli"
+                nilai={formatRupiah(hasil.psychological_price)}
+              />
 
-            <StrukTotal
-              label="Untung tiap porsi (di tempat)"
-              nilai={formatRupiah(hasil.dine_in_recommended - biayaBahan)}
-            />
-            <StrukCatatan>
-              Selisih harga ojol menutup komisi aplikasi, bukan menaikkan untung Anda.
-            </StrukCatatan>
-          </Struk>
+              <StrukTotal
+                label="Untung tiap porsi (di tempat)"
+                nilai={formatRupiah(hasil.dine_in_recommended - biayaBahan)}
+              />
+              <StrukCatatan>
+                Selisih harga ojol menutup komisi aplikasi, bukan menaikkan untung Anda.
+              </StrukCatatan>
+            </Struk>
+          </SimpanStruk>
         </>
       ) : null}
     </>

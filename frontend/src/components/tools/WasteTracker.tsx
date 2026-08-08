@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
+import SimpanStruk from "@/components/ui/SimpanStruk";
 import { Struk, StrukCatatan, StrukGaris, StrukJudul, StrukTotal } from "@/components/ui/Struk";
 import { CONTOH_BAHAN_WASTE } from "@/lib/contoh";
 import { formatPersen, formatRupiah } from "@/lib/format";
@@ -159,38 +160,40 @@ export default function WasteTracker() {
             />
           </div>
 
-          <Struk>
-            <StrukJudul judul="Rincian pemborosan" subjudul={periode} />
-            <StrukGaris />
+          <SimpanStruk judul={`Pemborosan ${periode}`}>
+            <Struk>
+              <StrukJudul judul="Rincian pemborosan" subjudul={periode} />
+              <StrukGaris />
 
-            {hasil.waste_breakdown.map((baris, indeks) => (
-              <div key={`${baris.nama}-${indeks}`} className="py-2">
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="text-sm">{baris.nama}</p>
-                  <p className="tabular shrink-0 text-sm font-medium">
-                    {formatRupiah(baris.nilai_rupiah)}
+              {hasil.waste_breakdown.map((baris, indeks) => (
+                <div key={`${baris.nama}-${indeks}`} className="py-2">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="text-sm">{baris.nama}</p>
+                    <p className="tabular shrink-0 text-sm font-medium">
+                      {formatRupiah(baris.nilai_rupiah)}
+                    </p>
+                  </div>
+                  <p className="tabular text-xs" style={{ color: "var(--ink-dim)" }}>
+                    terbuang {formatPersen(baris.persentase_terbuang)}
                   </p>
+                  {baris.dugaan_penyebab ? (
+                    <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+                      {baris.dugaan_penyebab}
+                    </p>
+                  ) : null}
                 </div>
-                <p className="tabular text-xs" style={{ color: "var(--ink-dim)" }}>
-                  terbuang {formatPersen(baris.persentase_terbuang)}
-                </p>
-                {baris.dugaan_penyebab ? (
-                  <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-                    {baris.dugaan_penyebab}
-                  </p>
-                ) : null}
-              </div>
-            ))}
+              ))}
 
-            <StrukTotal
-              label="Total terbuang"
-              nilai={formatRupiah(hasil.total_nilai_waste_rupiah)}
-            />
-            <StrukCatatan>
-              Sekitar {formatRupiah(hasil.total_nilai_waste_rupiah * 4)} sebulan kalau polanya
-              sama terus.
-            </StrukCatatan>
-          </Struk>
+              <StrukTotal
+                label="Total terbuang"
+                nilai={formatRupiah(hasil.total_nilai_waste_rupiah)}
+              />
+              <StrukCatatan>
+                Sekitar {formatRupiah(hasil.total_nilai_waste_rupiah * 4)} sebulan kalau polanya
+                sama terus.
+              </StrukCatatan>
+            </Struk>
+          </SimpanStruk>
 
           {hasil.rekomendasi.length > 0 ? (
             <Kartu judul="Yang bisa Anda lakukan">

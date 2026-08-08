@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
+import SimpanStruk from "@/components/ui/SimpanStruk";
 import { Struk, StrukCatatan, StrukGaris, StrukJudul, StrukTotal } from "@/components/ui/Struk";
 import { CONTOH_MENU, NAMA_WARUNG } from "@/lib/contoh";
 import { formatPersen, formatRupiah, tanggalHariIni } from "@/lib/format";
@@ -167,56 +168,58 @@ export default function Laporan() {
             ) : null}
           </Kartu>
 
-          <Struk>
-            <StrukJudul judul={hasil.nama_restoran} subjudul={hasil.tanggal} />
-            <StrukGaris />
+          <SimpanStruk judul={hasil.nama_restoran}>
+            <Struk>
+              <StrukJudul judul={hasil.nama_restoran} subjudul={hasil.tanggal} />
+              <StrukGaris />
 
-            {/* Tiap menu jadi satu blok, bukan satu baris tabel 7 kolom.
-                Tabel 7 kolom mustahil dibaca di layar 360px. */}
-            {hasil.menu_items.map((baris, indeks) => (
-              <div key={`${baris.nama_menu}-${indeks}`} className="py-2.5">
-                <p className="text-sm font-semibold">{baris.nama_menu}</p>
-                <dl
-                  className="tabular mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 text-xs"
-                  style={{ color: "var(--ink-dim)" }}
-                >
-                  <div className="flex justify-between">
-                    <dt>Biaya bahan</dt>
-                    <dd>{formatRupiah(baris.biaya_bahan)}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt>Margin</dt>
-                    <dd>{formatPersen(baris.margin)}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt>Harga lama</dt>
-                    <dd>{formatRupiah(baris.harga_lama)}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt>Harga baru</dt>
-                    <dd style={{ color: "var(--ink)", fontWeight: 600 }}>
-                      {formatRupiah(baris.harga_baru)}
-                    </dd>
-                  </div>
-                  <div className="col-span-2 flex justify-between">
-                    <dt>Terjual seminggu</dt>
-                    <dd>{baris.terjual_per_minggu} porsi</dd>
-                  </div>
-                </dl>
-                {baris.catatan ? (
-                  <p className="mt-1.5 text-xs leading-relaxed">{baris.catatan}</p>
-                ) : null}
-              </div>
-            ))}
+              {/* Tiap menu jadi satu blok, bukan satu baris tabel 7 kolom.
+                  Tabel 7 kolom mustahil dibaca di layar 360px. */}
+              {hasil.menu_items.map((baris, indeks) => (
+                <div key={`${baris.nama_menu}-${indeks}`} className="py-2.5">
+                  <p className="text-sm font-semibold">{baris.nama_menu}</p>
+                  <dl
+                    className="tabular mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 text-xs"
+                    style={{ color: "var(--ink-dim)" }}
+                  >
+                    <div className="flex justify-between">
+                      <dt>Biaya bahan</dt>
+                      <dd>{formatRupiah(baris.biaya_bahan)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt>Margin</dt>
+                      <dd>{formatPersen(baris.margin)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt>Harga lama</dt>
+                      <dd>{formatRupiah(baris.harga_lama)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt>Harga baru</dt>
+                      <dd style={{ color: "var(--ink)", fontWeight: 600 }}>
+                        {formatRupiah(baris.harga_baru)}
+                      </dd>
+                    </div>
+                    <div className="col-span-2 flex justify-between">
+                      <dt>Terjual seminggu</dt>
+                      <dd>{baris.terjual_per_minggu} porsi</dd>
+                    </div>
+                  </dl>
+                  {baris.catatan ? (
+                    <p className="mt-1.5 text-xs leading-relaxed">{baris.catatan}</p>
+                  ) : null}
+                </div>
+              ))}
 
-            <StrukTotal
-              label="Perkiraan tambahan profit"
-              nilai={`${formatRupiah(hasil.ringkasan.estimasi_kenaikan_profit_bulanan)}/bln`}
-            />
-            <StrukCatatan>
-              Simpan laporan ini dan bandingkan dengan hasil nyata bulan depan.
-            </StrukCatatan>
-          </Struk>
+              <StrukTotal
+                label="Perkiraan tambahan profit"
+                nilai={`${formatRupiah(hasil.ringkasan.estimasi_kenaikan_profit_bulanan)}/bln`}
+              />
+              <StrukCatatan>
+                Simpan laporan ini dan bandingkan dengan hasil nyata bulan depan.
+              </StrukCatatan>
+            </Struk>
+          </SimpanStruk>
         </>
       ) : null}
     </>

@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
+import SimpanStruk from "@/components/ui/SimpanStruk";
 import {
   Struk,
   StrukBarisBahan,
@@ -154,27 +155,29 @@ export default function BiayaMenu() {
             namaTerbaca={hasil.ingredients_breakdown.map((baris) => baris.nama)}
           />
 
-          <Struk>
-            <StrukJudul judul={hasil.item_name} subjudul={`Biaya bahan untuk 1 porsi · ${NAMA_WARUNG}`} />
-            <StrukGaris />
+          <SimpanStruk judul={hasil.item_name}>
+            <Struk>
+              <StrukJudul judul={hasil.item_name} subjudul={`Biaya bahan untuk 1 porsi · ${NAMA_WARUNG}`} />
+              <StrukGaris />
 
-            {hasil.ingredients_breakdown.map((bahanBaris, indeks) => (
-              <StrukBarisBahan
-                key={`${bahanBaris.nama}-${indeks}`}
-                nama={bahanBaris.nama}
-                jumlah={bahanBaris.jumlah}
-                satuan={bahanBaris.satuan}
-                hargaBeli={bahanBaris.harga_beli}
-                satuanBeli={bahanBaris.satuan_beli}
-                biaya={formatRupiah(bahanBaris.biaya)}
-              />
-            ))}
+              {hasil.ingredients_breakdown.map((bahanBaris, indeks) => (
+                <StrukBarisBahan
+                  key={`${bahanBaris.nama}-${indeks}`}
+                  nama={bahanBaris.nama}
+                  jumlah={bahanBaris.jumlah}
+                  satuan={bahanBaris.satuan}
+                  hargaBeli={bahanBaris.harga_beli}
+                  satuanBeli={bahanBaris.satuan_beli}
+                  biaya={formatRupiah(bahanBaris.biaya)}
+                />
+              ))}
 
-            <StrukTotal label="Biaya per porsi" nilai={formatRupiah(hasil.cogs_per_portion)} />
-            <StrukCatatan>
-              Dihitung dari harga bahan yang Anda tulis. Kalau harga bahan berubah, hitung ulang.
-            </StrukCatatan>
-          </Struk>
+              <StrukTotal label="Biaya per porsi" nilai={formatRupiah(hasil.cogs_per_portion)} />
+              <StrukCatatan>
+                Dihitung dari harga bahan yang Anda tulis. Kalau harga bahan berubah, hitung ulang.
+              </StrukCatatan>
+            </Struk>
+          </SimpanStruk>
 
           <Kartu judul="Artinya untuk warung Anda">
             <div className="grid gap-3 sm:grid-cols-2">

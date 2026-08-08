@@ -5,6 +5,8 @@
 .env
 .env.local
 .env.*.local
+# Salinan .env yang dibuat saat mengganti port dsb — berisi rahasia yang sama.
+.env.bak*
 
 # Python
 __pycache__/
