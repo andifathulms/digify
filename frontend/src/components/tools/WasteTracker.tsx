@@ -54,10 +54,10 @@ export default function WasteTracker() {
                   <button
                     type="button"
                     onClick={() => setBahan(bahan.filter((_, i) => i !== indeks))}
-                    className="px-2 py-1 text-xs font-semibold"
-                    style={{ color: "var(--red)" }}
+                    className="cursor-pointer px-2 text-xs font-semibold"
+                    style={{ color: "var(--red)", minHeight: "var(--tap)" }}
                   >
-                    Hapus baris
+                    Hapus bahan {indeks + 1}
                   </button>
                 ) : null}
               </div>

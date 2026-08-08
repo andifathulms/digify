@@ -194,7 +194,7 @@ export default function PapanCarousel({
                   boxShadow: "var(--shadow-xs)",
                 }}
               >
-                {adaFoto ? "Ganti foto" : "Pilih foto warung"}
+                {adaFoto ? `Ganti foto slide ${slide.nomor_slide}` : `Pilih foto slide ${slide.nomor_slide}`}
                 <input
                   type="file"
                   accept="image/*"
@@ -210,7 +210,7 @@ export default function PapanCarousel({
               >
                 {sedangUnduh === slide.nomor_slide
                   ? "Membuat gambar…"
-                  : "Simpan gambar (1080×1350)"}
+                  : `Simpan slide ${slide.nomor_slide} (1080×1350)`}
               </Button>
             </div>
 

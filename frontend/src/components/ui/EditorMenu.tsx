@@ -65,9 +65,16 @@ export default function EditorMenu<T extends BarisMenu>({
                 type="button"
                 onClick={() => hapusBaris(indeks)}
                 className="cursor-pointer rounded-[var(--radius-xs)] px-2.5 text-xs font-semibold"
-                style={{ color: "var(--red)", minHeight: 36 }}
+                style={{ color: "var(--red)", minHeight: "var(--tap)" }}
               >
-                Hapus
+                {/* Nomor barisnya ikut di nama tombol.
+                  * Lima baris menu menghasilkan lima tombol bernama "Hapus"
+                  * yang persis sama. Pembaca layar yang menampilkan daftar
+                  * tombol — cara paling lazim menelusuri halaman — mendapat
+                  * lima entri kembar tanpa cara membedakannya. Nomornya
+                  * ditulis terlihat, bukan lewat aria-label: kalau ambigu bagi
+                  * satu orang, ia ambigu juga bagi yang lain. */}
+                Hapus menu {indeks + 1}
               </button>
             ) : null}
           </div>
