@@ -207,3 +207,34 @@ class TestNilaiEkstrem:
 
     def test_hasil_sama_persis_kalau_diulang(self) -> None:
         assert optimasi(EMPAT_KUADRAN) == optimasi(EMPAT_KUADRAN)
+
+
+class TestAngkaYangDicerminkanFrontend:
+    """Tab 4 sekarang MENYEBUT metodenya (Kasavana–Smith) dan menampilkan
+    posisi tiap menu pada kedua sumbunya.
+
+    Rata-rata dan batas larisnya dihitung ulang di
+    `frontend/src/components/ui/DasarOptimasi.tsx` dari daftar menu yang sama.
+    Kalau ambangnya melenceng, angka yang tercetak sebagai "batas laris" tidak
+    lagi sesuai dengan pengelompokan yang benar-benar dipakai — penjelasan yang
+    membantah hasilnya sendiri.
+    """
+
+    def test_ambang_laris_cocok_dengan_frontend(self) -> None:
+        # Kalau gagal: samakan AMBANG_LARIS di frontend/src/lib/aturan.ts.
+        assert AMBANG_LARIS == 0.7, "samakan dengan frontend/src/lib/aturan.ts"
+
+    def test_pengelompokan_memakai_rata_rata_polos(self) -> None:
+        """Frontend menghitung rata-rata polos (jumlah ÷ banyaknya) untuk kedua
+        sumbu. Kalau backend beralih ke median atau rata-rata tertimbang,
+        angka yang ditampilkan berhenti cocok dengan kelompoknya."""
+        menu = [
+            {"name": "A", "cogs": 5000, "price": 15000, "weeklySales": 100},
+            {"name": "B", "cogs": 5000, "price": 15000, "weeklySales": 20},
+        ]
+        hasil = optimasi_menu({"menuItems": menu, "minItems": 1, "peakHours": "-"})
+        # rata terjual 60, batas laris 42 → A laris, B tidak. Untung sama, jadi
+        # keduanya "tebal" (>= rata-rata). A jadi bintang (promote), B teka-teki
+        # yang dipaketkan DENGAN bintangnya — namanya jadi "B + A", bukan "B".
+        assert [r["item"] for r in hasil["promote"]] == ["A"]
+        assert [r["item"] for r in hasil["bundle"]] == ["B + A"]

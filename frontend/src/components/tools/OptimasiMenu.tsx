@@ -4,6 +4,7 @@
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
+import DasarOptimasi, { PosisiSumbu } from "@/components/ui/DasarOptimasi";
 import EditorMenu from "@/components/ui/EditorMenu";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -56,11 +57,21 @@ function DaftarRekomendasi({
   rekomendasi,
   warna,
   kosong,
+  menu,
 }: {
   rekomendasi: Rekomendasi[];
   warna: string;
   kosong: string;
+  /** Untuk menampilkan posisi menu pada kedua sumbu Kasavana–Smith. */
+  menu: MenuUntukOptimasi[];
 }) {
+  const dipakai = menu.filter((baris) => baris.name.trim() !== "");
+  const rataTerjual = dipakai.length
+    ? dipakai.reduce((j, b) => j + b.weeklySales, 0) / dipakai.length
+    : 0;
+  const rataUntung = dipakai.length
+    ? dipakai.reduce((j, b) => j + (b.price - b.cogs), 0) / dipakai.length
+    : 0;
   if (rekomendasi.length === 0) {
     return <KeadaanKosong>{kosong}</KeadaanKosong>;
   }
@@ -94,6 +105,17 @@ function DaftarRekomendasi({
           <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
             {baris.alasan}
           </p>
+          {/* Posisi menu ini pada kedua sumbu, supaya kelompoknya bisa
+            * diperiksa sendiri. Hanya kalau namanya cocok PERSIS dengan satu
+            * baris menu — rekomendasi paket bernama "Soto + Nasi Goreng" tidak
+            * menunjuk satu menu, dan menebak yang mana akan mencetak angka
+            * milik menu yang salah. */}
+          {(() => {
+            const cocok = dipakai.find((b) => b.name === baris.item);
+            return cocok ? (
+              <PosisiSumbu baris={cocok} rataTerjual={rataTerjual} rataUntung={rataUntung} />
+            ) : null;
+          })()}
           <p
             className="mt-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm leading-relaxed"
             style={{ background: "var(--bg)" }}
@@ -199,6 +221,8 @@ export default function OptimasiMenu() {
 
       {hasil && !sedangJalan ? (
         <BlokHasil judul="Hasil optimasi menu">
+            <DasarOptimasi menu={menu} />
+
             <Kartu>
               <AngkaSorot
                 label="Perkiraan dampak kalau semua dijalankan"
@@ -214,6 +238,7 @@ export default function OptimasiMenu() {
                   rekomendasi={hasil[kelompok.kunci]}
                   warna={kelompok.warna}
                   kosong={kelompok.kosong}
+                  menu={menu}
                 />
               </Kartu>
             ))}

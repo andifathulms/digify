@@ -46,6 +46,15 @@ export const BOBOT_KOMPETITOR = 0.5;
 export const KELIPATAN_HARGA = 500;
 
 /**
+ * Bagian dari rata-rata penjualan yang sudah dianggap "laris" di matriks
+ * Kasavana–Smith — cermin `AMBANG_LARIS` di `features/menu_engineering.py`.
+ *
+ * 70%, bukan 100%: dengan sepuluh menu, hampir separuhnya pasti di bawah
+ * rata-rata semata karena aritmetika.
+ */
+export const AMBANG_LARIS = 0.7;
+
+/**
  * Status dari margin dan untung — cermin `_status()` di ranking.py.
  *
  * Dipakai penggeser harga di Tab 2 supaya warnanya berarti persis sama dengan
