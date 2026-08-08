@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -20,6 +18,7 @@ import { MENU_UTAMA } from "@/lib/contoh";
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { HargaJualRequest, HargaJualResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { angkaSah, useUrlState } from "@/lib/useUrlState";
 
 /**
  * Kerugian yang sedang berjalan kalau harga di tempat dipasang apa adanya
@@ -113,12 +112,12 @@ function BocorDiOjol({
 
 /** Tab 2 · Harga Jual. */
 export default function HargaJual() {
-  const [namaMenu, setNamaMenu] = useState(MENU_UTAMA);
-  const [biayaBahan, setBiayaBahan] = useState(8500);
-  const [targetMargin, setTargetMargin] = useState(65);
-  const [hargaKompetitor, setHargaKompetitor] = useState(24000);
-  const [komisi, setKomisi] = useState(27);
-  const [lokasi, setLokasi] = useState("Semarang");
+  const [namaMenu, setNamaMenu] = useUrlState("menu", MENU_UTAMA);
+  const [biayaBahan, setBiayaBahan] = useUrlState("bahan", 8500, angkaSah);
+  const [targetMargin, setTargetMargin] = useUrlState("margin", 65, angkaSah);
+  const [hargaKompetitor, setHargaKompetitor] = useUrlState("kompetitor", 24000, angkaSah);
+  const [komisi, setKomisi] = useUrlState("komisi", 27, angkaSah);
+  const [lokasi, setLokasi] = useUrlState("lokasi", "Semarang");
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     HargaJualResponse,

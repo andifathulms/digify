@@ -18,6 +18,7 @@ import {
 } from "@/lib/contoh";
 import type { CarouselRequest, CarouselResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { angkaSah, useUrlState } from "@/lib/useUrlState";
 
 /**
  * Papan slide harus client-only: html2canvas menggambar ke <canvas>, dan
@@ -47,8 +48,8 @@ export default function CarouselGambar() {
     gaya: GAYA_BAHASA[0],
     infoPromo: "",
   });
-  const [jumlahSlide, setJumlahSlide] = useState(4);
-  const [namaWarung, setNamaWarung] = useState(NAMA_WARUNG);
+  const [jumlahSlide, setJumlahSlide] = useUrlState("slide", 4, angkaSah);
+  const [namaWarung, setNamaWarung] = useUrlState("warung", NAMA_WARUNG);
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<CarouselResponse, CarouselRequest>(
     "/carousel-content",

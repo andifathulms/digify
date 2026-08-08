@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks, FieldTeksPanjang } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
@@ -20,6 +18,7 @@ import { CONTOH_BAHAN, MENU_UTAMA, NAMA_WARUNG } from "@/lib/contoh";
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { BiayaMenuRequest, BiayaMenuResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { angkaSah, useUrlState } from "@/lib/useUrlState";
 
 /**
  * Peringatan bahan yang tidak ikut terhitung.
@@ -85,10 +84,10 @@ function BahanTerlewat({
 
 /** Tab 1 · Biaya Menu. */
 export default function BiayaMenu() {
-  const [namaMenu, setNamaMenu] = useState(MENU_UTAMA);
-  const [bahan, setBahan] = useState(CONTOH_BAHAN);
-  const [beratPorsi, setBeratPorsi] = useState(350);
-  const [hargaSekarang, setHargaSekarang] = useState(25000);
+  const [namaMenu, setNamaMenu] = useUrlState("menu", MENU_UTAMA);
+  const [bahan, setBahan] = useUrlState("bahan", CONTOH_BAHAN);
+  const [beratPorsi, setBeratPorsi] = useUrlState("berat", 350, angkaSah);
+  const [hargaSekarang, setHargaSekarang] = useUrlState("harga", 25000, angkaSah);
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     BiayaMenuResponse,

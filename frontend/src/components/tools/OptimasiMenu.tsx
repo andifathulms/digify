@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
@@ -17,6 +16,7 @@ import type {
   Rekomendasi,
 } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { angkaSah, daftarSah, useUrlState } from "@/lib/useUrlState";
 import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Empat kelompok tindakan, masing-masing punya warna dan kalimat pembukanya sendiri. */
@@ -107,11 +107,13 @@ function DaftarRekomendasi({
 
 /** Tab 4 · Optimasi Menu. */
 export default function OptimasiMenu() {
-  const [menu, setMenu] = useState<MenuUntukOptimasi[]>(
+  const [menu, setMenu] = useUrlState<MenuUntukOptimasi[]>(
+    "daftar",
     CONTOH_MENU.map((baris) => ({ ...baris, margin: 0, status: "" as const })),
+    daftarSah({ name: "", cogs: 0, price: 0, weeklySales: 0, margin: 0, status: "" }),
   );
-  const [minItems, setMinItems] = useState(4);
-  const [jamSibuk, setJamSibuk] = useState("11.00–13.00 dan 18.00–20.00");
+  const [minItems, setMinItems] = useUrlState("min", 4, angkaSah);
+  const [jamSibuk, setJamSibuk] = useUrlState("jam", "11.00–13.00 dan 18.00–20.00");
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<
     OptimasiMenuResponse,

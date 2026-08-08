@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
@@ -11,19 +10,22 @@ import { CONTOH_KONDISI, CONTOH_MENU, CONTOH_TARGET_PELANGGAN } from "@/lib/cont
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { IdeMenuRequest, IdeMenuResponse, MenuExisting } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { angkaSah, daftarSah, useUrlState } from "@/lib/useUrlState";
 import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Tab 7 · Ide Menu Baru. */
 export default function IdeMenu() {
-  const [menu, setMenu] = useState<MenuExisting[]>(
+  const [menu, setMenu] = useUrlState<MenuExisting[]>(
+    "daftar",
     CONTOH_MENU.map((baris) => ({ name: baris.name, price: baris.price, margin: 0 })),
+    daftarSah({ name: "", price: 0, margin: 0 }),
   );
-  const [kondisi, setKondisi] = useState(CONTOH_KONDISI);
-  const [targetPelanggan, setTargetPelanggan] = useState(CONTOH_TARGET_PELANGGAN);
-  const [batasBiaya, setBatasBiaya] = useState(10000);
-  const [jumlahIde, setJumlahIde] = useState(3);
+  const [kondisi, setKondisi] = useUrlState("kondisi", CONTOH_KONDISI);
+  const [targetPelanggan, setTargetPelanggan] = useUrlState("target", CONTOH_TARGET_PELANGGAN);
+  const [batasBiaya, setBatasBiaya] = useUrlState("batas", 10000, angkaSah);
+  const [jumlahIde, setJumlahIde] = useUrlState("jumlah", 3, angkaSah);
 
-  const { hasil, sedangJalan, galat, jalankan } = useAnalisa<IdeMenuResponse, IdeMenuRequest>(
+  const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<IdeMenuResponse, IdeMenuRequest>(
     "/menu-ideas",
   );
   const tersimpan = useMenuTersimpan();
@@ -161,7 +163,7 @@ export default function IdeMenu() {
         </div>
       </Kartu>
 
-      {sedangJalan ? (
+      {tampilkanTunggu ? (
         <SedangMenghitung pesan="Sedang memikirkan ide… bisa 10–30 detik." />
       ) : null}
       {galat ? <PesanGagal pesan={galat} /> : null}

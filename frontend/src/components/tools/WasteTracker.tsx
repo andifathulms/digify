@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
@@ -12,12 +11,15 @@ import { CONTOH_BAHAN_WASTE } from "@/lib/contoh";
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { BahanWaste, WasteRequest, WasteResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { daftarSah, useUrlState } from "@/lib/useUrlState";
 
 /** Tab 6 · Waste Tracker. */
 export default function WasteTracker() {
-  const [periode, setPeriode] = useState("Minggu ini");
-  const [bahan, setBahan] = useState<BahanWaste[]>(
+  const [periode, setPeriode] = useUrlState("periode", "Minggu ini");
+  const [bahan, setBahan] = useUrlState<BahanWaste[]>(
+    "daftar",
     CONTOH_BAHAN_WASTE.map((baris) => ({ ...baris })),
+    daftarSah({ nama: "", jumlahBeli: 0, satuan: "", hargaSatuan: 0, jumlahTerbuang: 0, penyebab: "" }),
   );
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<WasteResponse, WasteRequest>(

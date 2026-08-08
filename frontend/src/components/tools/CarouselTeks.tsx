@@ -11,6 +11,7 @@ import TombolSalin from "@/components/ui/TombolSalin";
 import { CONTOH_KEUNGGULAN, GAYA_BAHASA, MENU_MINUMAN, PLATFORM } from "@/lib/contoh";
 import type { CarouselRequest, CarouselResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { angkaSah, useUrlState } from "@/lib/useUrlState";
 
 /**
  * Tab 9 · Carousel (Teks).
@@ -26,7 +27,7 @@ export default function CarouselTeks() {
     gaya: GAYA_BAHASA[0],
     infoPromo: "",
   });
-  const [jumlahSlide, setJumlahSlide] = useState(4);
+  const [jumlahSlide, setJumlahSlide] = useUrlState("slide", 4, angkaSah);
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<CarouselResponse, CarouselRequest>(
     "/carousel-content",

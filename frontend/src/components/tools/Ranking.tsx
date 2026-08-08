@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
@@ -12,12 +11,15 @@ import { CONTOH_MENU } from "@/lib/contoh";
 import { formatRupiah } from "@/lib/format";
 import type { MenuUntukRanking, RankingRequest, RankingResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { daftarSah, useUrlState } from "@/lib/useUrlState";
 import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Tab 3 · Ranking Profitabilitas. */
 export default function Ranking() {
-  const [menu, setMenu] = useState<MenuUntukRanking[]>(
+  const [menu, setMenu] = useUrlState<MenuUntukRanking[]>(
+    "daftar",
     CONTOH_MENU.map((baris) => ({ ...baris })),
+    daftarSah({ name: "", cogs: 0, price: 0, weeklySales: 0 }),
   );
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<RankingResponse, RankingRequest>(

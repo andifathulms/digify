@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
-
 import { warnaStatus } from "@/components/ui/StatusPita";
 import { AMBANG_MARGIN_SEHAT, statusDariMargin } from "@/lib/aturan";
 import { formatPersen, formatRupiah } from "@/lib/format";
+import { angkaSah, useUrlState } from "@/lib/useUrlState";
 
 /**
  * Penggeser harga: geser harganya, lihat untungnya bergerak.
@@ -54,7 +53,16 @@ export default function PenggeserHarga({
 }) {
   const minimum = Math.max(bulatkanKeKelipatan(balikModal), KELIPATAN);
   const maksimum = Math.max(bulatkanKeKelipatan(hargaDisarankan * 1.6), minimum + KELIPATAN * 10);
-  const [harga, setHarga] = useState(bulatkanKeKelipatan(hargaDisarankan));
+  const bawaan = bulatkanKeKelipatan(hargaDisarankan);
+  const [tersimpan, setHarga] = useUrlState("geser", bawaan, angkaSah);
+
+  // Nilai dari URL bisa berasal dari hitungan sebelumnya — biaya bahan diubah,
+  // rentangnya bergeser, tapi alamatnya masih membawa harga lama. Kalau di
+  // luar rentang sekarang, harga yang disarankan yang dipakai. Dijepit, bukan
+  // dipaksa masuk: menggeser angka lama ke tepi rentang baru akan menampilkan
+  // harga yang tidak pernah diketik siapa pun dan tidak berasal dari aturan
+  // mana pun.
+  const harga = tersimpan >= minimum && tersimpan <= maksimum ? tersimpan : bawaan;
 
   const untung = harga - biayaBahan;
   const margin = harga > 0 ? (untung / harga) * 100 : 0;

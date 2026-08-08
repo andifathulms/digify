@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import BarisMenuTersimpan from "@/components/ui/BarisMenuTersimpan";
 import Button from "@/components/ui/Button";
@@ -13,13 +12,15 @@ import { CONTOH_MENU, NAMA_WARUNG } from "@/lib/contoh";
 import { formatPersen, formatRupiah, tanggalHariIni } from "@/lib/format";
 import type { LaporanRequest, LaporanResponse, MenuUntukLaporan } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
+import { daftarSah, useUrlState } from "@/lib/useUrlState";
 import { useMenuTersimpan } from "@/lib/useMenuTersimpan";
 
 /** Tab 5 · Laporan Final. */
 export default function Laporan() {
-  const [namaRestoran, setNamaRestoran] = useState(NAMA_WARUNG);
-  const [tanggal, setTanggal] = useState(tanggalHariIni());
-  const [menu, setMenu] = useState<MenuUntukLaporan[]>(
+  const [namaRestoran, setNamaRestoran] = useUrlState("warung", NAMA_WARUNG);
+  const [tanggal, setTanggal] = useUrlState("tanggal", tanggalHariIni());
+  const [menu, setMenu] = useUrlState<MenuUntukLaporan[]>(
+    "daftar",
     CONTOH_MENU.map((baris) => ({
       name: baris.name,
       cogs: baris.cogs,
@@ -29,6 +30,7 @@ export default function Laporan() {
       margin: 0,
       weeklySales: baris.weeklySales,
     })),
+    daftarSah({ name: "", cogs: 0, oldPrice: 0, newPrice: 0, margin: 0, weeklySales: 0 }),
   );
 
   const { hasil, sedangJalan, tampilkanTunggu, galat, jalankan } = useAnalisa<LaporanResponse, LaporanRequest>(
