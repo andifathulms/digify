@@ -129,6 +129,7 @@ export function StrukBarisBahan({
   nama,
   jumlah,
   satuan,
+  hargaSatuan,
   hargaBeli,
   satuanBeli,
   biaya,
@@ -136,16 +137,47 @@ export function StrukBarisBahan({
   nama: string;
   jumlah: number;
   satuan: string;
+  /** Harga per satuan dasar, mis. 8 untuk "Rp 8.000/kg". */
+  hargaSatuan: number;
   hargaBeli: number;
   satuanBeli: string;
   biaya: string;
 }) {
+  // Berapa satuan dasar dalam satu satuan belanja: 1.000 g per kg, 1 butir
+  // per butir. Diturunkan dari dua harga yang SUDAH ada di response, bukan
+  // dari tabel satuan yang digandakan di frontend — kalau tabelnya berubah di
+  // backend, baris ini ikut benar dengan sendirinya.
+  const faktor = hargaSatuan > 0 ? Math.round(hargaBeli / hargaSatuan) : 1;
+  // Hanya ditampilkan kalau pembagiannya memang bulat. Kalau tidak, angka
+  // yang tercetak tidak akan cocok saat dihitung ulang dengan kalkulator,
+  // dan hitungan yang tidak cocok lebih buruk daripada hitungan yang
+  // disembunyikan.
+  const bulat = faktor >= 1 && Math.abs(faktor * hargaSatuan - hargaBeli) < 0.01;
+
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
       <div className="min-w-0">
         <p className="text-sm leading-snug">{nama}</p>
+        {/* Cara sampai ke angka di kanan, ditulis apa adanya.
+         *
+         * Membagi harga per kilo jadi harga per gram adalah langkah yang
+         * paling sering salah kalau dihitung tangan — boleh dibilang justru
+         * itu alasan alat ini ada. Sebelumnya baris ini menampilkan bahan
+         * masuk dan biaya keluar, dengan langkah yang menghubungkannya
+         * dikerjakan diam-diam. Pemakainya tidak bisa mencocokkan barisnya
+         * dengan nota belanja tanpa menghitung sendiri — persis pekerjaan
+         * yang ia hindari dengan memakai alat ini. */}
         <p className="tabular text-xs" style={{ color: "var(--ink-dim)" }}>
-          {formatAngka(jumlah)} {satuan} · Rp {formatAngka(hargaBeli)}/{satuanBeli}
+          {bulat && faktor > 1 ? (
+            <>
+              {formatAngka(jumlah)} {satuan} ÷ {formatAngka(faktor)} × Rp{" "}
+              {formatAngka(hargaBeli)}/{satuanBeli}
+            </>
+          ) : (
+            <>
+              {formatAngka(jumlah)} {satuan} × Rp {formatAngka(hargaBeli)}/{satuanBeli}
+            </>
+          )}
         </p>
       </div>
       <p className="tabular shrink-0 text-sm">{biaya}</p>
