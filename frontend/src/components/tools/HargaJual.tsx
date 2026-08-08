@@ -191,33 +191,54 @@ export default function HargaJual() {
 
       {hasil && !sedangJalan ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <AngkaSorot
-              label="Harga jual di tempat"
-              nilai={formatRupiah(hasil.dine_in_recommended)}
-              keterangan={`Margin ${formatPersen(hasil.margin_at_recommended)}`}
-              warna="var(--blue-deep)"
-            />
-            <AngkaSorot
-              label="Harga jual di ojol"
-              nilai={formatRupiah(hasil.delivery_recommended)}
-              keterangan={`Sudah dihitung dengan komisi ${formatPersen(komisi)}`}
-              warna="var(--orange-600)"
-            />
-          </div>
+          {/* Satu bagian, bukan tiga kartu yang kebetulan berurutan.
+           *
+           * Ketiganya membicarakan SATU harga: jawabannya, akibatnya di ojol,
+           * dan bagaimana angkanya bergerak. Sebelumnya ketiganya tampil
+           * sebagai tiga permukaan berbeda beruntun — abu-abu, kuning, putih —
+           * jadi warna terbaca sebagai variasi, bukan sebagai arti, dan tidak
+           * ada satu pun tanda bahwa ketiganya saling berhubungan.
+           *
+           * Judul bagian membuat hubungan itu terucap, dan garis kiri yang
+           * menyambung menahan ketiganya sebagai satu blok saat digulir di
+           * layar 360px, tempat hanya satu kartu terlihat sekaligus. */}
+          <section
+            className="animasi-masuk flex flex-col gap-3 pl-3"
+            style={{ borderLeft: "2px solid var(--blue-100)" }}
+            aria-labelledby="judul-harga"
+          >
+            <h2 id="judul-harga" className="judul-kecil text-lg">
+              Harga untuk {hasil.item_name}
+            </h2>
 
-          <BocorDiOjol
-            hargaDiTempat={hasil.dine_in_recommended}
-            biayaBahan={biayaBahan}
-            komisi={komisi}
-          />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <AngkaSorot
+                label="Harga jual di tempat"
+                nilai={formatRupiah(hasil.dine_in_recommended)}
+                keterangan={`Margin ${formatPersen(hasil.margin_at_recommended)}`}
+                warna="var(--blue-deep)"
+              />
+              <AngkaSorot
+                label="Harga jual di ojol"
+                nilai={formatRupiah(hasil.delivery_recommended)}
+                keterangan={`Sudah dihitung dengan komisi ${formatPersen(komisi)}`}
+                warna="var(--orange-600)"
+              />
+            </div>
 
-          <PenggeserHarga
-            biayaBahan={biayaBahan}
-            hargaDisarankan={hasil.dine_in_recommended}
-            balikModal={hasil.break_even_dine_in}
-            komisi={komisi}
-          />
+            <BocorDiOjol
+              hargaDiTempat={hasil.dine_in_recommended}
+              biayaBahan={biayaBahan}
+              komisi={komisi}
+            />
+
+            <PenggeserHarga
+              biayaBahan={biayaBahan}
+              hargaDisarankan={hasil.dine_in_recommended}
+              balikModal={hasil.break_even_dine_in}
+              komisi={komisi}
+            />
+          </section>
 
           <SimpanStruk judul={hasil.item_name}>
             <Struk>
