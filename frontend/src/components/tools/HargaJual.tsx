@@ -19,6 +19,82 @@ import { formatPersen, formatRupiah } from "@/lib/format";
 import type { HargaJualRequest, HargaJualResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
 
+/**
+ * Kerugian yang sedang berjalan kalau harga di tempat dipasang apa adanya
+ * di ojol.
+ *
+ * Ini nilai unik produk (PRD §5 Tab 2), tapi selama ini hanya dinyatakan
+ * sebagai kalimat pengantar lalu dijawab dengan sebuah harga baru. Yang
+ * terjadi di kepala pemilik warung: ia melihat "harga ojol Rp 34.000",
+ * berpikir "tidak ada yang mau beli semahal itu", lalu menutup halaman —
+ * tanpa pernah tahu berapa yang sedang ia serahkan hari ini.
+ *
+ * Selisihnya dihitung dari harga yang DISARANKAN, bukan dari harga ojol dia
+ * sekarang. Alasannya: harga ojol-nya tidak pernah ditanyakan di form ini,
+ * dan menebaknya berarti memasang angka yang tidak bisa ditelusuri ke aturan
+ * mana pun. Dasarnya ditulis di layar supaya bisa dicocokkan sendiri.
+ */
+function BocorDiOjol({
+  hargaDiTempat,
+  biayaBahan,
+  komisi,
+}: {
+  hargaDiTempat: number;
+  biayaBahan: number;
+  komisi: number;
+}) {
+  if (komisi <= 0 || komisi >= 100 || hargaDiTempat <= 0) return null;
+
+  const potongan = Math.round((hargaDiTempat * komisi) / 100);
+  const diterima = hargaDiTempat - potongan;
+  const untungTersisa = diterima - biayaBahan;
+  const untungSeharusnya = hargaDiTempat - biayaBahan;
+  const rugi = untungTersisa <= 0;
+
+  return (
+    <div
+      className="px-4 py-4 sm:px-5"
+      style={{
+        background: rugi ? "var(--red-wash)" : "var(--yellow-wash)",
+        border: "1px solid var(--line)",
+        borderLeft: `4px solid ${rugi ? "var(--red)" : "var(--yellow)"}`,
+        borderRadius: "var(--radius)",
+      }}
+    >
+      <p className="label-kecil" style={{ color: "var(--ink-dim)" }}>
+        Kalau harga di tempat dipakai apa adanya di ojol
+      </p>
+
+      <p className="judul tabular mt-2 text-3xl" style={{ color: rugi ? "var(--red)" : "var(--ink)" }}>
+        −{formatRupiah(potongan)}
+      </p>
+      <p className="teks-rapi mt-1 text-base leading-relaxed">
+        hilang tiap porsi, dimakan komisi {formatPersen(komisi)}.{" "}
+        {rugi ? (
+          <>
+            Untung Anda habis — tiap porsi yang laku lewat ojol justru{" "}
+            <strong>rugi {formatRupiah(Math.abs(untungTersisa))}</strong>.
+          </>
+        ) : (
+          <>
+            Untung tiap porsi tinggal <strong>{formatRupiah(untungTersisa)}</strong>, dari
+            semestinya {formatRupiah(untungSeharusnya)}.
+          </>
+        )}
+      </p>
+
+      <p className="tabular mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+        {formatRupiah(hargaDiTempat)} × {formatPersen(komisi)} = {formatRupiah(potongan)} ·
+        diterima {formatRupiah(diterima)} − bahan {formatRupiah(biayaBahan)}
+      </p>
+      <p className="teks-rapi mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+        Itulah sebabnya harga ojol di atas lebih tinggi. Selisihnya menutup komisi, bukan
+        menaikkan untung Anda.
+      </p>
+    </div>
+  );
+}
+
 /** Tab 2 · Harga Jual. */
 export default function HargaJual() {
   const [namaMenu, setNamaMenu] = useState(MENU_UTAMA);
@@ -113,6 +189,12 @@ export default function HargaJual() {
               warna="var(--orange-600)"
             />
           </div>
+
+          <BocorDiOjol
+            hargaDiTempat={hasil.dine_in_recommended}
+            biayaBahan={biayaBahan}
+            komisi={komisi}
+          />
 
           <Struk>
             <StrukJudul judul={hasil.item_name} subjudul="Rincian penetapan harga" />
