@@ -1051,3 +1051,60 @@ contoh yang bukan miliknya tercampur dalam hitungan profitnya sendiri.
 barisnya berbeda (harga lama/harga baru, dan nama/harga/margin), jadi
 pengurainya perlu aturan sendiri. Keduanya sudah bisa memuat daftar tersimpan,
 jadi ketikan ulangnya tidak sebanyak Tab 3 dan 4.
+
+---
+
+## 2026-08-11 · Foto masuk diperiksa dulu; slide bisa keluar sekaligus
+
+Gelombang kedua dari umpan balik calon pengguna yang sama.
+
+### Foto yang tidak bisa digambar ditolak di pintu masuk
+
+**Masalahnya diam.** `FileReader` menerima berkas apa pun, termasuk yang
+peramban tidak tahu cara menggambarnya — paling sering HEIC bawaan kamera
+iPhone. Berkas begitu lolos tanpa keluhan: `<img>`-nya kosong, html2canvas
+menggambar kekosongan itu, dan yang terunduh adalah slide cantik berlubang di
+tengah. Tidak ada pesan galat di mana pun. Pemiliknya baru tahu setelah
+gambarnya terlanjur diposting — dan pemilik iPhone bukan kasus pinggiran.
+
+**Diperiksa dengan `decode()`, bukan ditebak dari ekstensi.** Safari BISA
+menggambar HEIC. Menolak berdasar nama berkas akan menolak foto yang
+sebenarnya baik-baik saja di HP pemiliknya. Nama berkas hanya dipakai memilih
+kalimat SETELAH decode-nya benar-benar gagal, supaya petunjuknya bisa menyebut
+HEIC dan cara mengubahnya jadi JPG.
+
+**Sekalian dikecilkan** ke sisi terpanjang 1600px. Area foto di slide cuma
+~920px, sementara satu jepretan HP hari ini gampang 4000px dan 8 MB — dikali
+empat slide, disimpan sebagai data URL di dalam keadaan React, cukup untuk
+mematikan tab di HP kelas menengah tepat setelah foto keempat dipilih.
+
+### Simpan atau bagikan seluruh set sekali jalan
+
+**Bagikan didahulukan** kalau perambannya mendukung. Bukan kenyamanan: pemakai
+kita memegang HP di tempat usaha. Tanpa Web Share urutannya unduh → buka
+Galeri → cari berkasnya → buka Instagram → pilih lagi. Dukungan ditanyakan
+dengan berkas contoh sungguhan, karena `navigator.share` ada di banyak peramban
+desktop yang justru menolak berkas.
+
+**Unduh massal berurutan, bukan serentak**, dengan jeda 350 ms. Peramban
+memperlakukan unduhan beruntun yang dipicu skrip sebagai perilaku mencurigakan
+dan diam-diam membuang sebagian.
+
+### Yang sengaja TIDAK dikerjakan: tombol "ambil foto" langsung dari kamera
+
+Ada di daftar gelombang kedua, lalu dibatalkan setelah diperiksa. `capture`
+pada `<input type=file>` **menghapus pilihan**, bukan menambah: Android dan iOS
+sudah menawarkan "Kamera / Galeri / Berkas" begitu isian berkas disentuh.
+Menambahkan `capture` justru mengunci ke kamera dan membuat orang yang fotonya
+sudah ada di galeri kehilangan jalan. Jalur kameranya sudah tersedia hari ini,
+lewat lembar pilihan milik sistem.
+
+### Batasnya
+
+Bagian ini bergantung pada DOM — `decode()`, canvas, `navigator.share` — jadi
+tidak ikut terjaring `node --test`, yang jalan tanpa peramban. Yang bisa diuji
+otomatis di sini cuma sedikit; sisanya perlu dicoba di HP sungguhan, terutama
+iPhone, karena di situlah jalur HEIC-nya hidup.
+
+Belum dikerjakan: seret-dan-lepas di layar lebar, dan mengatur posisi/zoom foto
+di dalam bingkai slide.
