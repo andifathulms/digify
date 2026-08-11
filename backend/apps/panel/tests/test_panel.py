@@ -220,3 +220,55 @@ class TestTindakan:
 
         assert respons.status_code == 403
         assert BonusKuota.objects.count() == 0
+
+
+class TestKirimUlangKredensial:
+    """Tindakan yang menutup lubang paling mahal: pembeli yang sudah membayar
+    tapi tidak pernah tahu kata sandinya (docs/PRODUKSI.md §6.1)."""
+
+    def test_membuat_sandi_baru_dan_mengirimnya(self, klien_ops: APIClient, pembeli: User) -> None:
+        from django.core import mail
+
+        respons = klien_ops.post(f"{KLIEN}/{pembeli.id}/kirim-kredensial", {}, format="json")
+
+        assert respons.status_code == 200
+        assert respons.json()["terkirim"] is True
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].to == [pembeli.email]
+
+        pembeli.refresh_from_db()
+        assert pembeli.must_change_password is True
+        assert pembeli.kredensial_terkirim_at is not None
+
+    def test_kalau_email_gagal_kata_sandinya_dikembalikan(
+        self, klien_ops: APIClient, pembeli: User
+    ) -> None:
+        """Kata sandinya sudah telanjur berganti. Menyembunyikannya berarti
+        akunnya terkunci untuk semua orang, termasuk pemiliknya."""
+        from unittest.mock import patch
+
+        with patch("apps.accounts.kirim.send_mail", side_effect=OSError("SMTP mati")):
+            respons = klien_ops.post(f"{KLIEN}/{pembeli.id}/kirim-kredensial", {}, format="json")
+
+        data = respons.json()
+        assert respons.status_code == 200
+        assert data["terkirim"] is False
+        assert "WhatsApp" in data["pesan"]
+
+        pembeli.refresh_from_db()
+        assert pembeli.check_password(data["kata_sandi"])
+
+    def test_pembeli_biasa_tidak_bisa_memicunya(self, pembeli: User) -> None:
+        klien = APIClient()
+        klien.force_authenticate(user=pembeli)
+
+        respons = klien.post(f"{KLIEN}/{pembeli.id}/kirim-kredensial", {}, format="json")
+        assert respons.status_code == 403
+
+    def test_ringkasan_menghitung_kredensial_yang_belum_terkirim(
+        self, klien_ops: APIClient, pembeli: User
+    ) -> None:
+        assert klien_ops.get(RINGKASAN).json()["kredensial_belum_terkirim"] == 1
+
+        klien_ops.post(f"{KLIEN}/{pembeli.id}/kirim-kredensial", {}, format="json")
+        assert klien_ops.get(RINGKASAN).json()["kredensial_belum_terkirim"] == 0

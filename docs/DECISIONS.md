@@ -1277,3 +1277,58 @@ tercepat saat diuji (0,9 detik). Belum dipakai karena mutu tulisannya di bawah
 tier flash, dan tulisan itu justru produknya. Jalan tengah yang masuk akal:
 flash-lite untuk Tab 9/10 (teks carousel pendek dan berpola), `gemini-3.5-flash`
 tetap untuk Tab 7 yang butuh mengarang menu baru. Perlu keputusan Owner.
+
+---
+
+## 2026-08-11 · Kredensial dikirim lewat SMTP bawaan Django, bukan SDK penyedia
+
+**Keputusan.** Webhook mengirim email berisi kata sandi awal begitu akun dibuat,
+memakai `django.core.mail` lewat SMTP. Tidak ada paket baru.
+
+**Kenapa ini yang dikerjakan.** Ini penghalang nomor satu di
+`docs/PRODUKSI.md` §6.1: webhook membuat akun lalu mengembalikan kata sandi di
+dalam respons HTTP ke affiliate.id, dan tidak ada satu baris pun yang
+mengirimkannya ke pembelinya. Orang bayar → akun jadi → tidak pernah tahu kata
+sandinya → tidak bisa masuk. Seluruh pekerjaan lain berdiri di belakang pintu
+itu.
+
+**Kenapa SMTP, bukan SDK Resend/Brevo.** Keduanya menyediakan SMTP. Memakainya
+berarti berpindah penyedia cukup mengganti empat baris `.env`, tanpa menyentuh
+kode dan tanpa satu pun dependency baru yang harus diikuti versinya selamanya.
+Yang dikirim cuma satu email teks — kemudahan SDK tidak sepadan dengan
+ketergantungannya.
+
+**Email teks biasa, bukan HTML.** Yang dikirim cuma alamat masuk, email, dan
+kata sandi. HTML tidak menambah kejelasan, tapi menambah kemungkinan tersaring
+sebagai spam — tepat pada satu email yang paling tidak boleh hilang.
+
+**Dikirim lewat `transaction.on_commit`.** Kalau dikirim di dalam transaksi,
+kegagalan sesudahnya membatalkan akunnya tapi tidak bisa menarik kembali email
+yang sudah meluncur: pembeli memegang kata sandi untuk akun yang tidak ada.
+Konsekuensinya di test, callback itu tidak jalan sendiri karena test dibungkus
+transaksi yang selalu di-rollback — dipakai fixture `django_capture_on_commit_callbacks`,
+yang sekaligus membuktikan callback-nya memang terdaftar.
+
+**Gagal kirim TIDAK menggagalkan pembuatan akun.** Pembelinya sudah membayar,
+dan akun yang batal dibuat jauh lebih sulit diperbaiki daripada email yang perlu
+dikirim ulang. Yang gagal ditandai lewat `kredensial_terkirim_at` yang tetap
+kosong, dan panel menghitungnya di kotak tersendiri supaya tidak lewat
+diam-diam.
+
+**Tombol panel menggabungkan reset + kirim.** Yang dibutuhkan operasional saat
+pembeli menelepon bukan dua langkah terpisah, melainkan pembeli itu bisa masuk.
+Memisahkannya cuma menyediakan satu langkah untuk dilupakan, dan yang terlupa
+selalu langkah kedua. Kalau emailnya gagal, kata sandinya dikembalikan ke layar
+supaya bisa dikirim manual — menyembunyikannya berarti akunnya terkunci untuk
+semua orang, termasuk pemiliknya.
+
+**Yang belum, dan ini penting.** `EMAIL_HOST` di `.env` server masih kosong,
+jadi email masih dicetak ke log dan **pembeli belum menerima apa pun**. Mengisi
+kredensial SMTP penyedia adalah langkah Owner berikutnya.
+
+**Yang sengaja dibiarkan.** Respons webhook masih memuat `kata_sandi_awal`.
+Sekarang ia berlebihan dan idealnya dihapus — kata sandi pembeli tidak ada
+urusannya dengan penyedia pembayaran. Ditunda supaya penambal manual tetap
+bekerja sampai pengiriman email terbukti jalan di produksi; menghapusnya
+sekarang berarti mengubah dua hal sekaligus, dan kalau ada yang salah tidak
+jelas yang mana.

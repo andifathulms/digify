@@ -21,6 +21,7 @@ from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
+from apps.accounts.kirim import kirim_kredensial
 from apps.accounts.models import License, User, WebhookEvent
 
 logger = logging.getLogger(__name__)
@@ -131,6 +132,16 @@ def proses_pembayaran(
 
     event.processed_at = timezone.now()
     event.save(update_fields=["processed_at"])
+
+    # Dikirim SETELAH transaksi benar-benar tersimpan.
+    #
+    # Kalau dikirim di dalam transaksi, sebuah kegagalan sesudahnya akan
+    # membatalkan akunnya tapi TIDAK bisa menarik kembali email yang sudah
+    # meluncur — pembeli memegang kata sandi untuk akun yang tidak ada. Ini
+    # satu-satunya bagian di sini yang tidak bisa dibatalkan, jadi ia berjalan
+    # paling akhir.
+    if kata_sandi_awal:
+        transaction.on_commit(lambda: kirim_kredensial(user, kata_sandi_awal))
 
     logger.info("Akun & lisensi dibuat untuk pesanan %s (%s).", order_id, email_bersih)
     return HasilWebhook(True, user, lisensi, kata_sandi_awal)

@@ -242,14 +242,21 @@ tinjau lagi angka `DAILY_AI_QUOTA` (PRD §12).
 Bagian 1–5 membuat aplikasinya HIDUP. Empat hal di bawah membuatnya LAYAK DIJUAL.
 Urutannya sudah disusun dari yang paling menghalangi.
 
-### 6.1 🔴 Pembeli tidak akan pernah menerima kata sandinya
+### 6.1 🟡 Pengiriman kredensial SUDAH ADA — tinggal diisi kredensial SMTP-nya
 
-Webhook membuat akun lalu mengembalikan kata sandi awal **di dalam respons HTTP
-ke affiliate.id**. Tidak ada satu baris pun kode yang mengirim email atau
-WhatsApp — tidak ada konfigurasi SMTP di project ini.
+**Diperbarui 11 Agustus 2026.** Webhook sekarang mengirim email berisi kata
+sandi awal begitu akun dibuat, lewat SMTP bawaan Django. Panel juga punya
+tombol "Kirim kata sandi baru lewat email" untuk pembeli yang kredensialnya
+tidak sampai.
 
-Artinya hari ini: orang bayar → akun jadi → dia tidak pernah tahu kata sandinya →
-tidak bisa masuk.
+**Yang masih harus dikerjakan Owner:** mengisi `EMAIL_HOST`, `EMAIL_HOST_USER`,
+dan `EMAIL_HOST_PASSWORD` di `.env` server dengan kredensial penyedia (Resend
+atau Brevo, keduanya punya tahap gratis). **Selama itu kosong, email hanya
+dicetak ke log dan pembeli tidak menerima apa pun** — panel menandainya di
+kotak "Kredensial belum terkirim", jadi kelalaian ini tidak bisa lewat
+diam-diam, tapi ia tetap kelalaian.
+
+Sisa catatan lama di bawah tetap berlaku sebagai latar keputusan.
 
 `PRD.md` §8.1 memang mencantumkan "Kirim kredensial ke pembeli" dan §12
 menandainya sebagai keputusan yang belum diambil. Jadi ini sengaja ditunda,
@@ -268,9 +275,14 @@ ada pembeli — tapi ini keputusan biaya, jadi milik Owner.
 **Penambal sementara:** jalankan `manage.py buat_akun` lalu kirim kredensialnya
 manual. Sanggup untuk sepuluh pembeli pertama, tidak untuk seratus.
 
-### 6.2 Belum pernah ada satu pun panggilan Gemini sungguhan
+### 6.2 Prompt Tab 7–10 belum dibandingkan dengan versi Express
 
-Seluruh test memalsukan Gemini. Tab 7–10 belum pernah berjalan sungguhan.
+**Diperbarui 11 Agustus 2026.** Panggilan Gemini sungguhan sudah pernah terjadi
+di produksi hari ini — dan langsung menemukan bahwa `gemini-2.5-flash` ditarik
+Google (lihat DECISIONS.md). Modelnya sekarang `gemini-3.5-flash` dan Tab 7–10
+terbukti menjawab.
+
+Yang BELUM: keluarannya belum dibandingkan dengan versi Express.
 Bersamaan dengan itu, dua risiko di `PRD.md` §12 masih terbuka dan keduanya
 butuh kunci API yang sama:
 
@@ -282,15 +294,23 @@ butuh kunci API yang sama:
   `menu_ideas.py`, `marketing_content.py`, `carousel_content.py`. Enam sisanya
   ikut terhapus waktu tabnya jadi berbasis aturan.
 
-### 6.3 Belum pernah dideploy sama sekali
+### 6.3 Uji restore backup belum pernah dilakukan
 
-Bagian 1–5 sudah ditulis lengkap tapi belum pernah dijalankan di server sungguhan.
-Uji restore backup (Bagian 3) juga belum pernah dilakukan, padahal `PRD.md` §10
-mensyaratkannya minimal sekali sebelum jual publik.
+**Diperbarui 11 Agustus 2026.** Deploy sudah berjalan berkali-kali ke server
+Oracle lewat CI (push ke main → uji → bangun → terapkan), jadi bagian "belum
+pernah dideploy" tidak lagi berlaku.
 
-### 6.4 Frontend belum punya test otomatis
+Yang BELUM: uji restore backup (Bagian 3), padahal `PRD.md` §10 mensyaratkannya
+minimal sekali sebelum jual publik. Backup yang belum pernah diuji restore sama
+saja dengan tidak punya backup.
 
-Backend punya 281 test. Frontend nol. Carousel PNG, alur login, dan keenam tab
+### 6.4 Frontend baru punya test untuk logika, belum untuk tampilan
+
+**Diperbarui 11 Agustus 2026.** Frontend sekarang punya 43 test yang jalan lewat
+`node --test` dan ikut jadi gerbang di CI. Isinya logika murni — pengurai daftar
+menu, pengurai daftar bahan terbuang, dan format rupiah.
+
+Yang BELUM: komponen dan alur layar. Carousel PNG, alur login, dan keenam tab
 aturan sudah saya buktikan di Chromium sungguhan — tapi manual, dan tidak ada
 yang menjaganya kalau nanti ada perubahan.
 
@@ -298,8 +318,9 @@ yang menjaganya kalau nanti ada perubahan.
 
 ## 7. Urutan menuju publik
 
-1. **Putuskan cara kirim kredensial** (§6.1) — ini keputusan Owner, bukan teknis.
-2. Pasang pengiriman kredensial, lalu uji dengan webhook palsu dari ujung ke ujung.
+1. ~~Putuskan cara kirim kredensial~~ — sudah: email lewat SMTP (11 Agu 2026).
+2. **Isi kredensial SMTP di `.env` server**, lalu uji dengan webhook palsu dari
+   ujung ke ujung. Tanpa langkah ini, pembeli tetap tidak menerima apa pun.
 3. Isi `GEMINI_API_KEY`, verifikasi `GEMINI_MODEL`, jalankan Tab 7–10 sungguhan,
    bandingkan keluarannya dengan versi Express (§6.2).
 4. Sewa VPS (§0), jalankan Bagian 1–2, pasang TLS.

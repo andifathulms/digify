@@ -82,6 +82,12 @@ def ringkasan() -> dict[str, Any]:
         is_active=True, is_staff=False, last_login__isnull=True
     ).count()
 
+    # Lebih tajam daripada di atas: ini yang kita TAHU kredensialnya tidak
+    # pernah terkirim, bukan sekadar belum dipakai masuk.
+    kredensial_belum_terkirim = User.objects.filter(
+        is_active=True, is_staff=False, kredensial_terkirim_at__isnull=True, last_login__isnull=True
+    ).count()
+
     biaya_bulan_ini = rupiah_dari_token(
         pakai_bulan_ini["token_masuk"] or 0, pakai_bulan_ini["token_keluar"] or 0
     )
@@ -102,6 +108,7 @@ def ringkasan() -> dict[str, Any]:
         "panggilan_bulan_ini": pakai_bulan_ini["panggilan"] or 0,
         "pembeli_aktif": User.objects.filter(is_active=True, is_staff=False).count(),
         "belum_pernah_masuk": belum_pernah_masuk,
+        "kredensial_belum_terkirim": kredensial_belum_terkirim,
         "lisensi": {
             "total": lisensi["total"] or 0,
             "aktif": lisensi["aktif"] or 0,
@@ -157,6 +164,7 @@ def daftar_klien(cari: str = "") -> list[dict[str, Any]]:
                 "bergabung": satu.date_joined.date().isoformat(),
                 "terakhir_masuk": (satu.last_login.date().isoformat() if satu.last_login else None),
                 "belum_pernah_masuk": satu.last_login is None,
+                "kredensial_terkirim": satu.kredensial_terkirim_at is not None,
                 "panggilan_hari_ini": satu.panggilan_hari_ini,
                 "panggilan_bulan_ini": satu.panggilan_bulan_ini,
                 "gagal_bulan_ini": satu.gagal_bulan_ini,
@@ -195,6 +203,7 @@ def detail_klien(user: Any) -> dict[str, Any]:
         "whatsapp": user.whatsapp,
         "aktif": user.is_active,
         "wajib_ganti_sandi": user.must_change_password,
+        "kredensial_terkirim": user.kredensial_terkirim_at is not None,
         "bergabung": user.date_joined.date().isoformat(),
         "terakhir_masuk": user.last_login.date().isoformat() if user.last_login else None,
         "sisa_hari_ini": sisa_kuota_harian(user),

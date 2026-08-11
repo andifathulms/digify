@@ -59,6 +59,10 @@ export default async function DetailKlienPage({ params }: { params: Promise<{ id
               label="Wajib ganti kata sandi"
               nilai={klien.wajib_ganti_sandi ? "ya" : "tidak"}
             />
+            <Baris
+              label="Kredensial terkirim"
+              nilai={klien.kredensial_terkirim ? "sudah" : "BELUM"}
+            />
             <Baris label="Sisa jatah hari ini" nilai={String(klien.sisa_hari_ini)} />
             <Baris label="Sisa jatah bulan ini" nilai={String(klien.sisa_bulan_ini)} />
           </div>
@@ -129,6 +133,7 @@ export default async function DetailKlienPage({ params }: { params: Promise<{ id
         userId={klien.id}
         aktif={klien.aktif}
         sisaHariIni={klien.sisa_hari_ini}
+        kredensialTerkirim={klien.kredensial_terkirim}
       />
 
       {klien.panggilan_terakhir.length > 0 ? (

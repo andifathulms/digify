@@ -19,6 +19,7 @@ export type Ringkasan = {
   panggilan_bulan_ini: number;
   pembeli_aktif: number;
   belum_pernah_masuk: number;
+  kredensial_belum_terkirim: number;
   lisensi: {
     total: number;
     aktif: number;
@@ -36,6 +37,7 @@ export type BarisKlien = {
   bergabung: string;
   terakhir_masuk: string | null;
   belum_pernah_masuk: boolean;
+  kredensial_terkirim: boolean;
   panggilan_hari_ini: number;
   panggilan_bulan_ini: number;
   gagal_bulan_ini: number;
@@ -59,6 +61,7 @@ export type DetailKlien = {
   whatsapp: string;
   aktif: boolean;
   wajib_ganti_sandi: boolean;
+  kredensial_terkirim: boolean;
   bergabung: string;
   terakhir_masuk: string | null;
   sisa_hari_ini: number;

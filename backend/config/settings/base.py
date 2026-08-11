@@ -212,6 +212,35 @@ KUOTA_HARIAN_ENDPOINT = {"carousel-content": DAILY_CAROUSEL_QUOTA}
 HARGA_TOKEN_MASUK_PER_JUTA = env_int("HARGA_TOKEN_MASUK_PER_JUTA", 24_450)
 HARGA_TOKEN_KELUAR_PER_JUTA = env_int("HARGA_TOKEN_KELUAR_PER_JUTA", 146_700)
 
+# --- Pengiriman kredensial ---------------------------------------------------
+#
+# Memakai backend email bawaan Django lewat SMTP, BUKAN SDK penyedia.
+#
+# Resend, Brevo, Mailgun, bahkan Gmail — semuanya menyediakan SMTP. Memakai
+# SMTP berarti berpindah penyedia cukup mengganti empat baris di `.env`, tanpa
+# menyentuh kode dan tanpa satu pun paket baru. SDK penyedia akan menukar itu
+# dengan ketergantungan yang harus diikuti versinya selamanya, demi kemudahan
+# yang tidak kita butuhkan: yang dikirim cuma satu email teks.
+#
+# Kalau EMAIL_HOST kosong, email dicetak ke log (backend console). Itu memang
+# yang diinginkan saat pengembangan — dan di produksi, panel akan menandai
+# kredensialnya belum terkirim, jadi kelalaian ini tidak bisa lewat diam-diam.
+EMAIL_HOST = env("EMAIL_HOST", "")
+EMAIL_PORT = env_int("EMAIL_PORT", 587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_TIMEOUT = env_int("EMAIL_TIMEOUT", 20)
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if EMAIL_HOST
+    else "django.core.mail.backends.console.EmailBackend"
+)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "Digify Laris <halo@digify.id>")
+
+# Alamat yang ditulis di dalam email supaya pembeli tahu harus masuk ke mana.
+URL_APLIKASI = env("URL_APLIKASI", "https://app.digify.id")
+
 # --- Billing ---------------------------------------------------------------
 
 AFFILIATE_ID_WEBHOOK_SECRET = env("AFFILIATE_ID_WEBHOOK_SECRET")

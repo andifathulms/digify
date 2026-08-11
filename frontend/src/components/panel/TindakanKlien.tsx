@@ -22,10 +22,12 @@ export default function TindakanKlien({
   userId,
   aktif,
   sisaHariIni,
+  kredensialTerkirim,
 }: {
   userId: number;
   aktif: boolean;
   sisaHariIni: number;
+  kredensialTerkirim: boolean;
 }) {
   const router = useRouter();
   const [jumlah, setJumlah] = useState(5);
@@ -131,16 +133,28 @@ export default function TindakanKlien({
         <div>
           <p className="text-sm font-semibold">Akun</p>
           <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-            Reset kata sandi untuk pembeli yang tidak bisa masuk. Menonaktifkan akun tidak
-            menghapusnya — riwayatnya tetap ada dan bisa diaktifkan lagi.
+            {kredensialTerkirim
+              ? "Kredensialnya sudah pernah terkirim."
+              : "Kredensialnya BELUM pernah terkirim — pembeli ini mungkin tidak tahu kata sandinya."}{" "}
+            Menonaktifkan akun tidak menghapusnya — riwayatnya tetap ada dan bisa diaktifkan lagi.
           </p>
           <div className="mt-2.5 flex flex-col gap-2.5">
+            {/* Tombol utama saat kredensialnya belum sampai: itu satu-satunya
+                hal yang menghalangi pembeli ini memakai apa yang sudah
+                dibayarnya. */}
+            <Button
+              peran={kredensialTerkirim ? "kedua" : "utama"}
+              memuat={sedang === "kredensial"}
+              onClick={() => kirim("kirim-kredensial", {}, "kredensial")}
+            >
+              Kirim kata sandi baru lewat email
+            </Button>
             <Button
               peran="kedua"
               memuat={sedang === "sandi"}
               onClick={() => kirim("reset-sandi", {}, "sandi")}
             >
-              Buat kata sandi baru
+              Buat kata sandi baru tanpa kirim email
             </Button>
             <Button
               peran={aktif ? "bahaya" : "kedua"}

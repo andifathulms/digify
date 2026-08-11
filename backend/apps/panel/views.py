@@ -80,6 +80,16 @@ class ResetKataSandiView(APIView):
         return Response(tindakan.reset_kata_sandi(klien))
 
 
+class KirimUlangKredensialView(APIView):
+    """Buat kata sandi baru lalu kirimkan lewat email, sekali tekan."""
+
+    permission_classes = [BolehUrusAkun]
+
+    def post(self, request: Request, user_id: int) -> Response:
+        klien = get_object_or_404(User, pk=user_id, is_staff=False)
+        return Response(tindakan.kirim_ulang_kredensial(klien))
+
+
 class UbahAktifView(APIView):
     """Nonaktifkan atau aktifkan kembali sebuah akun.
 

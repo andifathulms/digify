@@ -13,6 +13,7 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.accounts.kirim import kirim_kredensial
 from apps.panel.models import BonusKuota
 from apps.usage.kuota import sisa_kuota_bulanan, sisa_kuota_harian
 
@@ -67,6 +68,41 @@ def reset_kata_sandi(user: Any) -> dict[str, Any]:
             "Kata sandi baru dibuat. Kirimkan ke pembeli, "
             "dan ia akan diminta menggantinya saat masuk."
         ),
+        "kata_sandi": kata_sandi,
+    }
+
+
+def kirim_ulang_kredensial(user: Any) -> dict[str, Any]:
+    """Buat kata sandi baru DAN kirimkan lewat email, sekali tekan.
+
+    Digabung dengan sengaja. Yang dibutuhkan operasional saat pembeli menelepon
+    bukan "reset kata sandi" lalu "kirim email" sebagai dua langkah terpisah —
+    yang dibutuhkan adalah pembeli itu bisa masuk. Memisahkannya cuma
+    menyediakan satu langkah untuk dilupakan, dan yang terlupa selalu langkah
+    kedua.
+    """
+    kata_sandi = secrets.token_urlsafe(9)
+    user.set_password(kata_sandi)
+    user.must_change_password = True
+    user.save(update_fields=["password", "must_change_password"])
+
+    terkirim = kirim_kredensial(user, kata_sandi)
+    logger.info("Kredensial %s dibuat ulang lewat panel, terkirim=%s.", user.email, terkirim)
+
+    if terkirim:
+        return {
+            "pesan": f"Kata sandi baru sudah dikirim ke {user.email}.",
+            "terkirim": True,
+        }
+
+    # Emailnya gagal, tapi kata sandinya sudah telanjur berganti. Menyembunyikan
+    # kata sandi itu berarti akunnya terkunci untuk semua orang, termasuk
+    # pemiliknya. Jadi dikembalikan supaya bisa dikirim manual lewat WhatsApp.
+    return {
+        "pesan": (
+            "Kata sandi baru dibuat, TAPI emailnya gagal terkirim. Kirimkan manual lewat WhatsApp."
+        ),
+        "terkirim": False,
         "kata_sandi": kata_sandi,
     }
 

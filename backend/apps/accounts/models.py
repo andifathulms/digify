@@ -54,6 +54,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField("aktif", default=True)
     is_staff = models.BooleanField("bisa masuk admin", default=False)
     must_change_password = models.BooleanField("wajib ganti kata sandi", default=False)
+    # Kapan kredensialnya benar-benar terkirim. Kosong berarti pembeli ini
+    # mungkin tidak pernah tahu kata sandinya — keadaan yang paling mahal
+    # kalau lewat tanpa ketahuan, jadi panel menandainya.
+    kredensial_terkirim_at = models.DateTimeField("kredensial terkirim", null=True, blank=True)
     date_joined = models.DateTimeField("tanggal bergabung", default=timezone.now)
 
     objects = UserManager()
