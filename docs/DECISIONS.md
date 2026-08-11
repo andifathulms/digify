@@ -1155,3 +1155,51 @@ membuat ujinya mati dengan pesan yang tidak menjelaskan apa-apa.
 (Ide Menu) masih belum kebagian: bentuk barisnya berbeda (harga lama/harga
 baru, dan nama/harga/margin). Keduanya sudah bisa memuat daftar tersimpan, jadi
 ketikan ulangnya jauh lebih sedikit daripada Tab 3, 4, dan 6.
+
+---
+
+## 2026-08-11 · `GEMINI_MODEL` pindah ke `gemini-3.5-flash` — 2.5 ditarik Google
+
+**Kejadiannya.** Tab 7–10 mati di produksi. Yang dilihat pemakai cuma "Belum
+berhasil. Coba ulangi sebentar lagi ya." Yang sebenarnya terjadi, dari log
+backend di server:
+
+```
+google.genai.errors.ClientError: 404 NOT_FOUND
+  This model models/gemini-2.5-flash is no longer available to new users.
+```
+
+Kuncinya sehat — ia lolos otentikasi, dan 404-nya soal model, bukan izin.
+**Seluruh keluarga 2.5 ikut tertarik**: `gemini-2.5-flash-lite` gagal dengan
+pesan yang sama persis. Modelnya masih muncul di daftar `models.list`, tapi
+menolak `generateContent` untuk kunci baru — jadi memeriksa daftar model saja
+tidak cukup untuk tahu apa yang benar-benar bisa dipakai.
+
+**Keputusan.** `GEMINI_MODEL=gemini-3.5-flash`, diuji sungguhan lewat
+`call_gemini` di server: `status=ok durasi=2828ms retry=0`.
+
+**Kenapa versi terpaku, bukan `gemini-flash-latest`.** Alias tidak akan pernah
+basi lagi, dan itu memang menggoda setelah kejadian ini. Ditolak karena
+CLAUDE.md §3 memperlakukan keluaran prompt sebagai hal yang harus stabil:
+alias membuat Google menukar model di bawah prompt yang sudah divalidasi, tanpa
+satu pun commit yang bisa ditunjuk saat mutu caption berubah. Basi yang
+ketahuan sekali dua tahun lebih murah daripada regresi diam-diam.
+
+Yang diuji dan hasilnya: `gemini-3.5-flash` 2,9 detik · `gemini-3.6-flash`
+4,3 detik · `gemini-flash-latest` 3,7 detik · `gemini-3.1-flash-lite` 0,9 detik
+(paling murah, tapi mutu tulisannya di bawah tier flash, dan tulisan itu justru
+produknya) · `gemini-2.5-flash-lite` gagal 404.
+
+**Yang paling pantas dicatat, dan ini bukan soal nama model.** Kerusakan
+permanen tampil dengan kalimat yang menjanjikan gangguan sementara. Pemilik
+warung akan menekan tombolnya berulang kali, selamanya, lalu menyimpulkan
+produknya rusak — dan tidak ada satu pun tanda yang sampai ke Owner. Pesannya
+sendiri sudah benar untuk pembeli; yang tidak ada adalah jalan bagi Owner untuk
+melihat bedanya. `/api/health` sudah menyalakan indikator "Server aktif" dan
+bisa diperluas melaporkan kesiapan AI — belum dikerjakan, dan ini alasannya.
+
+**Catatan operasional.** `GEMINI_MODEL` hidup di `.env` server, dan `deploy.sh`
+tidak pernah mengirim `.env` (lihat catatan 8 Agustus). Jadi mengubah bawaan di
+repo TIDAK memperbaiki produksi — server disunting langsung, `.env` lama
+dicadangkan lebih dulu, lalu `docker compose up -d backend` supaya kontainer
+dibuat ulang. Restart biasa tidak cukup: env dibaca saat kontainer dibuat.

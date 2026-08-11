@@ -274,8 +274,10 @@ Seluruh test memalsukan Gemini. Tab 7–10 belum pernah berjalan sungguhan.
 Bersamaan dengan itu, dua risiko di `PRD.md` §12 masih terbuka dan keduanya
 butuh kunci API yang sama:
 
-- `GEMINI_MODEL` masih nilai bawaan `gemini-2.5-flash`, belum dicocokkan dengan
-  `.env` backend Express.
+- `GEMINI_MODEL` sekarang `gemini-3.5-flash`. Yang lama (`gemini-2.5-flash`)
+  ditarik Google untuk kunci API baru dan mematikan Tab 7-10 di produksi pada
+  11 Agustus 2026 — lihat docs/DECISIONS.md. Nilainya masih belum dicocokkan
+  dengan `.env` backend Express.
 - Tiga prompt masih ditulis dari spesifikasi, bukan disalin verbatim —
   `menu_ideas.py`, `marketing_content.py`, `carousel_content.py`. Enam sisanya
   ikut terhapus waktu tabnya jadi berbasis aturan.

@@ -157,7 +157,12 @@ SIMPLE_JWT = {
 # Kunci API hanya hidup di container backend. Tidak pernah dikirim ke browser.
 
 GEMINI_API_KEY = env("GEMINI_API_KEY")
-GEMINI_MODEL = env("GEMINI_MODEL", "gemini-2.5-flash")
+# Bawaannya HARUS model yang masih dilayani. Google menarik seluruh keluarga
+# 2.5 untuk kunci API baru, dan yang muncul bukan pesan "model ditarik"
+# melainkan 500 biasa dengan kalimat "Belum berhasil, coba ulangi sebentar
+# lagi" — kalimat yang menjanjikan gangguan sementara untuk kerusakan permanen.
+# Lihat docs/DECISIONS.md 2026-08-11.
+GEMINI_MODEL = env("GEMINI_MODEL", "gemini-3.5-flash")
 GEMINI_TIMEOUT_SECONDS = env_int("GEMINI_TIMEOUT_SECONDS", 110)
 GEMINI_MAX_RETRIES = env_int("GEMINI_MAX_RETRIES", 3)
 
