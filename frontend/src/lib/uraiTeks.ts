@@ -68,8 +68,19 @@ export function jumlahKomaRapat(teks: string): number {
   return (teks.match(/,(?=\d)/g) ?? []).length;
 }
 
-/** Pilih pemisah yang tepat untuk satu baris. */
+/**
+ * Pilih pemisah yang tepat untuk satu baris.
+ *
+ * Kalau barisnya sudah punya pemisah yang tidak ambigu — garis tegak, titik
+ * koma, atau tab — maka koma di baris itu PASTI desimal, apa pun jumlahnya.
+ * Pemeriksaan ini harus didahulukan: daftar bahan terbuang wajar berisi dua
+ * pecahan berturut-turut ("1,5 kg | 0,25"), dan tanpa aturan ini keduanya
+ * terbaca sebagai pemisah kolom lalu "1,5" jadi 1.
+ *
+ * Baru kalau tidak ada pemisah tegas, banyaknya koma rapat yang memutuskan.
+ */
 export function pemisahUntuk(teks: string): RegExp {
+  if (/[|;\t]/.test(teks)) return POLA_PISAH;
   return jumlahKomaRapat(teks) >= 2 ? POLA_PISAH_RAPAT : POLA_PISAH;
 }
 
