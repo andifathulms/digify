@@ -7,9 +7,27 @@ memanggil endpoint ini langsung.
 
 from __future__ import annotations
 
+from typing import Any
+
 from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.views import APIView
+
+
+def boleh_lihat_panel(pengguna: Any) -> bool:
+    """Satu tempat yang memutuskan siapa boleh masuk panel.
+
+    Dipakai oleh kelas izin DRF DAN oleh profil yang dibaca frontend untuk
+    memutuskan menampilkan menunya. Ditulis sekali supaya keduanya tidak bisa
+    berselisih — menu yang muncul tapi selalu ditolak, atau lebih buruk, menu
+    yang disembunyikan padahal orangnya berhak.
+    """
+    return bool(
+        pengguna
+        and pengguna.is_authenticated
+        and pengguna.is_staff
+        and pengguna.has_perm("accounts.view_user")
+    )
 
 
 class BolehLihatPanel(BasePermission):
@@ -24,13 +42,7 @@ class BolehLihatPanel(BasePermission):
     message = "Anda belum punya akses ke bagian ini."
 
     def has_permission(self, request: Request, view: APIView) -> bool:
-        pengguna = request.user
-        return bool(
-            pengguna
-            and pengguna.is_authenticated
-            and pengguna.is_staff
-            and pengguna.has_perm("accounts.view_user")
-        )
+        return boleh_lihat_panel(request.user)
 
 
 class BolehUbahKuota(BolehLihatPanel):

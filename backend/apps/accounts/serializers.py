@@ -13,10 +13,22 @@ from apps.accounts.models import User
 
 
 class ProfilSerializer(serializers.ModelSerializer):
+    # Dipakai frontend untuk memutuskan menampilkan menu panel atau tidak.
+    # Itu KENYAMANAN, bukan penjagaan: penjagaan sesungguhnya ada di setiap
+    # endpoint panel, karena siapa pun bisa memanggilnya langsung.
+    boleh_panel = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["email", "full_name", "whatsapp", "must_change_password"]
+        fields = ["email", "full_name", "whatsapp", "must_change_password", "boleh_panel"]
         read_only_fields = fields
+
+    def get_boleh_panel(self, obj: User) -> bool:
+        # Impor lokal: apps.panel mengimpor apps.accounts, jadi impor di atas
+        # akan melingkar.
+        from apps.panel.izin import boleh_lihat_panel  # noqa: PLC0415
+
+        return boleh_lihat_panel(obj)
 
 
 class MasukSerializer(serializers.Serializer):

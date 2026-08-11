@@ -19,6 +19,9 @@ export type Profil = {
   full_name: string;
   whatsapp: string;
   must_change_password: boolean;
+  /** Boleh membuka panel pengawasan. Dipakai untuk memutuskan menampilkan
+   *  menunya — penjagaan sesungguhnya ada di setiap endpoint panel. */
+  boleh_panel: boolean;
 };
 
 /** Tukar refresh token jadi access token baru, lalu simpan ulang cookienya. */
