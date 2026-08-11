@@ -88,13 +88,34 @@ export default async function DaftarKlienPage({
                 {satu.whatsapp ? ` · ${satu.whatsapp}` : ""} · bergabung {satu.bergabung}
               </p>
 
-              <div className="tabular mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                <span>{satu.panggilan_bulan_ini} panggilan bulan ini</span>
-                <span>{satu.panggilan_hari_ini} hari ini</span>
-                <span>sisa hari ini {satu.sisa_hari_ini}</span>
-                {satu.gagal_bulan_ini > 0 ? (
-                  <span style={{ color: "var(--red)" }}>{satu.gagal_bulan_ini} gagal</span>
-                ) : null}
+              {/* Grid berkolom tetap, bukan flex: dengan flex, angka tiap
+                  pembeli berhenti di tempat berbeda menurut panjang angkanya,
+                  dan daftar sepuluh pembeli jadi tidak bisa dibandingkan
+                  sekilas. Label di atas angka, bukan di sampingnya, supaya
+                  angkanya yang menonjol. */}
+              <div className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4">
+                {[
+                  { label: "Bulan ini", nilai: `${satu.panggilan_bulan_ini}×` },
+                  { label: "Hari ini", nilai: `${satu.panggilan_hari_ini}×` },
+                  { label: "Sisa hari ini", nilai: String(satu.sisa_hari_ini) },
+                  {
+                    label: "Gagal bulan ini",
+                    nilai: String(satu.gagal_bulan_ini),
+                    merah: satu.gagal_bulan_ini > 0,
+                  },
+                ].map((kotak) => (
+                  <div key={kotak.label}>
+                    <p className="label-kecil" style={{ color: "var(--ink-soft)" }}>
+                      {kotak.label}
+                    </p>
+                    <p
+                      className="tabular text-sm font-semibold"
+                      style={{ color: kotak.merah ? "var(--red)" : "var(--ink)" }}
+                    >
+                      {kotak.nilai}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               {/* Dua keadaan yang butuh tindakan, ditandai di daftar supaya

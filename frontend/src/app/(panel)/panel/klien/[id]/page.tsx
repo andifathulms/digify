@@ -9,6 +9,22 @@ import type { DetailKlien } from "@/lib/types/panel";
 export const metadata = { title: "Detail pembeli — Panel Digify Laris" };
 export const dynamic = "force-dynamic";
 
+/** Lebar kolom tabel panggilan, ditulis sekali supaya judul dan isinya
+ *  dijamin memakai ukuran yang sama. */
+const KOLOM = "11rem 1fr 4.5rem 6rem 6rem";
+
+/** "12 Agu 2026, 13.10" — detik dibuang karena tidak pernah dipakai membaca
+ *  pola, dan panjangnya justru mendorong kolom lain. */
+function waktuSingkat(iso: string): string {
+  return new Date(iso).toLocaleString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function Baris({ label, nilai }: { label: string; nilai: string }) {
   return (
     <div className="flex flex-wrap justify-between gap-x-4 gap-y-0.5 py-1.5">
@@ -139,25 +155,59 @@ export default async function DetailKlienPage({ params }: { params: Promise<{ id
       {klien.panggilan_terakhir.length > 0 ? (
         <section className="mt-4">
           <h2 className="judul-kecil text-lg">20 panggilan terakhir</h2>
-          <div className="mt-2 flex flex-col gap-1">
-            {klien.panggilan_terakhir.map((satu, indeks) => (
+
+          {/* Grid berkolom tetap, bukan flex justify-between.
+            * Dengan justify-between tiap baris membagi ruangnya sendiri
+            * menurut panjang isinya, jadi "marketing-content" dan "menu-ideas"
+            * berhenti di tempat yang berbeda dan kolomnya tidak pernah
+            * segaris. Yang dibaca di tabel ini justru pola antar baris —
+            * mana yang error, mana yang lambat — dan itu hanya terbaca kalau
+            * matanya bisa menyusuri satu kolom lurus ke bawah.
+            *
+            * Angka rata KANAN: satuan yang sejajar membuat 195 dan 12175
+            * langsung terlihat bedanya tanpa dibaca satu per satu. */}
+          <div
+            className="mt-2 overflow-x-auto"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--line)",
+              borderRadius: "var(--radius)",
+            }}
+          >
+            <div style={{ minWidth: 620 }}>
               <div
-                key={`${satu.waktu}-${indeks}`}
-                className="tabular flex flex-wrap justify-between gap-x-4 px-3.5 py-2 text-xs"
+                className="label-kecil grid gap-x-4 px-4 py-2.5"
                 style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "var(--radius-xs)",
-                  color: satu.status === "error" ? "var(--red)" : "var(--ink)",
+                  gridTemplateColumns: KOLOM,
+                  borderBottom: "1px solid var(--line)",
+                  color: "var(--ink-soft)",
                 }}
               >
-                <span>{new Date(satu.waktu).toLocaleString("id-ID")}</span>
-                <span>{satu.endpoint}</span>
-                <span>{satu.status}</span>
-                <span>{satu.lama_ms} ms</span>
-                <span>{formatRupiah(satu.biaya_rupiah)}</span>
+                <span>Waktu</span>
+                <span>Alat</span>
+                <span>Status</span>
+                <span className="text-right">Lama</span>
+                <span className="text-right">Biaya</span>
               </div>
-            ))}
+
+              {klien.panggilan_terakhir.map((satu, indeks) => (
+                <div
+                  key={`${satu.waktu}-${indeks}`}
+                  className="tabular grid items-baseline gap-x-4 px-4 py-2 text-xs"
+                  style={{
+                    gridTemplateColumns: KOLOM,
+                    borderTop: indeks === 0 ? "none" : "1px solid var(--line)",
+                    color: satu.status === "error" ? "var(--red)" : "var(--ink)",
+                  }}
+                >
+                  <span>{waktuSingkat(satu.waktu)}</span>
+                  <span>{satu.endpoint}</span>
+                  <span>{satu.status}</span>
+                  <span className="text-right">{satu.lama_ms.toLocaleString("id-ID")} ms</span>
+                  <span className="text-right">{formatRupiah(satu.biaya_rupiah)}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       ) : null}
