@@ -15,12 +15,12 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Q, Sum
+from django.db.models import Avg, Count, Q, Sum
 from django.utils import timezone
 
 from apps.accounts.models import License, WebhookEvent
 from apps.usage.kuota import sisa_kuota_bulanan, sisa_kuota_harian
-from apps.usage.models import UsageLog
+from apps.usage.models import DailyQuota, UsageLog
 
 User = get_user_model()
 
@@ -57,9 +57,47 @@ def ringkasan() -> dict[str, Any]:
         token_keluar=Sum("output_tokens"),
     )
 
+    pakai_hari_ini = UsageLog.objects.filter(created_at__date=hari_ini).aggregate(
+        panggilan=Count("id"),
+        token_masuk=Sum("prompt_tokens"),
+        token_keluar=Sum("output_tokens"),
+    )
+
+    # Alat mana yang sebenarnya dipakai. Ini satu-satunya angka di panel yang
+    # menjawab pertanyaan produk, bukan pertanyaan operasional: fitur yang
+    # tidak pernah dipakai tidak layak dirawat, dan tanpa daftar ini tidak ada
+    # yang tahu yang mana.
+    per_alat = (
+        UsageLog.objects.filter(created_at__date__gte=awal_bulan)
+        .values("endpoint")
+        .annotate(
+            panggilan=Count("id"),
+            gagal=Count("id", filter=Q(status=UsageLog.Status.ERROR)),
+            token_masuk=Sum("prompt_tokens"),
+            token_keluar=Sum("output_tokens"),
+        )
+        .order_by("-panggilan")
+    )
+
+    # Perkiraan siapa yang mentok jatah hari ini.
+    #
+    # Perkiraan, dan batasnya nyata: penolakan kuota terjadi SEBELUM pemakaian
+    # dicatat, jadi tidak ada satu baris pun yang merekam "ditolak". Yang bisa
+    # dihitung cuma yang hitungannya sudah menyentuh batas. Kalau angka ini
+    # sering tidak nol, batasnya memang terlalu ketat.
+    mentok_kuota = DailyQuota.objects.filter(
+        date=hari_ini, count__gte=settings.DAILY_AI_QUOTA
+    ).count()
+
+    pembeli_baru = User.objects.filter(is_staff=False, date_joined__date__gte=awal_bulan).count()
+
     pakai_24jam = UsageLog.objects.filter(created_at__gte=sejak_24jam).aggregate(
         panggilan=Count("id"),
         gagal=Count("id", filter=Q(status=UsageLog.Status.ERROR)),
+        # Rata-rata hanya dari yang BERHASIL. Panggilan gagal biasanya kembali
+        # dalam 200 ms, dan mencampurnya membuat rata-rata terlihat membaik
+        # justru ketika layanannya sedang rusak.
+        rata_lama=Avg("latency_ms", filter=Q(status=UsageLog.Status.OK)),
     )
     panggilan_24jam = pakai_24jam["panggilan"] or 0
     gagal_24jam = pakai_24jam["gagal"] or 0
@@ -91,6 +129,10 @@ def ringkasan() -> dict[str, Any]:
     biaya_bulan_ini = rupiah_dari_token(
         pakai_bulan_ini["token_masuk"] or 0, pakai_bulan_ini["token_keluar"] or 0
     )
+    biaya_hari_ini = rupiah_dari_token(
+        pakai_hari_ini["token_masuk"] or 0, pakai_hari_ini["token_keluar"] or 0
+    )
+    pembeli_aktif = User.objects.filter(is_active=True, is_staff=False).count()
 
     return {
         "tanggal": hari_ini.isoformat(),
@@ -106,7 +148,28 @@ def ringkasan() -> dict[str, Any]:
         },
         "biaya_bulan_ini_rupiah": biaya_bulan_ini,
         "panggilan_bulan_ini": pakai_bulan_ini["panggilan"] or 0,
-        "pembeli_aktif": User.objects.filter(is_active=True, is_staff=False).count(),
+        "biaya_hari_ini_rupiah": biaya_hari_ini,
+        "panggilan_hari_ini": pakai_hari_ini["panggilan"] or 0,
+        # Biaya rata-rata per pembeli, langsung bisa dibandingkan dengan harga
+        # lifetime yang ia bayar sekali.
+        "biaya_per_pembeli_rupiah": (
+            round(biaya_bulan_ini / pembeli_aktif) if pembeli_aktif else 0
+        ),
+        "rata_lama_ms": round(pakai_24jam["rata_lama"] or 0),
+        "mentok_kuota_hari_ini": mentok_kuota,
+        "pembeli_baru_bulan_ini": pembeli_baru,
+        "pemakaian_per_alat": [
+            {
+                "endpoint": baris["endpoint"],
+                "panggilan": baris["panggilan"],
+                "gagal": baris["gagal"],
+                "biaya_rupiah": rupiah_dari_token(
+                    baris["token_masuk"] or 0, baris["token_keluar"] or 0
+                ),
+            }
+            for baris in per_alat
+        ],
+        "pembeli_aktif": pembeli_aktif,
         "belum_pernah_masuk": belum_pernah_masuk,
         "kredensial_belum_terkirim": kredensial_belum_terkirim,
         "lisensi": {

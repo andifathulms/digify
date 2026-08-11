@@ -272,3 +272,79 @@ class TestKirimUlangKredensial:
 
         klien_ops.post(f"{KLIEN}/{pembeli.id}/kirim-kredensial", {}, format="json")
         assert klien_ops.get(RINGKASAN).json()["kredensial_belum_terkirim"] == 0
+
+
+class TestMetrikTambahan:
+    def test_rata_lama_hanya_dari_panggilan_berhasil(
+        self, klien_ops: APIClient, pembeli: User
+    ) -> None:
+        """Panggilan gagal biasanya kembali dalam 200 ms. Mencampurnya membuat
+        rata-rata terlihat MEMBAIK justru ketika layanannya sedang rusak."""
+        UsageLog.objects.create(
+            user=pembeli, endpoint="menu-ideas", status=UsageLog.Status.OK, latency_ms=10_000
+        )
+        UsageLog.objects.create(
+            user=pembeli, endpoint="menu-ideas", status=UsageLog.Status.ERROR, latency_ms=200
+        )
+
+        assert klien_ops.get(RINGKASAN).json()["rata_lama_ms"] == 10_000
+
+    def test_pemakaian_per_alat_diurutkan_dari_yang_terbanyak(
+        self, klien_ops: APIClient, pembeli: User
+    ) -> None:
+        for _ in range(3):
+            UsageLog.objects.create(
+                user=pembeli, endpoint="carousel-content", status=UsageLog.Status.OK
+            )
+        UsageLog.objects.create(user=pembeli, endpoint="menu-ideas", status=UsageLog.Status.OK)
+
+        alat = klien_ops.get(RINGKASAN).json()["pemakaian_per_alat"]
+        assert [satu["endpoint"] for satu in alat] == ["carousel-content", "menu-ideas"]
+        assert alat[0]["panggilan"] == 3
+
+    def test_biaya_per_pembeli_dibagi_jumlah_pembeli_aktif(
+        self, klien_ops: APIClient, pembeli: User, settings
+    ) -> None:  # noqa: ANN001
+        settings.HARGA_TOKEN_MASUK_PER_JUTA = 1_000_000
+        settings.HARGA_TOKEN_KELUAR_PER_JUTA = 1_000_000
+        User.objects.create_user(email="siti@warung.id", password="rahasia-test-123")
+
+        UsageLog.objects.create(
+            user=pembeli,
+            endpoint="menu-ideas",
+            status=UsageLog.Status.OK,
+            prompt_tokens=100,
+            output_tokens=100,
+        )
+
+        data = klien_ops.get(RINGKASAN).json()
+        assert data["pembeli_aktif"] == 2
+        assert data["biaya_bulan_ini_rupiah"] == 200
+        assert data["biaya_per_pembeli_rupiah"] == 100
+
+    def test_tidak_membagi_nol_saat_belum_ada_pembeli(self, klien_ops: APIClient) -> None:
+        """Hari pertama sebuah pemasangan baru: nol pembeli, nol pemakaian."""
+        data = klien_ops.get(RINGKASAN).json()
+        assert data["pembeli_aktif"] == 0
+        assert data["biaya_per_pembeli_rupiah"] == 0
+        assert data["rata_lama_ms"] == 0
+
+    def test_menghitung_yang_mentok_jatah_hari_ini(
+        self, klien_ops: APIClient, pembeli: User, settings
+    ) -> None:  # noqa: ANN001
+        settings.DAILY_AI_QUOTA = 20
+        assert klien_ops.get(RINGKASAN).json()["mentok_kuota_hari_ini"] == 0
+
+        DailyQuota.objects.create(user=pembeli, date=timezone.localdate(), count=20)
+        assert klien_ops.get(RINGKASAN).json()["mentok_kuota_hari_ini"] == 1
+
+    def test_menghitung_pembeli_baru_bulan_ini(self, klien_ops: APIClient, pembeli: User) -> None:
+        from datetime import timedelta
+
+        assert klien_ops.get(RINGKASAN).json()["pembeli_baru_bulan_ini"] == 1
+
+        lama = User.objects.create_user(email="lama@warung.id", password="rahasia-test-123")
+        lama.date_joined = timezone.now().replace(day=1) - timedelta(days=40)
+        lama.save(update_fields=["date_joined"])
+
+        assert klien_ops.get(RINGKASAN).json()["pembeli_baru_bulan_ini"] == 1

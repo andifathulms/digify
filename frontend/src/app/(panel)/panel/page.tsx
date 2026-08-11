@@ -18,6 +18,10 @@ export const dynamic = "force-dynamic";
  * membayar tapi mungkin tidak pernah menerima akunnya.
  */
 
+/** Lebar kolom tabel pemakaian alat, ditulis sekali supaya judul dan isinya
+ *  dijamin sama. */
+const KOLOM_ALAT = "1fr 6rem 5rem 7rem";
+
 function Kotak({
   label,
   nilai,
@@ -97,12 +101,41 @@ export default async function PanelPage() {
           keterangan={`${ringkasan.panggilan_bulan_ini} panggilan. Perkiraan, bukan tagihan.`}
         />
         <Kotak
+          label="Biaya AI hari ini"
+          nilai={formatRupiah(ringkasan.biaya_hari_ini_rupiah)}
+          keterangan={`${ringkasan.panggilan_hari_ini} panggilan hari ini.`}
+        />
+        <Kotak
           label="Belum pernah masuk"
           nilai={String(ringkasan.belum_pernah_masuk)}
           keterangan="Sudah punya akun tapi belum sekali pun login — kredensialnya mungkin tidak sampai."
           nada={ringkasan.belum_pernah_masuk > 0 ? "waspada" : "biasa"}
         />
-        <Kotak label="Pembeli aktif" nilai={String(ringkasan.pembeli_aktif)} />
+        <Kotak
+          label="Pembeli aktif"
+          nilai={String(ringkasan.pembeli_aktif)}
+          keterangan={`${ringkasan.pembeli_baru_bulan_ini} bergabung bulan ini.`}
+        />
+        {/* Angka yang paling langsung menjawab pertanyaan model lifetime:
+            berapa biaya seorang pembeli per bulan, dibanding harga yang ia
+            bayar SEKALI. */}
+        <Kotak
+          label="Biaya AI per pembeli"
+          nilai={formatRupiah(ringkasan.biaya_per_pembeli_rupiah)}
+          keterangan="Rata-rata bulan ini. Bandingkan dengan harga lifetime yang dibayar sekali."
+        />
+        <Kotak
+          label="Rata-rata lama panggilan"
+          nilai={`${(ringkasan.rata_lama_ms / 1000).toFixed(1)} detik`}
+          keterangan="Hanya panggilan yang berhasil, 24 jam terakhir."
+          nada={ringkasan.rata_lama_ms > 25_000 ? "waspada" : "biasa"}
+        />
+        <Kotak
+          label="Mentok jatah hari ini"
+          nilai={String(ringkasan.mentok_kuota_hari_ini)}
+          keterangan="Kalau sering tidak nol, batas hariannya terlalu ketat."
+          nada={ringkasan.mentok_kuota_hari_ini > 0 ? "waspada" : "biasa"}
+        />
         <Kotak
           label="Lisensi aktif"
           nilai={`${ringkasan.lisensi.aktif} dari ${ringkasan.lisensi.total}`}
@@ -120,6 +153,60 @@ export default async function PanelPage() {
           keterangan="Uang masuk dikurangi perkiraan biaya AI."
         />
       </div>
+
+      {/* Alat mana yang sebenarnya dipakai — satu-satunya angka di panel yang
+          menjawab pertanyaan produk, bukan pertanyaan operasional. Fitur yang
+          tidak pernah dipakai tidak layak dirawat, dan tanpa daftar ini tidak
+          ada yang tahu yang mana. */}
+      {ringkasan.pemakaian_per_alat.length > 0 ? (
+        <section className="mt-8">
+          <h2 className="judul-kecil text-lg">Alat yang dipakai bulan ini</h2>
+          <div
+            className="mt-3 overflow-x-auto"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--line)",
+              borderRadius: "var(--radius)",
+            }}
+          >
+            <div style={{ minWidth: 460 }}>
+              <div
+                className="label-kecil grid gap-x-4 px-4 py-2.5"
+                style={{
+                  gridTemplateColumns: KOLOM_ALAT,
+                  borderBottom: "1px solid var(--line)",
+                  color: "var(--ink-soft)",
+                }}
+              >
+                <span>Alat</span>
+                <span className="text-right">Panggilan</span>
+                <span className="text-right">Gagal</span>
+                <span className="text-right">Biaya</span>
+              </div>
+              {ringkasan.pemakaian_per_alat.map((satu, indeks) => (
+                <div
+                  key={satu.endpoint}
+                  className="tabular grid items-baseline gap-x-4 px-4 py-2 text-sm"
+                  style={{
+                    gridTemplateColumns: KOLOM_ALAT,
+                    borderTop: indeks === 0 ? "none" : "1px solid var(--line)",
+                  }}
+                >
+                  <span>{satu.endpoint}</span>
+                  <span className="text-right">{satu.panggilan}</span>
+                  <span
+                    className="text-right"
+                    style={{ color: satu.gagal > 0 ? "var(--red)" : "var(--ink-soft)" }}
+                  >
+                    {satu.gagal}
+                  </span>
+                  <span className="text-right">{formatRupiah(satu.biaya_rupiah)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Webhook bermasalah ditampilkan utuh, bukan cuma dihitung: yang
           dibutuhkan saat angkanya tidak nol adalah order_id-nya, supaya bisa

@@ -17,6 +17,18 @@ export type Ringkasan = {
   };
   biaya_bulan_ini_rupiah: number;
   panggilan_bulan_ini: number;
+  biaya_hari_ini_rupiah: number;
+  panggilan_hari_ini: number;
+  biaya_per_pembeli_rupiah: number;
+  rata_lama_ms: number;
+  mentok_kuota_hari_ini: number;
+  pembeli_baru_bulan_ini: number;
+  pemakaian_per_alat: {
+    endpoint: string;
+    panggilan: number;
+    gagal: number;
+    biaya_rupiah: number;
+  }[];
   pembeli_aktif: number;
   belum_pernah_masuk: number;
   kredensial_belum_terkirim: number;
