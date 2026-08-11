@@ -12,6 +12,11 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // Berkas uji dijalankan langsung oleh Node (`node --test`), tanpa bundler.
+    // Node ESM menuntut ekstensi ditulis lengkap, jadi impor di berkas uji
+    // berbunyi "./format.ts". Tanpa opsi ini tsc menolak ekstensi itu. Aman
+    // karena "noEmit" menyala — opsi ini memang hanya boleh dipakai begitu.
+    "allowImportingTsExtensions": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],

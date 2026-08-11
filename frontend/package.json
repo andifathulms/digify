@@ -7,8 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test"
   },
+  "_catatan_test": "Memakai test runner bawaan Node 22, bukan Vitest/Jest. Alasannya bukan selera: Vitest menarik esbuild dan rollup, dan keduanya berbentuk biner per-platform — bentuk persis yang sudah pernah mematikan build amd64 di sini (lihat catatan optionalDependencies di bawah dan docs/DECISIONS.md). Runner bawaan tidak menambah satu paket pun dan sudah bisa membaca TypeScript langsung di node:22-alpine, image yang sama dipakai CI dan Docker. Konsekuensinya: tidak ada watch mode dan tidak ada mocking — kalau nanti butuh menguji komponen React, keputusan ini perlu ditinjau ulang.",
   "dependencies": {
     "next": "15.1.6",
     "react": "19.0.0",

@@ -98,6 +98,12 @@ jobs:
       - name: Lint
         run: npm run lint
         working-directory: frontend
+      # Test runner bawaan Node 22 — tidak ada paket uji yang dipasang.
+      # `node --test` membaca TypeScript langsung dan melewati node_modules
+      # sendiri. Lihat _catatan_test di frontend/package.json.
+      - name: Test
+        run: npm test
+        working-directory: frontend
 
   bangun:
     needs: [uji-backend, uji-frontend]
