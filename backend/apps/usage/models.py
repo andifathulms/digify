@@ -34,6 +34,11 @@ class UsageLog(models.Model):
     status = models.CharField("status", max_length=10, choices=Status.choices)
     latency_ms = models.PositiveIntegerField("lama proses (ms)", default=0)
     retry_count = models.PositiveSmallIntegerField("jumlah pengulangan", default=0)
+    # Token, bukan sekadar jumlah panggilan. Kuota ada untuk menahan BIAYA,
+    # dan biaya tidak bisa dilihat dari menghitung panggilan: satu carousel
+    # 10 slide memakai dua kali lipat token carousel 4 slide.
+    prompt_tokens = models.PositiveIntegerField("token masuk", default=0)
+    output_tokens = models.PositiveIntegerField("token keluar", default=0)
     created_at = models.DateTimeField("waktu", auto_now_add=True, db_index=True)
 
     class Meta:
@@ -41,9 +46,36 @@ class UsageLog(models.Model):
         verbose_name_plural = "catatan pemakaian"
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user", "created_at"])]
+        permissions = [
+            # Dipisah dari is_staff DENGAN SENGAJA.
+            #
+            # Sebelumnya kuota dilewati oleh `user.is_staff`, dan is_staff
+            # artinya "bisa masuk admin". Jadi memberi seseorang akses admin
+            # ikut memberinya belanja AI tanpa batas — dua hal yang tidak ada
+            # hubungannya, dan tidak ada yang akan menghubungkannya saat
+            # aksesnya diberikan.
+            #
+            # Superuser tetap otomatis punya izin ini (Django memberikan semua
+            # izin ke superuser), jadi Owner tetap bisa mendemokan produknya.
+            ("bypass_quota", "Boleh memakai AI tanpa batas kuota"),
+        ]
 
     def __str__(self) -> str:
         return f"{self.user_id}:{self.endpoint}:{self.status}"
+
+    @property
+    def biaya_rupiah(self) -> int:
+        """Perkiraan biaya baris ini, dibulatkan ke rupiah penuh.
+
+        Perkiraan, bukan tagihan: harga model bisa berubah tanpa kode ini ikut
+        berubah, dan tagihan Google yang berlaku. Dipakai untuk menjawab
+        "siapa yang mahal", bukan untuk pembukuan.
+        """
+        from django.conf import settings
+
+        masuk = self.prompt_tokens * settings.HARGA_TOKEN_MASUK_PER_JUTA
+        keluar = self.output_tokens * settings.HARGA_TOKEN_KELUAR_PER_JUTA
+        return round((masuk + keluar) / 1_000_000)
 
 
 class DailyQuota(models.Model):

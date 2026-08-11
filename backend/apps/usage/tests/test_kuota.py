@@ -141,12 +141,15 @@ class TestBatasHarian:
         assert panggil(klien_budi).status_code == 429
         assert panggil(klien_siti).status_code == 200
 
-    def test_staff_tidak_dibatasi(self, settings) -> None:  # noqa: ANN001
-        """Owner perlu bisa mencoba dan mendemokan produknya sendiri."""
+    def test_owner_tidak_dibatasi(self, settings) -> None:  # noqa: ANN001
+        """Owner perlu bisa mencoba dan mendemokan produknya sendiri.
+
+        Superuser, bukan sekadar is_staff — sejak 11 Agustus 2026 kuota
+        dilewati lewat izin `usage.bypass_quota`, dan akses admin saja tidak
+        lagi cukup. Lihat TestSisaKuotaYangDitampilkan untuk penjaganya.
+        """
         settings.DAILY_AI_QUOTA = 1
-        owner = User.objects.create_user(
-            email="owner@digify.id", password="rahasia-test-123", is_staff=True
-        )
+        owner = User.objects.create_superuser(email="owner@digify.id", password="rahasia-test-123")
         klien = APIClient()
         klien.force_authenticate(user=owner)
 
@@ -317,17 +320,56 @@ class TestSisaKuotaYangDitampilkan:
         respons = panggil_carousel(client)
         assert respons["X-Sisa-Kuota"] == "4"
 
-    def test_staff_tidak_dibatasi(self, settings) -> None:  # noqa: ANN001
-        """Owner perlu bisa mendemokan produknya sendiri tanpa kehabisan jatah."""
+    def test_superuser_tidak_dibatasi(self, settings) -> None:  # noqa: ANN001
+        """Owner perlu bisa mendemokan produknya sendiri tanpa kehabisan jatah.
+
+        Lolos lewat izin `usage.bypass_quota`, yang otomatis dimiliki
+        superuser — bukan lewat is_staff.
+        """
         settings.DAILY_AI_QUOTA = 1
         settings.MONTHLY_AI_QUOTA = 1
         settings.KUOTA_HARIAN_ENDPOINT = {"carousel-content": 1}
 
-        owner = User.objects.create_user(
-            email="owner@digify.id", password="rahasia-test-123", is_staff=True
-        )
+        owner = User.objects.create_superuser(email="owner@digify.id", password="rahasia-test-123")
         klien = APIClient()
         klien.force_authenticate(user=owner)
 
         for _ in range(3):
             assert panggil_carousel(klien).status_code == 200
+
+    def test_akses_admin_saja_TIDAK_memberi_kuota_tanpa_batas(self, settings) -> None:  # noqa: ANN001
+        """Penjaga regresi, dan ini alasannya dipisah.
+
+        Dulu kuota dilewati oleh is_staff, sementara is_staff artinya "bisa
+        masuk admin". Jadi memberi seorang operasional atau CS akses admin ikut
+        memberinya belanja AI tanpa batas — diam-diam, pada hari aksesnya
+        diberikan, tanpa ada yang menghubungkan kedua hal itu.
+        """
+        settings.DAILY_AI_QUOTA = 1
+        settings.MONTHLY_AI_QUOTA = 100
+        settings.KUOTA_HARIAN_ENDPOINT = {}
+
+        operasional = User.objects.create_user(
+            email="operasional@digify.id", password="rahasia-test-123", is_staff=True
+        )
+        klien = APIClient()
+        klien.force_authenticate(user=operasional)
+
+        assert panggil(klien).status_code == 200
+        assert panggil(klien).status_code == 429
+
+    def test_izin_bypass_bisa_diberikan_tanpa_akses_admin(self, settings) -> None:  # noqa: ANN001
+        """Kebalikannya juga harus bisa: bebas kuota tanpa masuk admin."""
+        from django.contrib.auth.models import Permission
+
+        settings.DAILY_AI_QUOTA = 1
+        settings.MONTHLY_AI_QUOTA = 100
+        settings.KUOTA_HARIAN_ENDPOINT = {}
+
+        penguji = User.objects.create_user(email="penguji@digify.id", password="rahasia-test-123")
+        penguji.user_permissions.add(Permission.objects.get(codename="bypass_quota"))
+        klien = APIClient()
+        klien.force_authenticate(user=penguji)
+
+        for _ in range(3):
+            assert panggil(klien).status_code == 200

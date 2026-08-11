@@ -105,9 +105,13 @@ def pastikan_kuota_cukup(user: User, endpoint: str = "") -> None:
     ditindaklanjuti: "jatah carousel habis, alat lain masih bisa" lebih
     berguna daripada "kuota harian habis" kalau memang alat lain masih bisa.
     """
-    # Staff tidak dibatasi: Owner perlu bisa mencoba dan mendemokan produknya
-    # sendiri tanpa kehabisan jatah.
-    if user.is_staff:
+    # Izin eksplisit, BUKAN is_staff.
+    #
+    # is_staff artinya "bisa masuk admin". Memakainya di sini berarti setiap
+    # orang yang diberi akses admin — operasional, CS, siapa pun — ikut
+    # mendapat belanja AI tanpa batas, diam-diam, pada hari aksesnya diberikan.
+    # Superuser tetap lolos karena Django memberi superuser semua izin.
+    if user.has_perm("usage.bypass_quota"):
         return
 
     sisa_alat = sisa_kuota_endpoint(user, endpoint) if endpoint else None
@@ -139,6 +143,8 @@ def catat_pemakaian(user: User, endpoint: str, *, berhasil: bool) -> None:
         status=UsageLog.Status.OK if berhasil else UsageLog.Status.ERROR,
         latency_ms=metrik.latency_ms if metrik else 0,
         retry_count=metrik.retry_count if metrik else 0,
+        prompt_tokens=metrik.token_masuk if metrik else 0,
+        output_tokens=metrik.token_keluar if metrik else 0,
     )
 
     # get_or_create + F(): dua permintaan yang datang bersamaan tetap menaikkan

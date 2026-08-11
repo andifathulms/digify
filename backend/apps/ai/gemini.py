@@ -35,6 +35,12 @@ class MetrikPanggilan:
     latency_ms: int
     retry_count: int
     status: str  # "ok" | "error"
+    # Token dicatat supaya biaya bisa dilihat sebagai RUPIAH, bukan sebagai
+    # jumlah panggilan. Tanpa ini pertanyaan "user ini menghabiskan berapa?"
+    # — satu-satunya alasan kuota ada — tidak bisa dijawab sama sekali.
+    # Nol untuk panggilan yang gagal sebelum model sempat menjawab.
+    token_masuk: int = 0
+    token_keluar: int = 0
 
 
 # Metrik panggilan terakhir di dalam request ini. Dipakai supaya `call_gemini`
@@ -130,7 +136,8 @@ def call_gemini(
                 config=config,
             )
             data = _baca_json(response)
-            _catat_metrik(endpoint, mulai, percobaan_gagal, "ok")
+            masuk, keluar = _baca_token(response)
+            _catat_metrik(endpoint, mulai, percobaan_gagal, "ok", masuk, keluar)
             return data
         except Exception as exc:  # noqa: BLE001 — semua kegagalan diterjemahkan
             kesalahan_terakhir = exc
@@ -182,7 +189,33 @@ def _baca_json(response: Any) -> dict[str, Any]:
     return data
 
 
-def _catat_metrik(endpoint: str, mulai: float, retry_count: int, status: str) -> None:
+def _baca_token(response: Any) -> tuple[int, int]:
+    """Ambil jumlah token dari respons.
+
+    Dibungkus getattr berlapis dengan sengaja: bentuk usage_metadata milik SDK
+    pernah berubah, dan pencatatan biaya tidak boleh sampai MENGGAGALKAN
+    panggilan yang sebenarnya sudah berhasil. Kalau tidak terbaca, angkanya nol
+    dan yang hilang cuma satu baris laporan.
+
+    Token "pikir" ikut dihitung sebagai keluaran karena memang ditagih begitu.
+    """
+    pemakaian = getattr(response, "usage_metadata", None)
+    if pemakaian is None:
+        return 0, 0
+    masuk = getattr(pemakaian, "prompt_token_count", 0) or 0
+    keluar = getattr(pemakaian, "candidates_token_count", 0) or 0
+    pikir = getattr(pemakaian, "thoughts_token_count", 0) or 0
+    return int(masuk), int(keluar) + int(pikir)
+
+
+def _catat_metrik(
+    endpoint: str,
+    mulai: float,
+    retry_count: int,
+    status: str,
+    token_masuk: int = 0,
+    token_keluar: int = 0,
+) -> None:
     latency_ms = int((time.monotonic() - mulai) * 1000)
     metrik_terakhir.set(
         MetrikPanggilan(
@@ -190,6 +223,16 @@ def _catat_metrik(endpoint: str, mulai: float, retry_count: int, status: str) ->
             latency_ms=latency_ms,
             retry_count=retry_count,
             status=status,
+            token_masuk=token_masuk,
+            token_keluar=token_keluar,
         )
     )
-    logger.info("AI %s status=%s durasi=%sms retry=%s", endpoint, status, latency_ms, retry_count)
+    logger.info(
+        "AI %s status=%s durasi=%sms retry=%s token=%s+%s",
+        endpoint,
+        status,
+        latency_ms,
+        retry_count,
+        token_masuk,
+        token_keluar,
+    )

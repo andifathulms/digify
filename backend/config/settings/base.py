@@ -201,6 +201,16 @@ DAILY_CAROUSEL_QUOTA = env_int("DAILY_CAROUSEL_QUOTA", 5)
 
 KUOTA_HARIAN_ENDPOINT = {"carousel-content": DAILY_CAROUSEL_QUOTA}
 
+# Harga token untuk MEMPERKIRAKAN biaya per user, dalam rupiah per 1 juta
+# token. Perkiraan, bukan pembukuan — tagihan Google yang berlaku.
+#
+# Nilai bawaan mengikuti gemini-3.5-flash pada 11 Agustus 2026:
+# $1,50 dan $9,00 per 1 juta token, pada kurs ~Rp 16.300.
+# Ganti lewat env kalau model atau kursnya berubah; jangan hardcode di kode
+# lain, satu tempat ini saja.
+HARGA_TOKEN_MASUK_PER_JUTA = env_int("HARGA_TOKEN_MASUK_PER_JUTA", 24_450)
+HARGA_TOKEN_KELUAR_PER_JUTA = env_int("HARGA_TOKEN_KELUAR_PER_JUTA", 146_700)
+
 # --- Billing ---------------------------------------------------------------
 
 AFFILIATE_ID_WEBHOOK_SECRET = env("AFFILIATE_ID_WEBHOOK_SECRET")
