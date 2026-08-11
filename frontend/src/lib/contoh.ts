@@ -72,6 +72,51 @@ export const CONTOH_KONDISI =
 export const CONTOH_TARGET_PELANGGAN =
   "Pelajar dan pekerja kantoran di sekitar warung, usia 17–35 tahun";
 
+/**
+ * Contoh slide carousel yang sudah jadi, dipakai Tab 10.
+ *
+ * Bukan hasil panggilan AI dan tidak pernah dikirim ke backend: ini bacaan,
+ * ditaruh DI ATAS form supaya orang melihat wujud barang jadinya sebelum
+ * menunggu 10–30 detik untuk sesuatu yang belum pernah ia lihat. Tab 10 adalah
+ * satu-satunya alat yang keluarannya berupa berkas, dan sampai contohnya
+ * tampil, "gambar siap posting" cuma janji di dalam kalimat.
+ *
+ * Menunya sengaja sama dengan yang terisi di form (MENU_MINUMAN) supaya terasa
+ * satu warung yang sama, dan jumlahnya empat — sama dengan bawaan "Berapa
+ * slide?" — supaya yang dilihat memang yang akan ia dapat.
+ */
+export const CONTOH_SLIDE_CAROUSEL: {
+  nomor_slide: number;
+  tipe_slide: string;
+  teks_slide: string;
+  petunjuk_foto: string;
+}[] = [
+  {
+    nomor_slide: 1,
+    tipe_slide: "Pembuka",
+    teks_slide: "Es Kopi Susu Gula Aren, Rp 18.000 yang bikin balik lagi",
+    petunjuk_foto: "Foto gelasnya dari dekat, ambil saat lapisan gula arennya masih terlihat.",
+  },
+  {
+    nomor_slide: 2,
+    tipe_slide: "Alasannya",
+    teks_slide: "Gula arennya asli dari Jawa, bukan sirup manis biasa",
+    petunjuk_foto: "Foto gula aren batangan sebelum diseduh.",
+  },
+  {
+    nomor_slide: 3,
+    tipe_slide: "Buktinya",
+    teks_slide: "Kopinya dari petani lokal, digiling tiap pagi sebelum buka",
+    petunjuk_foto: "Foto biji kopi atau proses menggiling di pagi hari.",
+  },
+  {
+    nomor_slide: 4,
+    tipe_slide: "Ajakan",
+    teks_slide: "Mampir hari ini, buka tiap hari jam 07.00–22.00",
+    petunjuk_foto: "Foto depan warung supaya orang tahu tempatnya.",
+  },
+];
+
 export const PLATFORM = ["Instagram", "TikTok", "Facebook", "WhatsApp Status"] as const;
 
 export const GAYA_BAHASA = [

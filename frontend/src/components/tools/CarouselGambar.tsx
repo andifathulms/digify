@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
+import ContohCarousel from "@/components/carousel/ContohCarousel";
 import FormKonten, { type IsiFormKonten } from "@/components/tools/FormKonten";
 import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
@@ -58,6 +59,10 @@ export default function CarouselGambar() {
 
   return (
     <>
+      {/* Barang jadinya lebih dulu, formnya belakangan. Lihat ContohCarousel
+       * untuk alasannya. */}
+      <ContohCarousel />
+
       <Kartu
         judul="Bikin gambar carousel siap posting"
         keterangan="Hasilnya berupa gambar jadi ukuran 1080×1350 yang bisa langsung Anda unduh dan posting. Tidak perlu Canva."

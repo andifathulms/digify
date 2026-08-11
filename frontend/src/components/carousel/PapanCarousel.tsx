@@ -1,8 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
+import KotakPratinjau from "@/components/carousel/KotakPratinjau";
 import SlideRenderer from "@/components/carousel/SlideRenderer";
 import { bacaFotoSebagaiDataUrl, namaBerkasSlide, unduhSlide } from "@/components/carousel/unduh";
 import { LEBAR_SLIDE, TINGGI_SLIDE } from "@/components/carousel/warna";
@@ -14,69 +14,9 @@ import type { SlideCarousel } from "@/lib/types/api";
  * Papan slide: pratinjau, unggah foto, dan unduh PNG per slide.
  *
  * Tiap slide dirender pada ukuran ASLI 1080×1350 lalu dikecilkan secara visual
- * dengan `transform: scale()`. Node sumbernya tetap berukuran penuh, karena
- * itu yang dibaca html2canvas (CLAUDE.md §9.3).
+ * oleh KotakPratinjau. Node sumbernya tetap berukuran penuh, karena itu yang
+ * dibaca html2canvas (CLAUDE.md §9.3).
  */
-
-/** Lebar pratinjau paling besar. Di bawah ini ia menyusut mengikuti wadahnya. */
-const LEBAR_PRATINJAU_MAKS = 300;
-
-/**
- * Kotak pratinjau slide yang ikut menyusut bersama layarnya.
- *
- * Sebelumnya lebarnya dipaku 300px. Di dalam `p-5` milik kartu dan `px-5`
- * milik halaman, pada layar selebar 320px hanya tersisa ~240px — dan karena
- * kotaknya `overflow: hidden`, sisi kanan tiap slide terpotong diam-diam
- * alih-alih bisa digeser. Sama juga saat halaman diperbesar 400%.
- * (WCAG 1.4.10 Reflow.)
- *
- * Lebarnya sekarang diukur, lalu skalanya diturunkan dari lebar itu. Diukur,
- * bukan dihitung dari lebar layar dikurangi padding: padding-nya berubah per
- * breakpoint, dan angka yang ditebak akan meleset lagi begitu tata letaknya
- * disesuaikan.
- */
-function KotakPratinjau({ children }: { children: ReactNode }) {
-  const kotak = useRef<HTMLDivElement>(null);
-  const [lebar, setLebar] = useState(LEBAR_PRATINJAU_MAKS);
-
-  useEffect(() => {
-    const simpul = kotak.current;
-    if (!simpul) return;
-    const pengamat = new ResizeObserver((entri) => {
-      const lebarBaru = entri[0]?.contentRect.width;
-      if (lebarBaru) setLebar(lebarBaru);
-    });
-    pengamat.observe(simpul);
-    return () => pengamat.disconnect();
-  }, []);
-
-  const skala = lebar / LEBAR_SLIDE;
-
-  return (
-    <div
-      ref={kotak}
-      className="mx-auto mt-4 overflow-hidden"
-      style={{
-        width: "100%",
-        maxWidth: LEBAR_PRATINJAU_MAKS,
-        height: TINGGI_SLIDE * skala,
-        borderRadius: 12,
-        border: "1px solid var(--line)",
-      }}
-    >
-      <div
-        style={{
-          transform: `scale(${skala})`,
-          transformOrigin: "top left",
-          width: LEBAR_SLIDE,
-          height: TINGGI_SLIDE,
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export default function PapanCarousel({
   slides,
@@ -167,7 +107,7 @@ export default function PapanCarousel({
               ) : null}
             </div>
 
-            <KotakPratinjau>
+            <KotakPratinjau kelas="mx-auto mt-4">
               <SlideRenderer
                 slide={slide}
                 foto={foto[slide.nomor_slide] || null}
