@@ -24,11 +24,15 @@ import DaftarAlat from "@/components/ui/DaftarAlat";
 export default function LembarAlat({
   status,
   keluar,
+  profil,
 }: {
   /** <StatusServer /> — Server Component, jadi dioper sebagai anak, bukan
    *  di-import di sini (komponen ini "use client"). */
   status: ReactNode;
   keluar: ReactNode;
+  /** Tautan profil, dioper sebagai anak dengan alasan yang sama seperti
+   *  `status`: <Link> milik server, komponen ini "use client". */
+  profil?: ReactNode;
 }) {
   const [terbuka, setTerbuka] = useState(false);
   // Portal baru boleh dipasang setelah komponen hidup di browser; di server
@@ -215,6 +219,8 @@ export default function LembarAlat({
              * di kaki sidebar layar lebar. Di bilah atas HP keduanya tidak
              * muat bersama nama produk dan tombol "Semua alat" — dan keduanya
              * memang jarang ditekan. */}
+            {profil ? <div className="px-5 pb-1">{profil}</div> : null}
+
             <div
               className="flex items-center justify-between gap-2 px-5 py-3"
               style={{ borderTop: "1px solid var(--line)" }}

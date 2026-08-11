@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import IkonAlat from "@/components/ui/IkonAlat";
 import Logo from "@/components/ui/Logo";
+import MenuAkun from "@/components/ui/MenuAkun";
 import StatusServer from "@/components/ui/StatusServer";
 import { formatRupiah } from "@/lib/format";
 import { NAMA_KELOMPOK, TABS } from "@/lib/tabs";
@@ -274,6 +275,14 @@ function StrukContoh() {
   );
 }
 
+// Kepala halaman membaca sesi, dan sesi ada di cookie — jadi halaman ini
+// tidak bisa lagi dibekukan saat build. Ongkosnya satu render per kunjungan
+// untuk halaman yang isinya statis; imbalannya, pembeli yang sudah masuk
+// tidak lagi disambut ajakan masuk. Alternatifnya (memeriksa sesi dari
+// peramban setelah halaman tampil) menukar itu dengan kedipan "Masuk" yang
+// berubah jadi nama sendiri, dan kedipan itu terlihat justru di HP lambat.
+export const dynamic = "force-dynamic";
+
 export default function BerandaPage() {
   const MESIN = [
     {
@@ -330,19 +339,11 @@ export default function BerandaPage() {
            * perhatian dari pertanyaan yang sedang ia punya. Tetap ada di kaki
            * halaman dan di dalam aplikasi, tempat ia memang berguna. */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/masuk"
-              className="inline-flex items-center px-4 text-sm font-semibold"
-              style={{
-                minHeight: "var(--tap)",
-                background: "var(--surface)",
-                border: "1px solid var(--line-strong)",
-                borderRadius: "var(--radius-sm)",
-                color: "var(--ink)",
-              }}
-            >
-              Masuk
-            </Link>
+            {/* Menu akun, bukan tombol "Masuk" yang tetap.
+              * Sebelumnya kepala halaman ini mengajak masuk kepada orang yang
+              * SEDANG masuk — bagi pembeli yang sudah membayar, halaman depan
+              * produknya sendiri terlihat seperti tidak mengenalinya. */}
+            <MenuAkun />
           </div>
         </Bagian>
       </header>

@@ -63,6 +63,19 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
           <DaftarAlat />
         </div>
 
+        {/* Tautan profil ditaruh di kaki sidebar, bukan di bilah atas HP:
+            bilah itu sengaja hanya berisi dua hal (lihat catatan di bawah),
+            dan profil bukan sesuatu yang dibuka tiap hari. */}
+        <div className="px-4 pb-2">
+          <Link
+            href="/profil"
+            className="flex items-center text-sm"
+            style={{ minHeight: "var(--tap)", color: "var(--ink-dim)" }}
+          >
+            Profil saya
+          </Link>
+        </div>
+
         <div
           className="flex items-center justify-between gap-2 px-4 py-3"
           style={{ borderTop: "1px solid var(--line)" }}
@@ -98,7 +111,19 @@ export default async function AlatLayout({ children }: { children: React.ReactNo
               </span>
             </Link>
 
-            <LembarAlat status={<StatusServer />} keluar={<TombolKeluar />} />
+            <LembarAlat
+              status={<StatusServer />}
+              keluar={<TombolKeluar />}
+              profil={
+                <Link
+                  href="/profil"
+                  className="flex items-center text-sm"
+                  style={{ minHeight: "var(--tap)", color: "var(--ink-dim)" }}
+                >
+                  Profil saya
+                </Link>
+              }
+            />
           </div>
         </header>
 

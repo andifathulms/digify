@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import Logo from "@/components/ui/Logo";
-import TombolKeluar from "@/components/ui/TombolKeluar";
+import MenuAkun from "@/components/ui/MenuAkun";
 import { ambilProfil } from "@/lib/sesiServer";
 
 /**
@@ -36,13 +36,20 @@ export default async function PanelLayout({ children }: { children: React.ReactN
                 Panel Pengawasan
               </span>
               <span className="text-2xs" style={{ color: "var(--ink-soft)" }}>
-                {profil.email}
+                Digify Laris
               </span>
             </span>
           </div>
 
+          {/* Tautan halaman panel tetap terlihat; yang pindah ke dalam menu
+              akun cuma "Ke aplikasi" dan "Keluar" — keduanya bukan navigasi
+              panel, dan berjajar di sini keduanya bersaing dengan Ringkasan
+              dan Pembeli yang justru dipakai tiap hari. */}
           <nav className="flex flex-wrap items-center gap-1">
-            <Link href="/panel" className="label-isian rounded-[var(--radius-sm)] px-3 py-2 text-sm font-semibold">
+            <Link
+              href="/panel"
+              className="label-isian rounded-[var(--radius-sm)] px-3 py-2 text-sm font-semibold"
+            >
               Ringkasan
             </Link>
             <Link
@@ -51,14 +58,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             >
               Pembeli
             </Link>
-            <Link
-              href="/alat"
-              className="label-isian rounded-[var(--radius-sm)] px-3 py-2 text-sm"
-              style={{ color: "var(--ink-dim)" }}
-            >
-              Ke aplikasi
-            </Link>
-            <TombolKeluar />
+            <MenuAkun dariPanel />
           </nav>
         </div>
       </header>
