@@ -1108,3 +1108,50 @@ iPhone, karena di situlah jalur HEIC-nya hidup.
 
 Belum dikerjakan: seret-dan-lepas di layar lebar, dan mengatur posisi/zoom foto
 di dalam bingkai slide.
+
+---
+
+## 2026-08-11 · Tempel daftar juga di Tab 6, dan aturan angkanya jadi milik bersama
+
+**Keputusan.** Kotak "Tempel sekaligus" sekarang dipakai dua tab. Kerangkanya
+jadi komponen umum (`TempelDaftar`), dan aturan membaca angka pindah ke
+`frontend/src/lib/uraiTeks.ts`.
+
+**Kenapa Tab 6 yang berikutnya.** Ia form paling berat di seluruh produk: enam
+isian per bahan, dikali sepuluh bahan, dengan jempol. Ironisnya ia juga tab
+yang datanya paling mirip catatan belanja — bentuk yang memang sudah dimiliki
+orangnya, dan yang sudah terbukti bisa diurai sejak Tab 1.
+
+**Aturan angka jadi satu berkas** karena kedua pengurai membutuhkannya sama
+persis. Kalau salinannya ada dua, cepat atau lambat keduanya berbeda, dan angka
+yang sama akan punya dua arti di dua layar. Pemindahannya murni: 29 uji yang
+sudah ada lulus tanpa satu pun diubah.
+
+**Urutan tanpa label mengikuti urutan ISIAN DI LAYAR**, bukan urutan field di
+dalam kode (untuk Tab 6: beli, terbuang, harga). Yang dibaca orang saat menulis
+daftarnya adalah layar. Satuan tidak menempati posisi sendiri — ia menempel
+pada angkanya ("1000 gram"), persis seperti orang menulis catatan belanja.
+
+**Satu aturan bersama ikut diperbaiki**, dan ini yang paling pantas dicatat.
+Tab 6 memunculkan kasus yang tidak ada di daftar menu: **jumlah bahan wajar
+berpecahan** ("1,5 kg | 0,25"), sementara di daftar menu ketiga kolomnya selalu
+bulat. Dugaan lama "dua koma rapat berarti pemisah kolom" jadi salah di sini
+dan membuat 1,5 terbaca 1. Sekarang pemisah tegas didahulukan: kalau barisnya
+sudah punya garis tegak, titik koma, atau tab, komanya PASTI desimal, berapa
+pun jumlahnya. Baru kalau tidak ada pemisah tegas, banyaknya koma rapat yang
+memutuskan.
+
+Ditemukan oleh uji, bukan oleh membaca ulang kode — dan itu uji yang baru ada
+sejak hari ini.
+
+**Impor relatif berekstensi** (`./uraiTeks.ts`), bukan alias `@/`, karena
+berkas-berkas ini dijalankan langsung oleh Node lewat `node --test` dan Node
+tidak tahu apa-apa soal alias tsconfig. Sudah dipastikan bundler Next tetap
+membacanya: image prod dibangun ulang dan compiled successfully. **Kalau nanti
+menambah pengurai baru di `lib/`, ikuti pola ini** — memakai `@/` di sana akan
+membuat ujinya mati dengan pesan yang tidak menjelaskan apa-apa.
+
+**Batasnya, tidak berubah dari catatan sebelumnya.** Tab 5 (Laporan) dan Tab 7
+(Ide Menu) masih belum kebagian: bentuk barisnya berbeda (harga lama/harga
+baru, dan nama/harga/margin). Keduanya sudah bisa memuat daftar tersimpan, jadi
+ketikan ulangnya jauh lebih sedikit daripada Tab 3, 4, dan 6.
