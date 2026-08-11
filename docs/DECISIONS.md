@@ -974,3 +974,80 @@ penjagaan berkas HEIC dari iPhone — `bacaFotoSebagaiDataUrl` menerimanya, tapi
 peramban tidak bisa menggambarnya ke canvas sehingga PNG-nya gagal diam-diam;
 unduh semua slide sekaligus; Web Share ke Instagram; dan tempel-massal daftar
 menu untuk mengurangi ketikan.
+
+---
+
+## 2026-08-11 · Gerbang uji frontend: runner bawaan Node, bukan Vitest
+
+**Keputusan.** `npm test` menjalankan `node --test`. Tidak ada paket uji yang
+dipasang, `package-lock.json` tidak tersentuh, dan langkah `Test` masuk ke job
+`uji-frontend` di CI.
+
+**Alasan.** Sampai hari ini frontend tidak punya satu pun uji otomatis. Itu
+masih bisa ditawar selama isinya komponen tampilan, tapi berhenti bisa ditawar
+begitu ada pengurai teks bebas yang mengisi kolom modal dan harga.
+
+**Kenapa bukan Vitest**, yang jelas lebih enak dipakai: Vitest menarik esbuild
+dan rollup, dan keduanya berbentuk biner per-platform — bentuk yang persis sama
+dengan `lightningcss`, `@tailwindcss/oxide`, dan `sharp` yang sudah pernah
+mematikan build amd64 di repo ini (catatan "lockfile hanya mengenal satu
+arsitektur" di atas). Memasangnya berarti mengulang pekerjaan menyebut biner
+satu per satu di `optionalDependencies`, dan menanggung risiko itu lagi setiap
+kali versinya naik. Runner bawaan Node 22 sudah membaca TypeScript langsung —
+diuji di `node:22-alpine`, image yang sama dipakai CI dan Docker, bukan hanya
+di macOS.
+
+**Harganya, dan ini nyata:** tidak ada watch mode, tidak ada `expect()`, tidak
+ada mocking. Cukup untuk fungsi murni. **Kalau nanti butuh menguji komponen
+React, keputusan ini harus ditinjau ulang** — jangan dipaksakan.
+
+`tsconfig.json` menyalakan `allowImportingTsExtensions` karena Node ESM menuntut
+ekstensi ditulis lengkap. Aman: opsi itu memang hanya boleh dipakai bersama
+`noEmit`, yang sudah menyala.
+
+---
+
+## 2026-08-11 · Daftar menu bisa ditempel sekaligus, diurai di frontend
+
+**Keputusan.** Kotak "Sudah punya daftarnya? Tempel sekaligus" di dalam
+`EditorMenu` (Tab 3 dan Tab 4), dengan pengurai aturan di
+`frontend/src/lib/uraiDaftarMenu.ts`.
+
+**Alasan.** Umpan balik calon pengguna, seorang pemakai sistem POS: "kira-kira
+ada nggak yang sistemnya nggak terlalu manual nulisnya?" Sepuluh menu berarti
+empat puluh isian dengan jempol. `MenuItem` tersimpan sudah menolong dari menu
+kedua dan seterusnya, tapi pengisian PERTAMA tetap manual seluruhnya — dan itu
+pintu masuk produk ini.
+
+**Kenapa di frontend, bukan endpoint baru.** Ini aturan murni: tidak butuh AI
+(Tab 1–6 memang sudah tidak memakainya sejak 28 Juli) dan tidak butuh data dari
+server. Menaruhnya di frontend berarti kontrak API yang sudah dibekukan tidak
+bertambah, tidak ada biaya panggilan, dan tetap jalan saat aplikasi dibuka
+offline sebagai PWA. Konsekuensinya: ada dua pengurai teks bebas di repo ini
+(`parser_bahan.py` untuk bahan, yang ini untuk menu). Keduanya memakai aturan
+angka yang sama — titik pemisah ribuan, koma desimal — dan itu harus tetap
+begitu; angka yang sama tidak boleh punya dua arti di dua tempat.
+
+**Dua jebakan yang ditemukan lewat uji, bukan lewat membaca ulang kode.**
+Keduanya punya akibat yang sama dan sama-sama tanpa pesan error:
+
+1. **Koma menanggung dua tugas dalam bahasa Indonesia** — pemisah daftar dan
+   pemisah desimal. "1500,6" sempat terpotong jadi 1500 dan 6, dan seluruh
+   kolom sesudahnya bergeser satu tempat: modal terbaca sebagai harga jual.
+   Sekarang artinya diputuskan sekali untuk seluruh baris — satu koma rapat
+   dianggap desimal, dua atau lebih dianggap pemisah kolom gaya CSV (bentuk
+   ekspor kasir, yang justru paling ingin dilayani). Batas itu sah karena
+   ketiga kolomnya bilangan bulat.
+2. **Angka bersatuan di dalam nama** ("Es Teh 500ml") sempat terbaca sebagai
+   modal.
+
+**Yang ditolak.** Layar konfirmasi antara tempelan dan daftar — barisnya sendiri
+sudah jadi pratinjau: terlihat, bisa diubah, dan belum terkirim ke mana pun.
+Menambah di belakang daftar yang ada, bukan menimpanya — yang ditimpa hampir
+selalu contoh bawaan, dan menambah di belakangnya justru meninggalkan menu
+contoh yang bukan miliknya tercampur dalam hitungan profitnya sendiri.
+
+**Batasnya.** Tab 5 (Laporan) dan Tab 7 (Ide Menu) belum kebagian: bentuk
+barisnya berbeda (harga lama/harga baru, dan nama/harga/margin), jadi
+pengurainya perlu aturan sendiri. Keduanya sudah bisa memuat daftar tersimpan,
+jadi ketikan ulangnya tidak sebanyak Tab 3 dan 4.
