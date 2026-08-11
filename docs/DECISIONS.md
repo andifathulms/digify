@@ -919,3 +919,58 @@ yang gampang lupa dan bikin server diam-diam tertinggal dari main).
 
 **Rollback tetap satu baris:** `IMAGE_TAG=sha-<commit>` di `.env` server lalu
 jalankan `deploy.sh`. Itu alasan tag `sha-` ada.
+
+---
+
+## 2026-08-11 · Tab 10: contoh slide dan slot foto tampil sebelum tombol ditekan
+
+**Latar.** Umpan balik dari calon pengguna (pemakai sistem POS) atas tiga hal:
+input terasa terlalu manual, penasaran dengan empat alat Tambah Pembeli dan
+ingin "langsung jadi contoh gambar carouselnya" plus unggah foto sendiri, dan
+bertanya apakah tampilannya berubah kalau dibuka di HP.
+
+Dua dari tiga sudah ada di produk sejak Fase 3 — unggah foto per slide, dan
+tata letak yang memang mobile-first. Yang tidak ada adalah **caranya
+terlihat**. Ini keputusan tentang urutan, bukan tentang fitur baru.
+
+**Keputusan.**
+
+1. **Contoh empat slide jadi tampil di atas form Tab 10**, terbuka, digeser
+   mendatar. Datanya statis di `lib/contoh.ts`, tidak pernah menyentuh backend.
+2. **Slot foto pindah ke atas tombol "Buatkan gambar carousel"**, satu slot
+   bernomor per slide, satu jendela pilih berkas bisa mengambil beberapa foto
+   sekaligus. Keadaan fotonya naik dari `PapanCarousel` ke halaman
+   (`useFotoSlide`) supaya tidak hilang saat slide-nya jadi.
+3. **Kalimat "fotonya foto Anda sendiri" ditulis di tiga tempat yang dibaca
+   sebelum alatnya dibuka**: daftar alat, halaman pemasaran, keterangan kartu.
+
+**Alasan.** Tab 10 satu-satunya alat yang keluarannya berupa berkas, dan itu
+yang membuatnya berbeda dari sekadar alat analisa. Tapi wujud barang jadinya
+baru terlihat setelah menunggu 10–30 detik: orang diminta menunggu untuk
+sesuatu yang belum pernah ia lihat. Hal yang sama berlaku untuk unggah foto —
+ia hidup di papan slide, yang muncul setelah pembuatan selesai, jadi yang
+sedang menimbang produknya berhenti jauh sebelum menemukannya lalu menyimpulkan
+foto masakannya dibuatkan mesin. Kesimpulan itu wajar, karena tak satu pun
+kalimat di produk ini pernah membantahnya.
+
+**Yang ditolak.**
+
+- **Contoh yang dilipat (`<details>`) seperti ContohTerpandu di Tab 1.** Tab 1
+  menerangkan CARA sebuah angka dihitung — wajar dilipat setelah dipahami
+  sekali. Yang ini bukan penjelasan, melainkan barang jadinya sendiri; dilipat
+  berarti kembali jadi janji di dalam kalimat.
+- **Foto sungguhan di dalam contoh.** Contohnya memakai kotak krem berikon,
+  sama seperti slide tanpa foto yang sebenarnya, dengan satu kalimat yang
+  menerangkan kotak itu tempat foto pengguna. Menempelkan foto stok akan
+  memamerkan hasil yang tidak bisa didapat siapa pun tanpa memotret dulu.
+  Kalau nanti ada foto masakan milik sendiri yang boleh dipakai, contohnya
+  bisa ditingkatkan tanpa mengubah strukturnya.
+- **Menimpa slot dari slide 1 saat memilih beberapa foto.** Foto masuk ke slot
+  yang masih kosong secara berurutan. Orang yang sudah memberi foto slide 1
+  lalu memilih satu foto lagi jelas memaksudkannya untuk slide berikutnya.
+
+**Yang belum dikerjakan** (gelombang berikutnya, dari umpan balik yang sama):
+penjagaan berkas HEIC dari iPhone — `bacaFotoSebagaiDataUrl` menerimanya, tapi
+peramban tidak bisa menggambarnya ke canvas sehingga PNG-nya gagal diam-diam;
+unduh semua slide sekaligus; Web Share ke Instagram; dan tempel-massal daftar
+menu untuk mengurangi ketikan.
