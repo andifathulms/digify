@@ -22,7 +22,7 @@ import { LEBAR_SLIDE, TINGGI_SLIDE } from "@/components/carousel/warna";
  */
 const SKALA_TANGKAP = 1;
 
-export async function unduhSlide(node: HTMLElement, namaBerkas: string): Promise<void> {
+async function gambarKanvas(node: HTMLElement): Promise<HTMLCanvasElement> {
   // Impor saat dipakai: html2canvas-pro cukup besar dan hanya dibutuhkan
   // saat user benar-benar menekan tombol unduh.
   const { default: html2canvas } = await import("html2canvas-pro");
@@ -31,7 +31,7 @@ export async function unduhSlide(node: HTMLElement, namaBerkas: string): Promise
   // Plus Jakarta Sans belum selesai dimuat saat canvas digambar.
   await document.fonts.ready;
 
-  const canvas = await html2canvas(node, {
+  return html2canvas(node, {
     scale: SKALA_TANGKAP,
     width: LEBAR_SLIDE,
     height: TINGGI_SLIDE,
@@ -41,11 +41,88 @@ export async function unduhSlide(node: HTMLElement, namaBerkas: string): Promise
     useCORS: true,
     logging: false,
   });
+}
+
+export async function unduhSlide(node: HTMLElement, namaBerkas: string): Promise<void> {
+  const canvas = await gambarKanvas(node);
 
   const tautan = document.createElement("a");
   tautan.download = namaBerkas;
   tautan.href = canvas.toDataURL("image/png");
   tautan.click();
+}
+
+/**
+ * Unduh beberapa slide berurutan.
+ *
+ * Berurutan, bukan serentak: peramban memperlakukan unduhan beruntun yang
+ * dipicu skrip sebagai perilaku mencurigakan dan diam-diam membuang sebagian.
+ * Jeda pendek di antaranya membuat keempatnya benar-benar sampai. Pemanggil
+ * diberi kabar nomor slide yang sedang dikerjakan supaya tombolnya bisa
+ * bilang "menyimpan 2 dari 4" — empat kali diam beberapa detik tanpa
+ * keterangan akan dibaca sebagai macet.
+ */
+export async function unduhSemuaSlide(
+  slide: { node: HTMLElement; namaBerkas: string }[],
+  kabar?: (sudah: number, total: number) => void,
+): Promise<void> {
+  for (const [indeks, satu] of slide.entries()) {
+    kabar?.(indeks + 1, slide.length);
+    await unduhSlide(satu.node, satu.namaBerkas);
+    if (indeks < slide.length - 1) {
+      await new Promise((lanjut) => setTimeout(lanjut, 350));
+    }
+  }
+  kabar?.(slide.length, slide.length);
+}
+
+/** Ubah satu slide jadi berkas PNG di memori, untuk dibagikan. */
+export async function slideJadiBerkas(node: HTMLElement, namaBerkas: string): Promise<File> {
+  const canvas = await gambarKanvas(node);
+  const gumpalan = await new Promise<Blob | null>((selesai) =>
+    canvas.toBlob(selesai, "image/png"),
+  );
+  if (!gumpalan) throw new GalatFoto("Gambarnya belum berhasil dibuat. Coba lagi sebentar lagi.");
+  return new File([gumpalan], namaBerkas, { type: "image/png" });
+}
+
+/**
+ * Bisakah peramban ini membagikan berkas ke aplikasi lain?
+ *
+ * Harus ditanyakan dengan contoh berkas sungguhan: `navigator.share` ada di
+ * banyak peramban desktop yang justru menolak berkas, dan `canShare` tanpa
+ * argumen tidak menjawab pertanyaan yang sedang kita ajukan.
+ */
+export function bisaBagikanBerkas(): boolean {
+  if (typeof navigator === "undefined" || !navigator.canShare) return false;
+  try {
+    const contoh = new File([new Blob([""], { type: "image/png" })], "uji.png", {
+      type: "image/png",
+    });
+    return navigator.canShare({ files: [contoh] });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Bagikan slide langsung ke aplikasi lain (Instagram, WhatsApp, Galeri).
+ *
+ * Ini jalur yang lebih penting daripada unduh untuk pemakai kita: mereka
+ * memegang HP di tempat usaha. Tanpa ini urutannya jadi unduh → buka Galeri →
+ * cari berkasnya → buka Instagram → pilih lagi. Dengan ini satu ketukan.
+ *
+ * Mengembalikan false kalau pemakainya membatalkan — itu bukan kegagalan dan
+ * tidak boleh memunculkan pesan galat.
+ */
+export async function bagikanSlide(berkas: File[], judul: string): Promise<boolean> {
+  try {
+    await navigator.share({ files: berkas, title: judul });
+    return true;
+  } catch (galat) {
+    if (galat instanceof DOMException && galat.name === "AbortError") return false;
+    throw galat;
+  }
 }
 
 /**

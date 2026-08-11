@@ -1,11 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { PetaFoto } from "@/components/carousel/fotoSlide";
 import KotakPratinjau from "@/components/carousel/KotakPratinjau";
 import SlideRenderer from "@/components/carousel/SlideRenderer";
-import { namaBerkasSlide, unduhSlide } from "@/components/carousel/unduh";
+import {
+  bagikanSlide,
+  bisaBagikanBerkas,
+  namaBerkasSlide,
+  slideJadiBerkas,
+  unduhSemuaSlide,
+  unduhSlide,
+} from "@/components/carousel/unduh";
 import { LEBAR_SLIDE, TINGGI_SLIDE } from "@/components/carousel/warna";
 import Button from "@/components/ui/Button";
 import { PesanGagal } from "@/components/ui/Keadaan";
@@ -38,8 +45,60 @@ export default function PapanCarousel({
   onPilihFoto: (nomor: number, berkas: File | undefined) => void;
 }) {
   const [sedangUnduh, setSedangUnduh] = useState<number | null>(null);
+  const [kabarBanyak, setKabarBanyak] = useState<string | null>(null);
   const [galat, setGalat] = useState<string | null>(null);
   const nodeRef = useRef<Record<number, HTMLDivElement | null>>({});
+
+  // Ditanyakan setelah komponen terpasang, bukan saat render: jawabannya
+  // beda antara server dan HP, dan menebaknya lebih awal membuat tombolnya
+  // sempat berkedip muncul-hilang.
+  const [bisaBagikan, setBisaBagikan] = useState(false);
+  useEffect(() => setBisaBagikan(bisaBagikanBerkas()), []);
+
+  /** Kumpulkan node slide yang benar-benar sudah terpasang, berurutan. */
+  function semuaSlide() {
+    return slides
+      .map((slide) => ({
+        node: nodeRef.current[slide.nomor_slide],
+        namaBerkas: namaBerkasSlide(namaMenu, slide.nomor_slide),
+      }))
+      .filter((satu): satu is { node: HTMLDivElement; namaBerkas: string } => Boolean(satu.node));
+  }
+
+  async function unduhSemua() {
+    const daftar = semuaSlide();
+    if (daftar.length === 0) return;
+
+    setGalat(null);
+    try {
+      await unduhSemuaSlide(daftar, (sudah, total) =>
+        setKabarBanyak(`Menyimpan slide ${sudah} dari ${total}…`),
+      );
+    } catch {
+      setGalat("Sebagian gambar belum berhasil dibuat. Coba lagi sebentar lagi.");
+    } finally {
+      setKabarBanyak(null);
+    }
+  }
+
+  async function bagikanSemua() {
+    const daftar = semuaSlide();
+    if (daftar.length === 0) return;
+
+    setGalat(null);
+    setKabarBanyak("Menyiapkan gambar…");
+    try {
+      const berkas = [];
+      for (const satu of daftar) {
+        berkas.push(await slideJadiBerkas(satu.node, satu.namaBerkas));
+      }
+      await bagikanSlide(berkas, `Carousel ${namaMenu}`);
+    } catch {
+      setGalat("Gambarnya belum bisa dibagikan. Coba simpan dulu, lalu bagikan dari Galeri.");
+    } finally {
+      setKabarBanyak(null);
+    }
+  }
 
   async function unduh(nomor: number) {
     const node = nodeRef.current[nomor];
@@ -59,6 +118,42 @@ export default function PapanCarousel({
   return (
     <div className="flex flex-col gap-5">
       {galat ? <PesanGagal pesan={galat} /> : null}
+
+      {/* Aksi untuk SELURUH set, di atas, sebelum slide pertama.
+       * Empat slide berarti empat ketukan simpan, dan tiap ketukan berjarak
+       * satu layar gulir dari ketukan berikutnya — cukup untuk membuat orang
+       * berhenti di slide kedua dan memposting setengah cerita.
+       *
+       * "Bagikan" didahulukan kalau ada: pemakai kita memegang HP di tempat
+       * usaha, dan bagi mereka unduh berarti buka Galeri, cari berkasnya,
+       * buka Instagram, pilih lagi. */}
+      <div
+        className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--line)",
+          borderRadius: "var(--radius-lg)",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <p className="text-sm font-semibold sm:flex-1">
+          {kabarBanyak ?? `${slides.length} slide siap diposting`}
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {bisaBagikan ? (
+            <Button memuat={kabarBanyak !== null} onClick={bagikanSemua}>
+              Bagikan semua
+            </Button>
+          ) : null}
+          <Button
+            peran={bisaBagikan ? "kedua" : "utama"}
+            memuat={kabarBanyak !== null}
+            onClick={unduhSemua}
+          >
+            Simpan semua ({slides.length} gambar)
+          </Button>
+        </div>
+      </div>
 
       {slides.map((slide, indeks) => {
         // Slide terakhir otomatis jadi slide ajakan biru penuh
