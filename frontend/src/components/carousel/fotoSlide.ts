@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 
-import { bacaFotoSebagaiDataUrl } from "@/components/carousel/unduh";
+import { bacaFotoSebagaiDataUrl, GalatFoto } from "@/components/carousel/unduh";
 
 /**
  * Foto per slide — satu sumber kebenaran untuk Tab 10.
@@ -23,6 +23,15 @@ export type PetaFoto = Record<number, string>;
 
 const PESAN_GAGAL_BACA = "Foto itu tidak bisa dibaca. Coba pilih foto lain.";
 
+/**
+ * Pesan dari pembaca foto dipakai apa adanya kalau ia memang ditulis untuk
+ * pemiliknya (GalatFoto) — mis. petunjuk mengubah HEIC jadi JPG. Galat lain
+ * tidak pernah ditampilkan mentah; isinya untuk log, bukan untuk orang.
+ */
+function pesanUntukOrang(galat: unknown): string {
+  return galat instanceof GalatFoto ? galat.message : PESAN_GAGAL_BACA;
+}
+
 export function useFotoSlide() {
   const [foto, setFoto] = useState<PetaFoto>({});
   const [galat, setGalat] = useState<string | null>(null);
@@ -34,8 +43,8 @@ export function useFotoSlide() {
     try {
       const dataUrl = await bacaFotoSebagaiDataUrl(berkas);
       setFoto((sebelumnya) => ({ ...sebelumnya, [nomor]: dataUrl }));
-    } catch {
-      setGalat(PESAN_GAGAL_BACA);
+    } catch (galat) {
+      setGalat(pesanUntukOrang(galat));
     }
   }, []);
 
@@ -52,7 +61,7 @@ export function useFotoSlide() {
       setGalat(null);
 
       const berkas = Array.from(berkasTerpilih);
-      let adaYangGagal = false;
+      let pesanGagal: string | null = null;
 
       // Dibaca dulu semuanya, baru dipasang sekali — supaya urutan slot tidak
       // bergantung pada foto mana yang kebetulan selesai dibaca lebih dulu.
@@ -60,8 +69,11 @@ export function useFotoSlide() {
       for (const satu of berkas) {
         try {
           terbaca.push(await bacaFotoSebagaiDataUrl(satu));
-        } catch {
-          adaYangGagal = true;
+        } catch (galat) {
+          // Pesan pertama yang muncul yang dipakai. Menumpuk empat kalimat
+          // panjang untuk empat foto HEIC yang sama masalahnya cuma membuat
+          // yang perlu dikerjakan jadi lebih sulit dilihat.
+          pesanGagal = pesanGagal ?? pesanUntukOrang(galat);
         }
       }
 
@@ -77,7 +89,7 @@ export function useFotoSlide() {
         return berikutnya;
       });
 
-      if (adaYangGagal) setGalat(PESAN_GAGAL_BACA);
+      if (pesanGagal) setGalat(pesanGagal);
     },
     [],
   );
