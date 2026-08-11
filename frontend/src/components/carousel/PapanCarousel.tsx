@@ -2,52 +2,44 @@
 
 import { useRef, useState } from "react";
 
+import type { PetaFoto } from "@/components/carousel/fotoSlide";
 import KotakPratinjau from "@/components/carousel/KotakPratinjau";
 import SlideRenderer from "@/components/carousel/SlideRenderer";
-import { bacaFotoSebagaiDataUrl, namaBerkasSlide, unduhSlide } from "@/components/carousel/unduh";
+import { namaBerkasSlide, unduhSlide } from "@/components/carousel/unduh";
 import { LEBAR_SLIDE, TINGGI_SLIDE } from "@/components/carousel/warna";
 import Button from "@/components/ui/Button";
 import { PesanGagal } from "@/components/ui/Keadaan";
 import type { SlideCarousel } from "@/lib/types/api";
 
 /**
- * Papan slide: pratinjau, unggah foto, dan unduh PNG per slide.
+ * Papan slide: pratinjau, ganti foto, dan unduh PNG per slide.
  *
  * Tiap slide dirender pada ukuran ASLI 1080×1350 lalu dikecilkan secara visual
  * oleh KotakPratinjau. Node sumbernya tetap berukuran penuh, karena itu yang
  * dibaca html2canvas (CLAUDE.md §9.3).
+ *
+ * Fotonya TIDAK dimiliki komponen ini. Ia dipilih sebelum slide dibuat (lihat
+ * PilihFoto) dan cuma dititipkan ke sini, supaya foto yang sudah dipilih tidak
+ * hilang saat slide-nya jadi. Yang di bawah tiap slide adalah jalan untuk
+ * mengganti, bukan satu-satunya jalan untuk mengisi.
  */
 
 export default function PapanCarousel({
   slides,
   namaMenu,
   namaWarung,
+  foto,
+  onPilihFoto,
 }: {
   slides: SlideCarousel[];
   namaMenu: string;
   namaWarung: string;
+  foto: PetaFoto;
+  onPilihFoto: (nomor: number, berkas: File | undefined) => void;
 }) {
-  const [foto, setFoto] = useState<Record<number, string>>({});
   const [sedangUnduh, setSedangUnduh] = useState<number | null>(null);
   const [galat, setGalat] = useState<string | null>(null);
   const nodeRef = useRef<Record<number, HTMLDivElement | null>>({});
-
-  async function pilihFoto(nomor: number, berkas: File | undefined) {
-    if (!berkas) return;
-    setGalat(null);
-    try {
-      setFoto((sebelumnya) => ({ ...sebelumnya, [nomor]: "" }));
-      const dataUrl = await bacaFotoSebagaiDataUrl(berkas);
-      setFoto((sebelumnya) => ({ ...sebelumnya, [nomor]: dataUrl }));
-    } catch {
-      setFoto((sebelumnya) => {
-        const salinan = { ...sebelumnya };
-        delete salinan[nomor];
-        return salinan;
-      });
-      setGalat("Foto itu tidak bisa dibaca. Coba pilih foto lain.");
-    }
-  }
 
   async function unduh(nomor: number) {
     const node = nodeRef.current[nomor];
@@ -176,7 +168,10 @@ export default function PapanCarousel({
                   type="file"
                   accept="image/*"
                   className="sr-only"
-                  onChange={(event) => pilihFoto(slide.nomor_slide, event.target.files?.[0])}
+                  onChange={(event) => {
+                    onPilihFoto(slide.nomor_slide, event.target.files?.[0]);
+                    event.target.value = "";
+                  }}
                 />
               </label>
 

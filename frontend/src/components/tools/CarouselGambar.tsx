@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import ContohCarousel from "@/components/carousel/ContohCarousel";
+import { useFotoSlide } from "@/components/carousel/fotoSlide";
+import PilihFoto from "@/components/carousel/PilihFoto";
 import FormKonten, { type IsiFormKonten } from "@/components/tools/FormKonten";
 import BlokHasil from "@/components/ui/BlokHasil";
 import Button from "@/components/ui/Button";
@@ -57,6 +59,10 @@ export default function CarouselGambar() {
     "/carousel-content",
   );
 
+  // Foto dimiliki halaman, bukan papan slide, supaya foto yang dipilih
+  // sebelum tombol ditekan tetap terpasang saat slide-nya jadi.
+  const { foto, galat: galatFoto, pilihFoto, isiSlotKosong, hapusFoto } = useFotoSlide();
+
   return (
     <>
       {/* Barang jadinya lebih dulu, formnya belakangan. Lihat ContohCarousel
@@ -83,6 +89,15 @@ export default function CarouselGambar() {
             satuan="slide"
           />
         </div>
+
+        <PilihFoto
+          jumlahSlide={jumlahSlide}
+          foto={foto}
+          galat={galatFoto}
+          onPilihBanyak={(berkas) => isiSlotKosong(berkas, jumlahSlide)}
+          onPilihSatu={pilihFoto}
+          onHapus={hapusFoto}
+        />
 
         <div className="mt-4">
           <Button
@@ -111,6 +126,8 @@ export default function CarouselGambar() {
               slides={hasil.slides}
               namaMenu={isi.namaMenu}
               namaWarung={namaWarung}
+              foto={foto}
+              onPilihFoto={pilihFoto}
             />
 
             <Kartu judul="Caption untuk postingannya">
