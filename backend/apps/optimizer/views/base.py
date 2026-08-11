@@ -61,11 +61,14 @@ class EndpointOptimizer(APIView):
             # Tidak ada panggilan berbayar di jalur ini: langsung hitung.
             return Response(self.feature(serializer.validated_data))
 
+        nama = self._nama(request)
+
         # Diperiksa SEBELUM Gemini dihubungi. Kalau setelahnya, biayanya sudah
         # terlanjur keluar dan penolakannya jadi tidak ada gunanya.
-        pastikan_kuota_cukup(request.user)
-
-        nama = self._nama(request)
+        #
+        # Nama endpoint ikut dikirim karena sebagian alat punya jatah sendiri
+        # di atas jatah harian umum (settings.KUOTA_HARIAN_ENDPOINT).
+        pastikan_kuota_cukup(request.user, nama)
         try:
             hasil = self.feature(serializer.validated_data)
         except Exception:
@@ -78,7 +81,7 @@ class EndpointOptimizer(APIView):
 
         respons = Response(hasil)
         # Header ini yang dibaca frontend untuk menampilkan sisa jatah hari ini.
-        respons["X-Sisa-Kuota"] = str(sisa_kuota(request.user))
+        respons["X-Sisa-Kuota"] = str(sisa_kuota(request.user, nama))
         return respons
 
 

@@ -168,7 +168,38 @@ GEMINI_MAX_RETRIES = env_int("GEMINI_MAX_RETRIES", 3)
 
 # --- Kuota (Fase 5) --------------------------------------------------------
 
-DAILY_AI_QUOTA = env_int("DAILY_AI_QUOTA", 50)
+# Batas pemakaian AI. Angka-angka ini menjaga model bisnis lifetime: sekali
+# bayar, tapi tiap panggilan menambah tagihan Gemini setiap hari selamanya
+# (PRD §8.3).
+#
+# Diukur pada 11 Agustus 2026 dengan prompt sungguhan di gemini-3.5-flash:
+# satu carousel 4 slide ~900 token (~Rp 90), satu caption ~860 token (~Rp 85).
+# Batas harian 50 berarti ~Rp 132.000 sebulan untuk SATU user — lebih besar
+# dari harga lifetime-nya sendiri, dan berulang tiap bulan.
+DAILY_AI_QUOTA = env_int("DAILY_AI_QUOTA", 20)
+
+# Batas bulanan, dan ini yang sebenarnya menjaga biaya. Batas harian saja
+# masih mengizinkan 600 panggilan sebulan; yang membakar uang bukan satu hari
+# sibuk, melainkan pemakaian penuh yang diulang tiap hari.
+MONTHLY_AI_QUOTA = env_int("MONTHLY_AI_QUOTA", 120)
+
+# Batas per endpoint per hari, di ATAS batas harian umum.
+#
+# Carousel dibatasi lebih ketat bukan karena ia paling mahal — biayanya
+# sebenarnya setara caption — melainkan karena ia satu-satunya alat yang
+# keluarannya berupa berkas siap posting, jadi ia yang paling menggoda untuk
+# ditekan berulang-ulang sampai kata-katanya pas.
+#
+# 5 sehari: satu postingan = satu panggilan, ditambah dua-tiga kali ulang
+# sampai kalimatnya disukai. Jangan diturunkan di bawah ini tanpa alasan kuat —
+# pembeli yang membayar Rp 249.000 lalu mentok di sore hari pertama adalah
+# permintaan refund, dan itu lebih mahal daripada tokennya.
+#
+# Tab 9 dan Tab 10 memakai endpoint yang SAMA, jadi keduanya menarik dari
+# jatah ini.
+DAILY_CAROUSEL_QUOTA = env_int("DAILY_CAROUSEL_QUOTA", 5)
+
+KUOTA_HARIAN_ENDPOINT = {"carousel-content": DAILY_CAROUSEL_QUOTA}
 
 # --- Billing ---------------------------------------------------------------
 

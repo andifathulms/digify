@@ -23,6 +23,14 @@ PESAN_KUOTA_AI = (
     "Kuota harian layanan AI sudah terpakai habis. Biasanya pulih sekitar jam 14.00 WIB."
 )
 PESAN_KUOTA_USER = "Kuota harian Anda sudah habis. Reset otomatis besok pagi."
+PESAN_KUOTA_BULANAN = "Kuota bulan ini sudah habis. Jatahnya terisi lagi otomatis awal bulan depan."
+# Per endpoint: sengaja menyebut alat lain masih bisa dipakai. Tanpa kalimat
+# itu, mentok di satu alat terbaca sebagai seluruh produk berhenti bekerja.
+PESAN_KUOTA_CAROUSEL = (
+    "Jatah membuat carousel hari ini sudah habis. Coba lagi besok — "
+    "alat lain masih bisa dipakai seperti biasa."
+)
+PESAN_KUOTA_ENDPOINT = "Jatah alat ini hari ini sudah habis. Alat lain masih bisa dipakai."
 PESAN_TERLALU_LAMA = "Prosesnya terlalu lama, coba lagi sebentar lagi."
 PESAN_UMUM = "Belum berhasil. Coba ulangi sebentar lagi ya."
 PESAN_TERLALU_CEPAT = "Terlalu cepat menekan tombol. Tunggu sebentar, lalu coba lagi."
@@ -65,6 +73,24 @@ class KuotaHarianHabis(AIServiceError):
 
     def __init__(self) -> None:
         super().__init__(PESAN_KUOTA_USER, status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class KuotaBulananHabis(AIServiceError):
+    """Batas sebulan. Ini yang benar-benar menjaga biaya model lifetime."""
+
+    def __init__(self) -> None:
+        super().__init__(PESAN_KUOTA_BULANAN, status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class KuotaEndpointHabis(AIServiceError):
+    """Batas satu alat saja; alat lain tetap terbuka."""
+
+    def __init__(self, pesan: str = PESAN_KUOTA_ENDPOINT) -> None:
+        super().__init__(pesan, status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+# Kalimat khusus per endpoint. Yang tidak terdaftar memakai kalimat umum.
+PESAN_PER_ENDPOINT = {"carousel-content": PESAN_KUOTA_CAROUSEL}
 
 
 def _ratakan_pesan_validasi(detail: Any) -> str | None:

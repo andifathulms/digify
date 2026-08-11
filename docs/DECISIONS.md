@@ -1203,3 +1203,77 @@ tidak pernah mengirim `.env` (lihat catatan 8 Agustus). Jadi mengubah bawaan di
 repo TIDAK memperbaiki produksi — server disunting langsung, `.env` lama
 dicadangkan lebih dulu, lalu `docker compose up -d backend` supaya kontainer
 dibuat ulang. Restart biasa tidak cukup: env dibaca saat kontainer dibuat.
+
+---
+
+## 2026-08-11 · Kuota AI diperketat: 20/hari, 120/bulan, 5/hari khusus carousel
+
+**Pemicunya** pertanyaan Owner: bisakah pembuatan gambar carousel dibatasi per
+user per hari, untuk menghemat token?
+
+**Yang ditemukan saat mengukur.** Carousel BUKAN endpoint yang mahal. Diukur
+dengan prompt sungguhan di `gemini-3.5-flash`:
+
+| Panggilan | Token (masuk → keluar) | Biaya ≈ |
+|---|---|---|
+| Carousel 4 slide | 361 → 540 | Rp 88 |
+| Carousel 10 slide | 364 → 1.141 | Rp 176 |
+| Konten Promosi | 345 → 514 | Rp 84 |
+
+Membatasi carousel saja hampir tidak menggeser tagihan. Yang menggeser tagihan
+adalah **batas harian 50** yang berlaku sejak Fase 5: pada Rp 88 per panggilan
+itu ~Rp 132.000 sebulan untuk SATU user — lebih besar daripada harga lifetime
+yang ia bayar sekali, dan berulang tiap bulan selamanya.
+
+**Keputusan.**
+
+| Batas | Sebelum | Sekarang | Alasan |
+|---|---|---|---|
+| Semua AI / hari | 50 | **20** | Cukup untuk pembeli baru menjelajah sepuluh tab di hari pertama |
+| Semua AI / bulan | tidak ada | **120** | Yang benar-benar menjaga biaya; batas harian saja mengizinkan ~600/bulan |
+| `carousel-content` / hari | tidak ada | **5** | Satu postingan = satu panggilan, plus dua-tiga kali ulang sampai kalimatnya disukai |
+| Burst | 10/menit | tetap | Sudah pas untuk menahan klik ganda |
+
+**Kenapa batas bulanan, bukan sekadar harian yang lebih kecil.** Yang membakar
+uang bukan satu hari sibuk, melainkan pemakaian penuh yang diulang tiap hari.
+Batas harian saja tidak pernah menutup itu.
+
+**Kenapa carousel tetap dibatasi tersendiri** walau biayanya setara caption: ia
+satu-satunya alat yang keluarannya berupa berkas siap posting, jadi ia yang
+paling menggoda ditekan berulang-ulang sampai kata-katanya pas. Tab 9 dan Tab
+10 memakai endpoint yang SAMA, jadi keduanya menarik dari jatah yang sama.
+
+**Kenapa tidak lebih ketat lagi.** Pembeli yang membayar Rp 249.000 lalu mentok
+di sore hari pertama adalah permintaan refund, dan itu lebih mahal daripada
+tokennya. Angka-angka ini menahan ekor sebaran, bukan menghukum pemakaian
+wajar.
+
+**Angkanya belum berdasar perilaku nyata.** Saat ini produksi baru berisi 2 user
+dan 22 panggilan, dan hari tersibuk (19 panggilan) adalah pengujian Owner
+sendiri. Semua angka di atas hasil penalaran, bukan pengukuran — PRD §8.3
+memang meminta ditinjau ulang setelah ada data nyata dua minggu.
+
+**Bentuk teknisnya.** Kuota bulanan dijumlahkan dari `DailyQuota` (paling
+banyak 31 baris per user), dan kuota per alat dihitung dari `UsageLog`.
+Keduanya sengaja TANPA tabel penghitung baru: tabel kedua berarti dua tempat
+yang harus selalu sepakat, dan keduanya bisa melenceng tanpa ada yang tahu.
+Tidak ada migrasi.
+
+Pemeriksaannya berurutan dari yang paling sempit ke paling luas, supaya pesan
+yang diterima user adalah yang paling bisa ditindaklanjuti: "jatah carousel
+habis, alat lain masih bisa dipakai" lebih berguna daripada "kuota harian
+habis" kalau memang alat lain masih bisa. Header `X-Sisa-Kuota` juga memakai
+batas yang paling ketat — angka yang berbohong lebih buruk daripada tidak ada
+angka.
+
+**Catatan operasional.** `.env` server sudah disetel langsung (20/120/5);
+`deploy.sh` tidak pernah mengirim `.env`. Nilai lama `DAILY_AI_QUOTA=50` ada di
+sana secara eksplisit, jadi mengubah bawaan di kode saja tidak akan berpengaruh
+di produksi.
+
+**Yang belum dikerjakan.** `gemini-3.1-flash-lite` berharga $0,25/$1,50 per 1 juta
+token — satu carousel turun dari ~Rp 88 jadi ~Rp 15, sekitar 6x lebih murah, dan
+tercepat saat diuji (0,9 detik). Belum dipakai karena mutu tulisannya di bawah
+tier flash, dan tulisan itu justru produknya. Jalan tengah yang masuk akal:
+flash-lite untuk Tab 9/10 (teks carousel pendek dan berpola), `gemini-3.5-flash`
+tetap untuk Tab 7 yang butuh mengarang menu baru. Perlu keputusan Owner.
