@@ -2,6 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
+import TempelDaftarMenu from "@/components/ui/TempelDaftarMenu";
 
 /**
  * Editor daftar menu, dipakai bersama Tab 3, 4, 5, dan 7.
@@ -9,6 +10,10 @@ import { FieldAngka, FieldTeks } from "@/components/ui/Field";
  * Bentuknya kartu bertumpuk, BUKAN tabel — di 360px tabel dengan 4 kolom
  * angka pasti berakhir jadi scroll horizontal (PRD §4). Tiap menu jadi satu
  * kartu dengan isiannya sendiri, dan di layar lebar isian itu berbaris.
+ *
+ * Di atasnya ada jalan pintas menempel seluruh daftar sekaligus. Ditaruh di
+ * sini, bukan di tiap tab, supaya setiap alat yang meminta daftar menu
+ * mendapatkannya tanpa disalin ulang.
  */
 
 export type BarisMenu = {
@@ -37,6 +42,20 @@ export default function EditorMenu<T extends BarisMenu>({
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Hasil tempelan menimpa seluruh daftar, bukan menambah di belakangnya.
+       * Yang ditimpa hampir selalu contoh bawaan, dan menambahkan di
+       * belakangnya justru meninggalkan menu contoh yang bukan miliknya
+       * tercampur di dalam hitungan profitnya sendiri.
+       *
+       * Kolom di luar keempat kolom dasar (mis. `status` di Tab 4) diambil
+       * dari barisBaru(), jadi baris hasil tempelan tetap berbentuk lengkap
+       * seperti baris yang dibuat lewat "+ Tambah menu". */}
+      <TempelDaftarMenu
+        onTerima={(terurai) =>
+          onUbah(terurai.map((baris) => ({ ...barisBaru(), ...baris })))
+        }
+      />
+
       {menu.map((baris, indeks) => (
         <div
           key={indeks}
