@@ -4,16 +4,21 @@ import { useState } from "react";
 
 import Button from "@/components/ui/Button";
 import { FieldTeksPanjang } from "@/components/ui/Field";
-import { uraiDaftarMenu, type BarisMenuTerurai } from "@/lib/uraiDaftarMenu";
 
 /**
- * Tempel daftar menu sekaligus, alih-alih mengetik empat isian per menu.
+ * Tempel daftar sekaligus, alih-alih mengetik isian satu per satu.
+ *
+ * Kerangkanya umum — apa yang diurai ditentukan pemanggil — karena dua tab
+ * yang berbeda butuh perlakuan yang sama persis untuk bagian yang sulitnya di
+ * situ: memberi tahu baris mana yang TIDAK terbaca. Bagian itu yang paling
+ * gampang dilupakan kalau ditulis dua kali.
  *
  * ── Kenapa ada ────────────────────────────────────────────────────────────
  * Umpan balik calon pengguna: "kira-kira ada nggak yang sistemnya nggak
  * terlalu manual nulisnya?" Sepuluh menu berarti empat puluh isian dengan
- * jempol. Daftar tersimpan menolong dari menu kedua dan seterusnya, tapi
- * pengisian pertama tetap manual seluruhnya — dan itu pintu masuk produk ini.
+ * jempol, dan sepuluh bahan di Tab 6 berarti enam puluh. Daftar tersimpan
+ * menolong dari pemakaian kedua dan seterusnya, tapi pengisian pertama tetap
+ * manual seluruhnya — dan itu pintu masuk produk ini.
  *
  * ── Kenapa tertutup secara bawaan ─────────────────────────────────────────
  * Kebalikan dari contoh carousel di Tab 10, yang harus terbuka karena ia
@@ -27,20 +32,30 @@ import { uraiDaftarMenu, type BarisMenuTerurai } from "@/lib/uraiDaftarMenu";
  * menambah satu ketukan untuk hal yang sudah kelihatan.
  */
 
-export default function TempelDaftarMenu({
+export default function TempelDaftar<T>({
+  label,
+  bantuan,
+  contoh,
+  urai,
   onTerima,
 }: {
-  onTerima: (menu: BarisMenuTerurai[]) => void;
+  /** Judul isian, mis. "Daftar menu Anda". */
+  label: string;
+  bantuan: string;
+  /** Contoh isi, tampil sebagai placeholder. */
+  contoh: string;
+  urai: (teks: string) => { baris: T[]; gagal: string[] };
+  onTerima: (baris: T[]) => void;
 }) {
   const [teks, setTeks] = useState("");
   const [gagal, setGagal] = useState<string[]>([]);
   const [jumlahTerbaca, setJumlahTerbaca] = useState<number | null>(null);
 
   function baca() {
-    const hasil = uraiDaftarMenu(teks);
+    const hasil = urai(teks);
     setGagal(hasil.gagal);
-    setJumlahTerbaca(hasil.menu.length);
-    if (hasil.menu.length > 0) onTerima(hasil.menu);
+    setJumlahTerbaca(hasil.baris.length);
+    if (hasil.baris.length > 0) onTerima(hasil.baris);
   }
 
   return (
@@ -67,12 +82,12 @@ export default function TempelDaftarMenu({
         style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}
       >
         <FieldTeksPanjang
-          label="Daftar menu Anda"
-          bantuan="Satu menu per baris: nama, biaya bahan, harga jual, terjual seminggu. Boleh dipisah garis tegak, koma, atau spasi — contoh: Nasi Goreng | 8500 | 25000 | 70"
+          label={label}
+          bantuan={bantuan}
           nilai={teks}
           onUbah={setTeks}
           baris={6}
-          placeholder={"Nasi Goreng Spesial | 8500 | 25000 | 70\nEs Teh Manis | 1500 | 5000 | 200"}
+          placeholder={contoh}
         />
 
         <div className="mt-3">
@@ -84,8 +99,8 @@ export default function TempelDaftarMenu({
         {jumlahTerbaca !== null ? (
           <p className="mt-3 text-sm leading-relaxed">
             {jumlahTerbaca > 0
-              ? `${jumlahTerbaca} menu terbaca dan sudah mengisi daftar di bawah. Periksa angkanya sebentar, lalu perbaiki yang meleset.`
-              : "Belum ada baris yang bisa dibaca. Pastikan tiap baris punya nama menu dan angkanya."}
+              ? `${jumlahTerbaca} baris terbaca dan sudah mengisi daftar di bawah. Periksa angkanya sebentar, lalu perbaiki yang meleset.`
+              : "Belum ada baris yang bisa dibaca. Pastikan tiap baris punya nama dan angkanya."}
           </p>
         ) : null}
 

@@ -2,7 +2,8 @@
 
 import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
-import TempelDaftarMenu from "@/components/ui/TempelDaftarMenu";
+import { uraiDaftarMenu } from "@/lib/uraiDaftarMenu";
+import TempelDaftar from "@/components/ui/TempelDaftar";
 
 /**
  * Editor daftar menu, dipakai bersama Tab 3, 4, 5, dan 7.
@@ -50,10 +51,15 @@ export default function EditorMenu<T extends BarisMenu>({
        * Kolom di luar keempat kolom dasar (mis. `status` di Tab 4) diambil
        * dari barisBaru(), jadi baris hasil tempelan tetap berbentuk lengkap
        * seperti baris yang dibuat lewat "+ Tambah menu". */}
-      <TempelDaftarMenu
-        onTerima={(terurai) =>
-          onUbah(terurai.map((baris) => ({ ...barisBaru(), ...baris })))
-        }
+      <TempelDaftar
+        label="Daftar menu Anda"
+        bantuan="Satu menu per baris: nama, biaya bahan, harga jual, terjual seminggu. Boleh dipisah garis tegak, koma, atau spasi."
+        contoh={"Nasi Goreng Spesial | 8500 | 25000 | 70\nEs Teh Manis | 1500 | 5000 | 200"}
+        urai={(teks) => {
+          const hasil = uraiDaftarMenu(teks);
+          return { baris: hasil.menu, gagal: hasil.gagal };
+        }}
+        onTerima={(terurai) => onUbah(terurai.map((baris) => ({ ...barisBaru(), ...baris })))}
       />
 
       {menu.map((baris, indeks) => (

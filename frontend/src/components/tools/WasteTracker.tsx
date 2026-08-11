@@ -6,9 +6,11 @@ import Button from "@/components/ui/Button";
 import { FieldAngka, FieldTeks } from "@/components/ui/Field";
 import Kartu, { AngkaSorot } from "@/components/ui/Kartu";
 import { PesanGagal, SedangMenghitung } from "@/components/ui/Keadaan";
+import TempelDaftar from "@/components/ui/TempelDaftar";
 import SimpanStruk from "@/components/ui/SimpanStruk";
 import { Struk, StrukCatatan, StrukGaris, StrukJudul, StrukTotal } from "@/components/ui/Struk";
 import { CONTOH_BAHAN_WASTE } from "@/lib/contoh";
+import { uraiDaftarWaste } from "@/lib/uraiDaftarWaste";
 import { formatPersen, formatRupiah } from "@/lib/format";
 import type { BahanWaste, WasteRequest, WasteResponse } from "@/lib/types/api";
 import { useAnalisa } from "@/lib/useAnalisa";
@@ -38,6 +40,26 @@ export default function WasteTracker() {
         keterangan="Isi bahan yang Anda beli dan berapa yang akhirnya terbuang. Bahan paling boros secara persen sering bukan bahan yang paling banyak membuang uang."
       >
         <FieldTeks label="Periode" nilai={periode} onUbah={setPeriode} />
+
+        {/* Enam isian per bahan adalah yang terberat di seluruh produk, jadi
+         * jalan pintasnya paling berguna justru di sini. Hasilnya menimpa
+         * seluruh daftar: yang ditimpa hampir selalu contoh bawaan, dan
+         * menyisakannya berarti bahan contoh ikut terhitung sebagai
+         * pemborosan warungnya sendiri. */}
+        <div className="mt-4">
+          <TempelDaftar
+            label="Daftar bahan terbuang"
+            bantuan="Satu bahan per baris: nama, jumlah beli, jumlah terbuang, harga per satuan. Satuannya tulis menempel angkanya, dan alasannya boleh ditulis di belakang."
+            contoh={
+              "Daun bawang | 1000 gram | 300 | 30 | karena layu\nCabai rawit | 2000 gram | 180 | 60"
+            }
+            urai={(teks) => {
+              const hasil = uraiDaftarWaste(teks);
+              return { baris: hasil.bahan, gagal: hasil.gagal };
+            }}
+            onTerima={setBahan}
+          />
+        </div>
 
         <div className="mt-4 flex flex-col gap-3">
           {bahan.map((baris, indeks) => (
