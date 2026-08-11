@@ -35,6 +35,19 @@
  *     Ayam Geprek, modal 12000, harga 22000, terjual 60
  */
 
+import {
+  bacaAngka,
+  bersihkanNama,
+  pemisahUntuk,
+  POLA_ANGKA,
+  POLA_BULLET,
+  SATUAN,
+} from "./uraiTeks.ts";
+// Impor relatif berekstensi, bukan alias "@/": berkas ini dan ujinya
+// dijalankan langsung oleh Node lewat `node --test`, dan Node tidak tahu
+// apa-apa soal alias tsconfig. Bundler Next tetap bisa membacanya karena
+// jalurnya memang jalur berkas sungguhan.
+
 export type BarisMenuTerurai = {
   name: string;
   cogs: number;
@@ -48,71 +61,6 @@ export type HasilUraiDaftarMenu = {
   gagal: string[];
 };
 
-/** Penanda daftar di awal baris: "-", "*", "•", "1.", "2)". */
-const POLA_BULLET = /^\s*(?:[-*•·]|\d+[.)])\s+/;
-
-/** Judul kolom hasil salin-tempel dari spreadsheet — bukan data. */
-const POLA_JUDUL_KOLOM = /^\s*(nama|menu|item|produk)\b.*\b(harga|modal|hpp|jual)\b/i;
-
-/**
- * Satuan yang menempel pada angka di dalam NAMA menu: "Es Teh 500ml",
- * "Kopi 250 gr". Angka bersatuan bukan modal, bukan harga, bukan jumlah
- * terjual — ia bagian dari nama. Tanpa penjagaan ini "Es Teh 500ml" membuat
- * 500 terbaca sebagai modal dan seluruh barisnya melenceng satu kolom.
- */
-const SATUAN_NAMA = "ml|l|liter|g|gr|gram|kg|ons|pcs|pc|porsi|cup|botol";
-
-/** Akhiran ribuan yang lazim ditulis pemilik warung: "7rb", "20k", "5 ribu". */
-const AKHIRAN_RIBU = "rb|ribu|k";
-
-/**
- * Satu angka uang/jumlah: boleh diawali "Rp", boleh berakhiran "rb"/"k".
- * Sengaja TIDAK cocok dengan angka yang diikuti satuan nama (lihat di atas) —
- * itu diurus saat pemilahan.
- */
-const POLA_ANGKA = new RegExp(
-  String.raw`(?:rp\.?\s*)?(\d[\d.]*(?:,\d{1,2}(?!\d))?)\s*(${AKHIRAN_RIBU})?\b`,
-  "gi",
-);
-
-/**
- * Pemisah antar kolom: garis tegak, titik koma, tab, atau koma.
- *
- * Koma menanggung dua tugas berbeda dalam bahasa Indonesia — pemisah daftar
- * DAN pemisah desimal. `,(?!\d)` yang membedakannya: koma yang langsung
- * diikuti angka ("1500,6") adalah desimal dan tidak boleh memotong.
- * Tanpa itu "1500,6" terpecah jadi 1500 dan 6, dan seluruh kolom sesudahnya
- * bergeser satu tempat — modal terbaca jadi harga jual.
- *
- * Sisa lookahead-nya menjaga supaya nama bertanda koma ("Nasi Goreng, Spesial")
- * tidak ikut terpotong: koma baru dianggap pemisah kalau setelahnya memang
- * ada angka, boleh didahului kata kunci kolom.
- */
-const POLA_PISAH = /[|;\t]|,(?!\d)(?=\s*(?:[a-z]+\s*)?(?:rp\.?\s*)?\d)/i;
-
-/**
- * Pemisah untuk baris bergaya CSV, yang komanya ditulis rapat tanpa spasi:
- * `Nasi Uduk,6000,15000,30`. Bentuk ini datang dari ekspor kasir/POS, dan
- * itu justru asal-usul yang paling ingin kita layani.
- */
-const POLA_PISAH_RAPAT = /[|;\t,]/;
-
-/**
- * Berapa banyak koma yang langsung menempel angka dalam satu baris.
- *
- * Dipakai untuk memutuskan arti koma SEKALI untuk seluruh baris, bukan per
- * koma. Satu koma rapat hampir pasti desimal ("1.250,5"); dua atau lebih
- * hampir pasti pemisah kolom, karena angka desimal berturut-turut tidak
- * pernah muncul di daftar menu — modal, harga, dan jumlah terjual semuanya
- * bilangan bulat (rupiah di produk ini tidak punya sen, CLAUDE.md §6).
- *
- * Memutuskannya per baris, bukan per koma, supaya satu baris tidak pernah
- * setengah dibaca sebagai desimal dan setengah sebagai pemisah.
- */
-function jumlahKomaRapat(teks: string): number {
-  return (teks.match(/,(?=\d)/g) ?? []).length;
-}
-
 /** Kata kunci kolom, kalau pemakainya menuliskannya. */
 const LABEL: { pola: RegExp; kolom: "cogs" | "price" | "weeklySales" }[] = [
   { pola: /\b(modal|hpp|biaya|bahan)\b/i, kolom: "cogs" },
@@ -120,39 +68,8 @@ const LABEL: { pola: RegExp; kolom: "cogs" | "price" | "weeklySales" }[] = [
   { pola: /\b(terjual|laku|jumlah|qty|porsi\s*per\s*minggu)\b/i, kolom: "weeklySales" },
 ];
 
-/**
- * Baca angka gaya Indonesia — titik pemisah ribuan, koma pemisah desimal.
- * Sengaja sama perilakunya dengan `baca_angka` di backend
- * (apps/optimizer/aturan/satuan.py) supaya angka yang sama tidak pernah
- * terbaca dua arti di dua tempat.
- *
- *     "8.000"   → 8000
- *     "2,5"     → 2.5
- *     "7rb"     → 7000
- *
- * Titik hanya dianggap pemisah ribuan kalau diikuti tepat tiga angka; tanpa
- * aturan itu "2.5" (dua setengah) terbaca 25.
- */
-export function bacaAngka(teks: string, akhiran?: string): number | null {
-  const bersih = teks.trim().replace(/\s/g, "");
-  if (!bersih) return null;
-
-  const tanpaRibuan = bersih.replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(",", ".");
-  const nilai = Number(tanpaRibuan);
-  if (!Number.isFinite(nilai)) return null;
-
-  return akhiran ? nilai * 1000 : nilai;
-}
-
-/** Buang tanda baca pemisah yang tersisa di ujung nama. */
-function bersihkanNama(teks: string): string {
-  return teks
-    .replace(/[|;,\t]+/g, " ")
-    .replace(/[\s,;:.\-–—]+$/, "")
-    .replace(/^[\s,;:.\-–—]+/, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
+/** Judul kolom hasil salin-tempel dari spreadsheet — bukan data. */
+const POLA_JUDUL_KOLOM = /^\s*(nama|menu|item|produk)\b.*\b(harga|modal|hpp|jual)\b/i;
 
 type Angka = { nilai: number; kolom?: "cogs" | "price" | "weeklySales" };
 
@@ -172,7 +89,7 @@ export function uraiBarisMenu(baris: string): BarisMenuTerurai | null {
 
   // Angka yang diikuti satuan disembunyikan lebih dulu supaya tidak ikut
   // terbaca sebagai kolom — ia milik nama menu ("Es Teh 500ml").
-  const polaBersatuan = new RegExp(String.raw`\d[\d.,]*\s*(?:${SATUAN_NAMA})\b`, "gi");
+  const polaBersatuan = new RegExp(String.raw`\d[\d.,]*\s*(?:${SATUAN})\b`, "gi");
   const namaTersimpan: string[] = [];
   const tanpaSatuan = teks.replace(polaBersatuan, (cocok) => {
     namaTersimpan.push(cocok);
@@ -184,9 +101,7 @@ export function uraiBarisMenu(baris: string): BarisMenuTerurai | null {
   });
 
   // Kolom bisa ditandai kata kunci di potongan yang sama, mis. "modal 8500".
-  const potongan = tanpaSatuan.split(
-    jumlahKomaRapat(tanpaSatuan) >= 2 ? POLA_PISAH_RAPAT : POLA_PISAH,
-  );
+  const potongan = tanpaSatuan.split(pemisahUntuk(tanpaSatuan));
 
   const angka: Angka[] = [];
   const sisaNama: string[] = [];

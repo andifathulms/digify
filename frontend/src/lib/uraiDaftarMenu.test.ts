@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { bacaAngka, uraiBarisMenu, uraiDaftarMenu } from "./uraiDaftarMenu.ts";
+import { uraiBarisMenu, uraiDaftarMenu } from "./uraiDaftarMenu.ts";
+import { bacaAngka } from "./uraiTeks.ts";
 
 /**
  * Uji pengurai daftar menu.
