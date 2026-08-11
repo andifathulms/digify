@@ -71,7 +71,7 @@ export default function CarouselGambar() {
 
       <Kartu
         judul="Bikin gambar carousel siap posting"
-        keterangan="Hasilnya berupa gambar jadi ukuran 1080×1350 yang bisa langsung Anda unduh dan posting. Tidak perlu Canva."
+        keterangan="Hasilnya berupa gambar jadi ukuran 1080×1350 yang bisa langsung Anda unduh dan posting. Tidak perlu Canva. Yang disusun di sini tulisan dan desainnya — foto masakannya tetap foto Anda sendiri."
       >
         <FormKonten isi={isi} onUbah={setIsi} />
 

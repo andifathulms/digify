@@ -285,7 +285,8 @@ export default function BerandaPage() {
     },
     {
       nama: NAMA_KELOMPOK.Growth,
-      ringkas: "Empat alat untuk membawa pembeli baru, tanpa perlu Canva atau jasa desainer.",
+      ringkas:
+        "Empat alat untuk membawa pembeli baru. Tulisan dan desainnya disiapkan di sini, fotonya tetap foto masakan Anda — tanpa Canva, tanpa jasa desainer.",
       warna: "var(--orange-600)",
       latar: "var(--orange-wash)",
       daftar: TABS.filter((tab) => tab.kelompok === "Growth"),

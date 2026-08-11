@@ -97,7 +97,8 @@ export const TABS: readonly Tab[] = [
     slug: "carousel-gambar",
     nomor: 10,
     judul: "Gambar Carousel",
-    ringkas: "Ubah carousel jadi gambar siap posting yang bisa langsung diunduh.",
+    ringkas:
+      "Gambar carousel siap posting yang langsung bisa diunduh, memakai foto masakan Anda sendiri.",
     kelompok: "Growth",
   },
 ] as const;
