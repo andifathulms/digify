@@ -10,6 +10,7 @@ import json
 import logging
 from typing import Any
 
+from django.contrib.auth.models import update_last_login
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -45,6 +46,17 @@ class MasukView(APIView):
         serializer = MasukSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
+
+        # Dicatat manual, dan ini bukan pilihan gaya.
+        #
+        # `UPDATE_LAST_LOGIN` di setelan SIMPLE_JWT hanya berlaku untuk
+        # serializer bawaan SimpleJWT. View ini memakai serializer sendiri dan
+        # menerbitkan token sendiri, jadi tidak ada satu pun jalur yang menulis
+        # `last_login` — kolomnya kosong untuk SEMUA orang, termasuk yang baru
+        # saja masuk. Panel membaca kolom itu untuk menandai "belum pernah
+        # masuk", jadi tanpa baris ini panel menuduh setiap pembeli tidak
+        # pernah memakai akunnya.
+        update_last_login(None, user)
 
         return Response(
             {

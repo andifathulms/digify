@@ -191,3 +191,37 @@ class TestEndpointWebhook:
         assert kata_sandi in badan
         assert pembeli.check_password(kata_sandi)
         assert pembeli.must_change_password is True
+
+
+class TestLastLogin:
+    """Penjaga untuk kolom yang tidak pernah terisi sampai 12 Agustus 2026.
+
+    `UPDATE_LAST_LOGIN` di setelan SIMPLE_JWT hanya berlaku untuk serializer
+    bawaan SimpleJWT. View masuk di sini memakai serializer sendiri, jadi tidak
+    ada satu pun jalur yang menulis `last_login` — dan panel memakai kolom itu
+    untuk menandai "belum pernah masuk". Akibatnya panel menuduh SETIAP pembeli
+    tidak pernah memakai akunnya, termasuk yang baru saja masuk.
+    """
+
+    def test_masuk_mencatat_waktu_masuk_terakhir(self, client, pembeli: User) -> None:  # noqa: ANN001
+        assert pembeli.last_login is None
+
+        respons = client.post(
+            "/api/auth/masuk",
+            data=json.dumps({"email": pembeli.email, "kata_sandi": "rahasia-test-123"}),
+            content_type="application/json",
+        )
+
+        assert respons.status_code == 200
+        pembeli.refresh_from_db()
+        assert pembeli.last_login is not None
+
+    def test_masuk_yang_gagal_tidak_mencatat_apa_pun(self, client, pembeli: User) -> None:  # noqa: ANN001
+        client.post(
+            "/api/auth/masuk",
+            data=json.dumps({"email": pembeli.email, "kata_sandi": "salah-sekali"}),
+            content_type="application/json",
+        )
+
+        pembeli.refresh_from_db()
+        assert pembeli.last_login is None
