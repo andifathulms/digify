@@ -23,6 +23,22 @@ from apps.usage.models import DailyQuota, UsageLog
 logger = logging.getLogger(__name__)
 
 
+def bonus_hari_ini(user: User) -> int:
+    """Tambahan jatah yang diberikan operasional untuk hari ini.
+
+    Berlaku hanya untuk tanggalnya sendiri, jadi ia habis tanpa perlu
+    dibatalkan siapa pun (lihat apps/panel/models.py).
+    """
+    from apps.panel.models import BonusKuota  # noqa: PLC0415 — hindari impor melingkar
+
+    return (
+        BonusKuota.objects.filter(user=user, date=timezone.localdate()).aggregate(
+            jumlah=Sum("jumlah")
+        )["jumlah"]
+        or 0
+    )
+
+
 def sisa_kuota_harian(user: User) -> int:
     """Berapa panggilan AI yang masih boleh dipakai hari ini."""
     terpakai = (
@@ -31,7 +47,7 @@ def sisa_kuota_harian(user: User) -> int:
         .first()
         or 0
     )
-    return max(0, settings.DAILY_AI_QUOTA - terpakai)
+    return max(0, settings.DAILY_AI_QUOTA + bonus_hari_ini(user) - terpakai)
 
 
 def sisa_kuota_bulanan(user: User) -> int:
