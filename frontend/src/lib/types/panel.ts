@@ -32,6 +32,15 @@ export type Ringkasan = {
   pembeli_aktif: number;
   belum_pernah_masuk: number;
   kredensial_belum_terkirim: number;
+  harian: {
+    tanggal: string;
+    panggilan: number;
+    gagal: number;
+    biaya_rupiah: number;
+  }[];
+  /** Ada panggilan bulan ini yang terjadi sebelum token dicatat, jadi biayanya
+   *  tidak ikut terhitung. Tanpa penanda ini, "Rp 0" terbaca sebagai gratis. */
+  ada_panggilan_tanpa_biaya: boolean;
   lisensi: {
     total: number;
     aktif: number;

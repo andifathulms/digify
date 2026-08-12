@@ -348,3 +348,37 @@ class TestMetrikTambahan:
         lama.save(update_fields=["date_joined"])
 
         assert klien_ops.get(RINGKASAN).json()["pembeli_baru_bulan_ini"] == 1
+
+
+class TestDeretHarian:
+    def test_hari_tanpa_pemakaian_tetap_muncul_sebagai_nol(
+        self, klien_ops: APIClient, pembeli: User
+    ) -> None:
+        """Grafik yang melompati hari kosong memampatkan waktu: jeda dua minggu
+        terlihat seperti dua hari."""
+        UsageLog.objects.create(user=pembeli, endpoint="menu-ideas", status=UsageLog.Status.OK)
+
+        harian = klien_ops.get(RINGKASAN).json()["harian"]
+
+        assert len(harian) == 14
+        assert harian[-1]["panggilan"] == 1
+        assert all(satu["panggilan"] == 0 for satu in harian[:-1])
+
+    def test_urut_dari_paling_lama_ke_hari_ini(self, klien_ops: APIClient) -> None:
+        harian = klien_ops.get(RINGKASAN).json()["harian"]
+        tanggal = [satu["tanggal"] for satu in harian]
+
+        assert tanggal == sorted(tanggal)
+        assert tanggal[-1] == timezone.localdate().isoformat()
+
+    def test_menandai_panggilan_yang_belum_punya_catatan_biaya(
+        self, klien_ops: APIClient, pembeli: User
+    ) -> None:
+        """ "Rp 0 dari 22 panggilan" terbaca sebagai gratis, padahal artinya
+        belum tercatat."""
+        assert klien_ops.get(RINGKASAN).json()["ada_panggilan_tanpa_biaya"] is False
+
+        UsageLog.objects.create(
+            user=pembeli, endpoint="menu-ideas", status=UsageLog.Status.OK, prompt_tokens=0
+        )
+        assert klien_ops.get(RINGKASAN).json()["ada_panggilan_tanpa_biaya"] is True

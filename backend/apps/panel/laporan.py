@@ -16,6 +16,7 @@ from typing import Any
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count, Q, Sum
+from django.db.models.functions import TruncDate
 from django.utils import timezone
 
 from apps.accounts.models import License, WebhookEvent
@@ -38,6 +39,51 @@ def rupiah_dari_token(token_masuk: int, token_keluar: int) -> int:
 
 def _awal_bulan() -> date:
     return timezone.localdate().replace(day=1)
+
+
+JUMLAH_HARI_GRAFIK = 14
+
+
+def deret_harian(sampai: date, hari: int = JUMLAH_HARI_GRAFIK) -> list[dict[str, Any]]:
+    """Pemakaian per hari untuk grafik.
+
+    Hari yang TIDAK ada pemakaiannya tetap muncul sebagai nol, bukan dilewati.
+    Grafik yang melompati hari kosong memampatkan waktu dan membuat jeda dua
+    minggu terlihat seperti dua hari — persis kebalikan dari yang ingin dilihat
+    orang di grafik pemakaian.
+    """
+    mulai = sampai - timedelta(days=hari - 1)
+
+    per_hari = {
+        baris["tanggal"]: baris
+        for baris in UsageLog.objects.filter(created_at__date__gte=mulai)
+        .annotate(tanggal=TruncDate("created_at"))
+        .values("tanggal")
+        .annotate(
+            panggilan=Count("id"),
+            gagal=Count("id", filter=Q(status=UsageLog.Status.ERROR)),
+            token_masuk=Sum("prompt_tokens"),
+            token_keluar=Sum("output_tokens"),
+        )
+    }
+
+    deret = []
+    for langkah in range(hari):
+        tanggal = mulai + timedelta(days=langkah)
+        baris = per_hari.get(tanggal)
+        deret.append(
+            {
+                "tanggal": tanggal.isoformat(),
+                "panggilan": baris["panggilan"] if baris else 0,
+                "gagal": baris["gagal"] if baris else 0,
+                "biaya_rupiah": (
+                    rupiah_dari_token(baris["token_masuk"] or 0, baris["token_keluar"] or 0)
+                    if baris
+                    else 0
+                ),
+            }
+        )
+    return deret
 
 
 def ringkasan() -> dict[str, Any]:
@@ -170,6 +216,13 @@ def ringkasan() -> dict[str, Any]:
             for baris in per_alat
         ],
         "pembeli_aktif": pembeli_aktif,
+        "harian": deret_harian(hari_ini),
+        # Biaya baru dicatat sejak 12 Agustus 2026; panggilan sebelum itu tidak
+        # punya catatan token sama sekali. Tanpa penanda ini, "Rp 0 dari 22
+        # panggilan" terbaca sebagai gratis, padahal artinya belum tercatat.
+        "ada_panggilan_tanpa_biaya": UsageLog.objects.filter(
+            created_at__date__gte=awal_bulan, prompt_tokens=0, status=UsageLog.Status.OK
+        ).exists(),
         "belum_pernah_masuk": belum_pernah_masuk,
         "kredensial_belum_terkirim": kredensial_belum_terkirim,
         "lisensi": {
